@@ -6,7 +6,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com).
 ## [Unreleased]
 
 ## [2026-05-16]
+
 ### Added
+
 - Initial folder structure: 40-projects, 50-knowledge, 60-making, 90-archive
 - Project template at 40-projects/_template/README.md
 - Reading lists (current, queue, archive) in 50-knowledge/reading/
