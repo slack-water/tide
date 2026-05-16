@@ -192,6 +192,6 @@ Lives at `.github/pull_request_template.md` in each repo.
 
 ## 12. readme
 
-`tide` (public) requires a `README.md` at the repo root explaining what the vault is, how it's structured, and how the two-repo system works (link to SYSTEM.md for detail).
+`tide` (public) requires a `README.md` at the repo root explaining what the vault is, how it's structured, and how the two-repo system works. It references SYSTEM.md, SETUP.md, and REPO-MANAGEMENT.md for detail.
 
-`tide-private` does not need a README — SYSTEM.md serves that purpose.
+`tide-private` requires a lightweight `README.md` at the repo root explaining that it is the private companion to `tide` and pointing to the system documentation in the public repo. SYSTEM.md now lives in `tide`, not here.

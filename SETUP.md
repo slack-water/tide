@@ -22,20 +22,21 @@
 
 ### 1a. on-disk layout
 
-The Obsidian vault root (`~/tide/`) is not itself a git repo. It contains two symlinked subfolders, each pointing at an independent git repository. This gives a unified editing and linking experience in Obsidian while keeping public and private content in separate, independently-pushable repos.
+The Obsidian vault root (`~/tide/`) is not itself a git repo. It contains two symlinked subfolders, each pointing at the `vault/` subdirectory of an independent git repository. This keeps repo tooling (Makefile, CI, scripts) out of the Obsidian view while maintaining a unified editing and linking experience.
 
 ```
-~/tide/                  ← Obsidian vault root (not a git repo)
-├── private -> ~/code/tide-private/
+~/tide/                       ← Obsidian vault root (not a git repo)
+├── public -> ~/code/tide/vault/
 │   ├── 00-system/
-│   ├── 10-self/
-│   ├── 20-family/
-│   └── 30-work/
-└── public -> ~/code/tide/
-    ├── 40-projects/
-    ├── 50-knowledge/
-    ├── 60-making/
-    └── 90-archive/
+│   ├── 40-projects/
+│   ├── 50-knowledge/
+│   ├── 60-making/
+│   └── 90-archive/
+└── private -> ~/code/tide-private/vault/
+    ├── 10-self/
+    ├── 20-family/
+    ├── 30-work/
+    └── inbox.md
 ```
 
 Repos:
@@ -58,43 +59,30 @@ Wikilinks work across both repos because Obsidian sees the full vault. The symli
 
 | Folder | Repo | Rationale |
 |--------|------|-----------|
-| 00-system | private | interior life — praxis, anxieties, schema |
-| 10-self | private | values, health, wellbeing |
+| 00-system | public | system definition, values, praxis — live openly |
+| 10-self | private | health, wellbeing — personal and sensitive |
 | 20-family | private | others' lives; not yours to publish |
 | 30-work | private | professional context |
 | 40-projects | public | work in progress, openly shared |
 | 50-knowledge | public | reading, research, ideation |
 | 60-making | public | craft documentation |
 | 90-archive | public | completed work |
+| inbox.md | private | raw capture; processed weekly, not for publication |
 
 visibility is decided by **where you save the file**, not by tagging or flags. if something in a public folder needs to be private, move it. intentionality is the system.
 
 ### 1c. content structure
 
 ```
-private/
+public/ (→ ~/code/tide/vault/)
 ├── 00-system/              ← meta layer. the vault's brain.
-│   ├── SYSTEM.md           ← this file.
+│   ├── SYSTEM.md           ← full system spec (this doc's authoritative version).
+│   ├── GUIDE.md            ← day-to-day operating manual.
 │   ├── PRAXIS.md           ← how i operate. what i believe about my own agency.
 │   ├── ANXIETIES.md        ← anxiety tracker and challenger.
-│   ├── SCHEMA-CHANGELOG.md ← log of all schema changes and their cascade scope.
-│   └── inbox.md            ← capture inbox. processed on weekly reset.
-│
-├── 10-self/                ← identity, values, health, wellbeing.
 │   ├── VALUES.md           ← personal values definition (output of values project).
-│   ├── health/
-│   └── wellbeing/
+│   └── SCHEMA-CHANGELOG.md ← log of all schema changes and their cascade scope.
 │
-├── 20-family/              ← erin, ben, household, shared finances.
-│   ├── erin/
-│   ├── ben/                ← rent system, adulting framework, launch support.
-│   └── household/
-│
-└── 30-work/                ← BNSF, career arc, professional development.
-    ├── bnsf/
-    └── career/
-
-public/
 ├── 40-projects/            ← active, time-bounded work. cross-domain.
 │   │                         each project gets a folder with a README.md.
 │   └── _template/          ← project template. copy, don't modify.
@@ -113,6 +101,22 @@ public/
 │   └── cad/
 │
 └── 90-archive/             ← completed projects, closed contexts, past versions.
+
+private/ (→ ~/code/tide-private/vault/)
+├── inbox.md                ← capture inbox. processed on weekly reset.
+│
+├── 10-self/                ← health and wellbeing. (values live in 00-system.)
+│   ├── health/
+│   └── wellbeing/
+│
+├── 20-family/              ← erin, ben, household, shared finances.
+│   ├── erin/
+│   ├── ben/                ← rent system, adulting framework, launch support.
+│   └── household/
+│
+└── 30-work/                ← BNSF, career arc, professional development.
+    ├── bnsf/
+    └── career/
 ```
 
 ---
@@ -179,7 +183,7 @@ When the structure of a section, a folder, or this frontmatter schema changes:
 
 Folder importance weights are defined here and used to calculate a note's default importance when no explicit `importance` is set.
 
-> These weights are a starting point. They should be reviewed after `10-self/VALUES.md` is completed and updated to reflect actual values priority.
+> These weights are a starting point. They should be reviewed after `00-system/VALUES.md` is completed and updated to reflect actual values priority.
 
 | Folder | Weight | Rationale |
 |--------|--------|-----------|
@@ -316,9 +320,10 @@ cd ~/code/tide && git init
 cd ~/code/tide-private && git init
 
 # create the vault root and symlinks
+# symlinks point to vault/ subdirs so Obsidian doesn't see repo tooling
 mkdir ~/tide
-ln -s ~/code/tide ~/tide/public
-ln -s ~/code/tide-private ~/tide/private
+ln -s ~/code/tide/vault ~/tide/public
+ln -s ~/code/tide-private/vault ~/tide/private
 
 # add remotes (after creating repos on GitHub)
 cd ~/code/tide
@@ -338,7 +343,7 @@ Point Obsidian at `~/tide/` as the vault root.
 4. ~~update any local repo remotes: `git remote set-url origin <new-url>`~~
 5. after 30–60 days with nothing broken, delete the placeholder account
 
-> ✓ migration complete as of 2025-05-16. steps 1–4 done.
+> ✓ migration complete as of 2026-05-16. steps 1–4 done.
 
 ### 7c. commit hygiene
 
