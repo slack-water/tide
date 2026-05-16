@@ -10,8 +10,8 @@ VALID_TYPES = {"note", "project", "log", "reference", "output", "template"}
 VALID_STATUSES = {"active", "incubating", "complete", "archived", "needs-review"}
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
-SKIP_ROOTS = {"CHANGELOG.md", "README.md"}
-SKIP_DIRS = {"_template", ".git", "scripts"}
+SKIP_ROOTS = {"CHANGELOG.md", "README.md", "REPO-MANAGEMENT.md", "SETUP.md"}
+SKIP_DIRS = {"_template", ".git", ".github", "scripts"}
 
 
 def parse_frontmatter(path):
