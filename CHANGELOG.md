@@ -18,6 +18,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com).
 - Symlink targets updated: ~/tide/public → ~/code/tide/vault (not repo root)
 - validate-frontmatter.py: SKIP_ROOTS updated for repo-root docs (REPO-MANAGEMENT.md, SETUP.md)
 - All public vault folders (40-projects, 50-knowledge, 60-making, 90-archive) moved into vault/
+- README.md: full rewrite covering system intent, two-repo split, combined vault structure,
+  content split rationale, setup quickstart, reference doc table, and repo policy summary
+- SETUP.md: updated §1a layout, §1b visibility table, §1c content structure, §4 VALUES.md
+  reference (10-self → 00-system), §7a symlink commands, §7b date fix
+- REPO-MANAGEMENT.md: directive 12 updated — tide-private now requires a README since
+  SYSTEM.md moved to tide
 
 ## [2026-05-16]
 
