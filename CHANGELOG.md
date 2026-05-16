@@ -5,6 +5,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+### Added
+
+- vault/ subdirectory — all Obsidian content lives here; repo tooling stays at repo root
+- vault/00-system/ with SYSTEM.md, GUIDE.md, PRAXIS.md, ANXIETIES.md, SCHEMA-CHANGELOG.md, VALUES.md
+  (00-system and VALUES.md moved from tide-private — system files live in the public core)
+- REPO-MANAGEMENT.md at repo root (not a vault note — no frontmatter)
+- SETUP.md at repo root — bootstrap/setup document
+
+### Changed
+
+- Symlink targets updated: ~/tide/public → ~/code/tide/vault (not repo root)
+- validate-frontmatter.py: SKIP_ROOTS updated for repo-root docs (REPO-MANAGEMENT.md, SETUP.md)
+- All public vault folders (40-projects, 50-knowledge, 60-making, 90-archive) moved into vault/
+
 ## [2026-05-16]
 
 ### Added
