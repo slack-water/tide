@@ -15,6 +15,17 @@ This is the public half of a two-repo Obsidian vault system. The private half (`
 
 Each note follows a standard YAML frontmatter schema. The full system definition — principles, schema, folder weights, weekly ritual, and AI interaction protocol — lives in `SYSTEM.md` in the private repo.
 
+## local development
+
+Requires Node.js (for markdownlint via npx) and Python 3 (for frontmatter validation).
+
+```bash
+make check   # lint + frontmatter validation — run before opening a PR
+make all     # also runs broken link check and spell check
+```
+
+No `npm install` needed — tools are invoked via `npx` and resolved on first run.
+
 ## repo
 
 - Branch: `main`
