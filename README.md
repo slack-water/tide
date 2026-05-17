@@ -1,48 +1,28 @@
 # tide
 
-*the ocean of information is overwhelming*
-*tide makes it feel more organized and predictable*
+&nbsp;
+
+*the ocean of information is overwhelming.*
+
+*tide makes it feel more organized and predictable.*
+
+&nbsp;
 
 ---
 
-More information arrives each day than you can hold. Most systems for managing this ask you to commit to a method, a tool, a subscription, a version of yourself that has it all organized. tide asks for almost nothing: an architecture, a convention, plain text files.
+More information arrives each day than you can hold. Most systems for managing this ask you to commit — to a method, a tool, a subscription, a version of yourself that has it all organized.
 
-if the tools change — and they will — your files don't.
+if the tools change — and they will — your files don't. tide asks for almost nothing: an architecture, a convention, plain text files.
 
-```mermaid
-%%{init: { 'gitGraph': { 'mainBranchName': 'vault' } } }%%
-gitGraph
-    commit id: "initial structure"
-    branch values
-    checkout values
-    commit id: "depth over breadth"
-    commit id: "hospitality"
-    branch inbox
-    checkout inbox
-    commit id: "web clip"
-    commit id: "voice note"
-    commit id: "quick idea"
-    commit id: "slack thread"
-    checkout values
-    merge inbox id: "reset — reviewed against values"
-    checkout vault
-    merge values id: "vault grows"
-    checkout inbox
-    commit id: "more arrives"
-    commit id: "article saved"
-    checkout values
-    merge inbox id: "reset — reviewed"
-    checkout vault
-    merge values id: "vault grows deeper"
-```
-
-two repositories — one public, one private — symlinked into a single vault your editor sees as one. one branch for the structure, one branch for your life. schema changes flow in one direction. your data never touches the template.
+&nbsp;
 
 ---
 
 [philosophy](PHILOSOPHY.md) &nbsp;·&nbsp; [how it works](vault/00-system/SYSTEM.md) &nbsp;·&nbsp; [how to use it](vault/00-system/GUIDE.md) &nbsp;·&nbsp; [set it up](SETUP.md)
 
 ---
+
+&nbsp;
 
 ## reference
 
@@ -56,6 +36,8 @@ two repositories — one public, one private — symlinked into a single vault y
 | [`vault/00-system/PRAXIS.md`](vault/00-system/PRAXIS.md) | how you operate: agency, decisions, known failure modes |
 | [`vault/00-system/ANXIETIES.md`](vault/00-system/ANXIETIES.md) | anxiety tracker: structured challenge and resolution |
 | [`vault/00-system/SCHEMA-CHANGELOG.md`](vault/00-system/SCHEMA-CHANGELOG.md) | schema version history; referenced when merging main → personal |
+
+&nbsp;
 
 ---
 
