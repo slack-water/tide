@@ -5,55 +5,42 @@ Format follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
-### Added
-
-- vault/00-system/JOURNAL.md — placeholder with format examples and an initialization entry;
-  intended to be hydrated with real entries on the `personal` branch
-- branching model: `main` holds clean schema/templates (forkable); `personal` holds live data;
-  schema changes flow main → personal, never back
-- `personal` branch created from `main` as the live working branch
-
-### Changed
-
-- README.md: full rewrite adopting forker-oriented framing — system intent, main/personal
-  separation, two-repo structure, philosophy section, fork instructions, versioning table
-
-- vault/ subdirectory — all Obsidian content lives here; repo tooling stays at repo root
-- vault/00-system/ with SYSTEM.md, GUIDE.md, PRAXIS.md, ANXIETIES.md, SCHEMA-CHANGELOG.md, VALUES.md
-  (00-system and VALUES.md moved from tide-private — system files live in the public core)
-- REPO-MANAGEMENT.md at repo root (not a vault note — no frontmatter)
-- SETUP.md at repo root — bootstrap/setup document
-
-### Changed
-
-- Symlink targets updated: ~/tide/public → ~/code/tide/vault (not repo root)
-- validate-frontmatter.py: SKIP_ROOTS updated for repo-root docs (REPO-MANAGEMENT.md, SETUP.md)
-- All public vault folders (40-projects, 50-knowledge, 60-making, 90-archive) moved into vault/
-- README.md: full rewrite covering system intent, two-repo split, combined vault structure,
-  content split rationale, setup quickstart, reference doc table, and repo policy summary
-- SETUP.md: updated §1a layout, §1b visibility table, §1c content structure, §4 VALUES.md
-  reference (10-self → 00-system), §7a symlink commands, §7b date fix
-- REPO-MANAGEMENT.md: directive 12 updated — tide-private now requires a README since
-  SYSTEM.md moved to tide
-
 ## [2026-05-16]
 
 ### Added
 
-- Initial folder structure: 40-projects, 50-knowledge, 60-making, 90-archive
-- Project template at 40-projects/_template/README.md
-- Reading lists (current, queue, archive) in 50-knowledge/reading/
-- Makefile with lint, validate, links, spell, and check targets (requires Node.js + Python 3)
-- Frontmatter validation script (scripts/validate-frontmatter.py)
+- Initial folder structure: `vault/40-projects`, `vault/50-knowledge`, `vault/60-making`, `vault/90-archive`
+- `vault/00-system/` — system spec, values, praxis, anxieties, schema changelog, guide, journal;
+  moved from `tide-private` so system documentation lives in the public core
+- `vault/00-system/VALUES.md` — moved from `tide-private/10-self/`; values are system-wide
+- `vault/00-system/JOURNAL.md` — log of the vault as a lived thing; placeholder with format
+  examples and an initialization entry; hydrated on the `personal` branch
+- Project template at `vault/40-projects/_template/README.md`
+- Reading lists (`current.md`, `queue.md`, `archive.md`) in `vault/50-knowledge/reading/`
+- `REPO-MANAGEMENT.md` at repo root — repo hygiene conventions (not a vault note)
+- `SETUP.md` at repo root — bootstrap and setup reference (not a vault note)
+- Makefile with `lint`, `validate`, `links`, `spell`, `check`, and `all` targets (requires Node.js + Python 3)
+- Frontmatter validation script (`scripts/validate-frontmatter.py`)
 - GitHub Actions CI on PRs: markdown lint and frontmatter validation via npx
 - GitHub Actions link check on push to main
-- PR template, markdownlint config (.markdownlint.json), link-check config (.mlc-config.json)
+- PR template, markdownlint config (`.markdownlint.json`), link-check config (`.mlc-config.json`)
 - LICENSE (CC BY 4.0)
-- README with structure overview, local dev setup, and repo policy summary
+- Branching model: `main` holds clean schema and templates (forkable, no personal data);
+  `personal` is the live working branch; schema changes flow `main → personal`, never back
 
 ### Changed
 
+- All vault content moved into `vault/` subdirectory so repo tooling stays out of the Obsidian view
+- Symlink target updated: `~/tide/public → ~/code/tide/vault` (not repo root)
+- README.md: forker-oriented framing — system intent, main/personal branch separation, two-repo
+  structure, frontmatter schema reference, versioning table, fork instructions, philosophy section
+- SETUP.md: updated layout diagram, visibility table, content structure, symlink commands, and
+  VALUES.md path to reflect current vault structure
+- REPO-MANAGEMENT.md: directive 12 updated — tide-private now requires a README
+- `scripts/validate-frontmatter.py`: skip `.github/`, `REPO-MANAGEMENT.md`, `SETUP.md`
 - CI lint job switched from markdownlint-cli2-action to npx to match Makefile exactly
 - markdownlint config tuned for prose vault: disabled line-length, duplicate headings,
   first-line-h1, blockquote blank lines, unlabeled fences, table pipe spacing,
   and front-matter title double-counting
+- `PRAXIS.md`, `ANXIETIES.md`, `VALUES.md`: rewritten as example-driven placeholders with
+  lowercase tone consistent with JOURNAL.md; guides the `personal` branch voice
