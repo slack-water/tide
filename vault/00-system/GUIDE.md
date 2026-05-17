@@ -9,9 +9,9 @@ importance: 4
 schema-version: 1.0
 ---
 
-# System Guide
+# usage
 
-*Day-to-day operating manual. How to use the system, not how it is defined. For the schema and structural spec, see [[SYSTEM]].*
+*day-to-day operating manual. how to use the system, not how it is defined. for the schema and structural spec, see [[SYSTEM]].*
 
 ---
 

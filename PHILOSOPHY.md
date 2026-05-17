@@ -1,15 +1,61 @@
 # philosophy
 
-**markdown is the contract.** the app is a viewport. any editor works — none of them matter. optimize for the files, not the tool that opens them. when the tool changes — and it will — the files remain.
+tide is a **decision support engine**. not a life OS, not a productivity system, not a note-taking app.
 
-**intent before implementation.** every folder, template, and convention in tide starts with *what you want*, not *how to achieve it*. the how is fragile: it depends on which tools exist, which habits stick, which version of yourself shows up this month. the what is stable. write what you want first and let the structure serve it.
-
-**visibility is a decision, not a default.** public and private are folder-level choices, made once, deliberately. nothing in tide is accidentally public; nothing is unnecessarily private. if you're unsure whether something belongs in the public vault, put it in the private one. you can always move it.
-
-**the system should cost less than it saves.** if maintaining the structure takes more energy than it returns in clarity, simplify. the weekly reset is the pressure valve — one pass through the inbox, one look at the review queue, done. the inbox is the permission to be imperfect: capture now, decide later.
-
-**values are upstream of everything.** folder weights, project prioritization, and the review queue all derive from defined personal values. this is not abstract. it means the notes closest to what you care about most are the ones that surface first when things get noisy. write [`VALUES.md`](vault/00-system/VALUES.md) before anything else. it is the seabed that shapes what the tide moves.
+the problem it solves: most decisions go wrong not because of missing information, but because the reasoning frame is wrong. you optimize for the wrong thing, or you follow a known pattern you didn't catch in time. tide addresses both.
 
 ---
 
-*tide is not asking you to change how you think. it is asking you to agree on the shape of the container — and then to trust that shape enough to stop redesigning it.*
+## how it works
+
+**values** are what you actually optimize for when you make decisions — including when you don't realize you're making one. not aspirational statements. the real things. specific enough that you could make a decision with them.
+
+**failure modes** are the patterns where you get stuck, spiral, or self-sabotage. not character flaws — behavioral patterns with early signals and known costs. the over-optimization spiral (building the system instead of using it) is a common one. conflict avoidance, urgency bias, and analysis paralysis are others. yours are specific to you.
+
+these two documents are upstream of everything else in the vault. everything else is context. context is useful; it is subordinate to values and failure modes.
+
+---
+
+## the decision prompt
+
+when you face a real decision:
+
+1. here are my values
+2. here are my known failure modes
+3. here is the decision i'm facing
+4. here is relevant context
+
+*given all that, help me think through this.*
+
+the goal is not to make decisions for you. it is to make sure that when you decide, you're deciding as the person you actually want to be — not the one your habits or anxieties are pulling you toward.
+
+---
+
+## the files
+
+everything in tide is plain markdown — text files with light formatting. no proprietary format, no lock-in. when the tools change (and they will), the files remain.
+
+every note carries **frontmatter**: a small block of structured metadata at the top of each file. it looks like this:
+
+```yaml
+---
+title: My Note
+created: 2026-05-01
+type: note
+status: active
+importance: 3
+schema-version: 1.0
+---
+```
+
+frontmatter is what makes notes queryable. an AI can read it and understand which notes are most relevant to a decision without you having to curate the whole vault by hand. it also makes the system inspectable: you can see exactly what the system knows about a note.
+
+---
+
+## on scale
+
+at the personal level this is three files and a prompt. the same architecture scales — governance principles replacing values, institutional failure patterns replacing personal ones — but that is not the primary goal. the primary goal is to be useful to one person on one real decision. the architecture just happens to compose.
+
+---
+
+**markdown is the contract.** the app is a viewport. optimize for the files, not the tool that opens them.

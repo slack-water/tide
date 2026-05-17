@@ -5,6 +5,34 @@ Format follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [2026-05-17]
+
+### Added
+
+- `vault/00-system/FAILURE-MODES.md` — second upstream document alongside `VALUES.md`; pre-populated
+  with the over-optimization spiral entry; read by AI alongside values for every decision
+- `vault/00-system/FAILURE-MODES_example.md` — worked example showing the entry format; removed by
+  `make init`
+- `CLAUDE.md` at repo root — AI context file encoding the decision-support prompt architecture;
+  Claude reads `VALUES.md` and `FAILURE-MODES.md` before assisting with any decision or schema task
+- `scripts/schema-upgrade.py` — tags notes with outdated `schema-version` as `needs-review`, adding
+  `review-reason` and `review-confidence` fields; supports `--dry-run` and `--version` flags
+- `make upgrade` target — runs schema upgrade script
+
+### Changed
+
+- `PHILOSOPHY.md` — full rewrite around the decision support engine framing: defines values and
+  failure modes plainly, explains frontmatter, includes the decision prompt, notes the scalability
+  observation as incidental rather than primary
+- `README.md` — leads with decision support framing; nav labels updated to philosophy · infrastructure
+  · usage · configuration
+- `vault/00-system/SYSTEM.md` — renamed heading to "infrastructure"; added orientation line pointing
+  to PHILOSOPHY.md for the reasoning layer; surfaced `FAILURE-MODES.md` in §1c and §5
+- `vault/00-system/GUIDE.md` — renamed heading to "usage"
+- `SETUP.md` — renamed heading to "configuration"
+- `Makefile` — `FAILURE-MODES_example.md` added to `make init`
+- `scripts/validate-skip.json` — `CLAUDE.md` exempted from frontmatter validation
+
 ### Planned
 
 - **Capture from anywhere (iOS Shortcut)** — iOS Shortcut that appends to `vault/inbox.md` in the

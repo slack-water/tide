@@ -9,9 +9,11 @@ importance: 5
 schema-version: 1.0
 ---
 
-# tide — system definition
+# tide — infrastructure
 
 > **purpose:** a single source of truth for how this vault is structured, why it's structured that way, and how changes to the structure propagate. a change at this level is a schema change. schema changes trigger a review cascade.
+
+*this is the infrastructure layer. the reasoning layer — values, failure modes, and the decision prompt — lives in [PHILOSOPHY.md](../../PHILOSOPHY.md).*
 
 ---
 
