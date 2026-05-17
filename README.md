@@ -10,7 +10,7 @@ More information arrives each day than you can hold. Most systems for managing t
 if the tools change — and they will — your files don't.
 
 ```mermaid
-gitgraph
+gitGraph
     commit id: "values — the seabed"
     branch personal
     checkout personal
