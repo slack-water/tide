@@ -17,7 +17,7 @@ schema-version: 1.0
 
 ## Capturing a new note
 
-1. Drop a quick capture in `00-system/inbox.md` with a one-line description and today's date
+1. Drop a quick capture in `inbox.md` (private vault) with a one-line description and today's date
 2. If you already know where it belongs, create the file directly in the right folder
 3. Every note gets the standard frontmatter block — copy from an existing note or the template below
 4. Set `status: incubating` if the note is a stub; `status: active` once it has real content
@@ -55,7 +55,7 @@ Run once per week during the weekly reset (see §6 of SYSTEM.md).
 2. Fill in `title`, `created`, `goal`, and `scope` in the frontmatter
 3. Set `status: active`
 4. Write the Goal, Scope, Done looks like, and first Next action
-5. Open a PR scoped to `40-projects` to get it into the repo
+5. Commit and push to `personal`
 
 Projects live in `40-projects/` regardless of domain (work, family, making). If a project is private it belongs in the private repo — move it if it ends up in the wrong place.
 
@@ -109,19 +109,28 @@ When in doubt, use `note`.
 
 ## Committing changes
 
-Changes go to GitHub via a PR, not a direct push to `main`. The pattern:
+Daily work lives on the `personal` branch and pushes directly — no PR needed:
 
 ```bash
-git checkout -b add/50-knowledge-reading-q2
+git add -A
+git commit -m "add: Q2 reading queue entries"
+git push origin personal
+```
+
+Changes to `main` (schema updates, new templates, structural changes) go via a feature branch and PR:
+
+```bash
+git checkout main
+git checkout -b system/new-folder
 # make your changes
 make check                          # lint + validate before pushing
 git add -A
-git commit -m "add: Q2 reading queue entries"
-git push -u origin add/50-knowledge-reading-q2
-# open a PR on GitHub
+git commit -m "system: add dev-environment folder to 60-making"
+git push -u origin system/new-folder
+# open a PR targeting main
 ```
 
-Branch naming: `add/`, `update/`, `fix/`, `system/`, or `cadence/YYYY-MM`. See REPO-MANAGEMENT.md for the full convention.
+Branch naming for main-bound changes: `add/`, `update/`, `fix/`, `system/`, or `cadence/YYYY-MM`. See REPO-MANAGEMENT.md for the full convention.
 
 ---
 

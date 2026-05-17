@@ -125,9 +125,9 @@ mkdir ~/tide
 ln -s ~/code/tide/vault ~/tide/public
 ln -s ~/code/tide-private/vault ~/tide/private
 
-# 3. create your personal branch in each repo
-cd ~/code/tide && git checkout -b personal
-cd ~/code/tide-private && git checkout -b personal
+# 3. create and push your personal branch in each repo
+cd ~/code/tide && git checkout -b personal && git push -u origin personal
+cd ~/code/tide-private && git checkout -b personal && git push -u origin personal
 
 # 4. open ~/tide as your obsidian vault and start with values
 ```
