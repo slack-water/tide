@@ -1,52 +1,26 @@
 # tide
 
-<div align="center">
+*the ocean of information is overwhelming.*
 
-**tide** &nbsp;|&nbsp; *tīd* &nbsp;|&nbsp; *noun*
-
-*the organized, regular movement between high and low —*
-*predictable in rhythm, powerful in accumulation, indifferent to urgency.*
-
-</div>
+*tide makes it feel more organized and predictable.*
 
 ---
 
-More arrives each day than you can hold. Most systems for managing this ask you to commit — to a method, a tool, a subscription, a version of yourself that has it all organized. tide asks for almost nothing: a folder structure, a convention, plain text files.
+## the idea
 
-if the tools change — and they will — your files don't.
+More information arrives each day than you can hold. Most systems for managing this ask you to commit — to a method, a tool, a subscription, a version of yourself that has it all organized.
 
-```mermaid
-flowchart LR
-    subgraph you [your life]
-        values([values])
-        information([information])
-    end
-
-    subgraph tide
-        VALUES[VALUES.md]
-        inbox[inbox]
-        reset{reset\ndaily / weekly / monthly}
-        vault[(vault)]
-        archive([archive])
-    end
-
-    values --> VALUES
-    information --> inbox
-    inbox --> reset
-    reset -->|stays| vault
-    reset -->|released| archive
-    VALUES -. shapes .-> vault
-```
-
-two repositories — one public, one private — symlinked into a single vault your editor sees as one. one branch for the structure, one branch for your life. schema changes flow in one direction. your data never touches the template.
+if the tools change — and they will — your files don't. tide asks for almost nothing: it's an architecture, a convention, plain text files.
 
 ---
+
+## start here
 
 [philosophy](PHILOSOPHY.md) &nbsp;·&nbsp; [how it works](vault/00-system/SYSTEM.md) &nbsp;·&nbsp; [how to use it](vault/00-system/GUIDE.md) &nbsp;·&nbsp; [set it up](SETUP.md)
 
 ---
 
-## reference
+## details
 
 | document | purpose |
 |----------|---------|
