@@ -10,6 +10,8 @@
 
 ---
 
+## the idea
+
 More information arrives each day than you can hold. Most systems for managing this ask you to commit — to a method, a tool, a subscription, a version of yourself that has it all organized.
 
 if the tools change — and they will — your files don't. tide asks for almost nothing: an architecture, a convention, plain text files.
@@ -18,13 +20,15 @@ if the tools change — and they will — your files don't. tide asks for almost
 
 ---
 
-[philosophy](PHILOSOPHY.md) &nbsp;·&nbsp; [how it works](vault/00-system/SYSTEM.md) &nbsp;·&nbsp; [how to use it](vault/00-system/GUIDE.md) &nbsp;·&nbsp; [set it up](SETUP.md)
+## start here
 
----
+[philosophy](PHILOSOPHY.md) &nbsp;·&nbsp; [how it works](vault/00-system/SYSTEM.md) &nbsp;·&nbsp; [how to use it](vault/00-system/GUIDE.md) &nbsp;·&nbsp; [set it up](SETUP.md)
 
 &nbsp;
 
-## reference
+---
+
+## details
 
 | document | purpose |
 |----------|---------|
