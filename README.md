@@ -1,10 +1,12 @@
 # tide
 
-*a decision support engine built on plain text.*
+*you are the ocean. tide is the honest rhythm of your nature — your highs and lows, your patterns, your pull.*
 
 ---
 
-tide makes your values and known failure modes first-class, queryable objects. when you face a decision, you ask an AI to reason against what you actually care about and where you actually get stuck — not in a vacuum.
+the ocean doesn't change. but it's dangerous if you're not prepared.
+
+tide is a decision support engine built on plain text. it makes your values and known failure modes first-class, queryable objects — so that when you face a decision, you have a partner who has read your charts and knows where the rocks are.
 
 most decisions go wrong not because of missing information, but because the reasoning frame is wrong: you optimize for the wrong thing, or you follow a known pattern you didn't catch in time. tide addresses both.
 
