@@ -12,7 +12,7 @@
 1. **Markdown is the contract.** All content lives in `.md` files. The app (Obsidian, VS Code, anything else) is a viewport, not the system. If the app disappears, the system survives.
 2. **The folder is the address, the frontmatter is the metadata.** Navigation happens by folder. Querying, filtering, and AI-readability happen via YAML frontmatter.
 3. **Schema changes trickle down.** When the structure or frontmatter schema of a section changes, affected notes are tagged `#needs-review` with a confidence score and an importance score. Review is a deliberate act, not an interruption.
-4. **One inbox, zero ambiguity.** New captures go to `/00-system/inbox.md` or a daily note. Nothing lives in inbox permanently.
+4. **One inbox, zero ambiguity.** New captures go to `inbox.md` in the private vault. Nothing lives in inbox permanently.
 5. **Values are upstream of everything.** Folder importance weights are derived from proximity to defined personal values. A note's importance score is a function of its folder weight and its explicit `importance` frontmatter field.
 6. **Simplicity over completeness.** A note that exists and is imperfect is better than a perfect note that was never written. Resist the urge to build the system instead of using it.
 

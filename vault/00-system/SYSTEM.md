@@ -23,7 +23,7 @@ schema-version: 1.0
 1. **Markdown is the contract.** All content lives in `.md` files. The app (Obsidian, VS Code, anything else) is a viewport, not the system. If the app disappears, the system survives.
 2. **The folder is the address, the frontmatter is the metadata.** Navigation happens by folder. Querying, filtering, and AI-readability happen via YAML frontmatter.
 3. **Schema changes trickle down.** When the structure or frontmatter schema of a section changes, affected notes are tagged `#needs-review` with a confidence score and an importance score. Review is a deliberate act, not an interruption.
-4. **One inbox, zero ambiguity.** New captures go to `/00-system/inbox.md` or a daily note. Nothing lives in inbox permanently.
+4. **One inbox, zero ambiguity.** New captures go to `inbox.md` in the private vault. Nothing lives in inbox permanently.
 5. **Values are upstream of everything.** Folder importance weights are derived from proximity to defined personal values. A note's importance score is a function of its folder weight and its explicit `importance` frontmatter field.
 6. **Simplicity over completeness.** A note that exists and is imperfect is better than a perfect note that was never written. Resist the urge to build the system instead of using it.
 
@@ -206,9 +206,9 @@ Folder importance weights are defined here and used to calculate a note's defaul
 
 | Folder | Weight | Rationale |
 |--------|--------|-----------|
-| 10-self | 1.0 | Upstream of everything |
+| 00-system | 1.0 | Holds VALUES.md — values are upstream of everything |
 | 20-family | 0.95 | Core relationships and responsibilities |
-| 00-system | 0.8 | System health enables everything else |
+| 10-self | 0.85 | Health and wellbeing — important but narrower than values |
 | 40-projects | 0.7 | Active work; importance varies by project |
 | 30-work | 0.65 | Important but bounded to professional context |
 | 60-making | 0.6 | Identity-adjacent; high intrinsic value |
@@ -232,33 +232,39 @@ Folder importance weights are defined here and used to calculate a note's defaul
 
 ### 00-system/ANXIETIES.md
 
-*Anxiety tracker and challenger.*
-Each entry is a structured block:
+*Anxiety tracker and challenger. Each entry is a structured block, newest first.*
 
 ```markdown
-## [Anxiety title] — YYYY-MM-DD
+## [title] — YYYY-MM-DD
 
-**The anxiety:** [What I'm worried about]
-**Category:** decision-paralysis | relationship | health | financial | existential | other
-**Triggered by:** [Context]
+**the anxiety:** [what you're worried about, in plain language]
+**category:** decision-paralysis | relationship | health | financial | existential | other
+**triggered by:** [what surfaced it]
 
-### Challenge questions
-- What is the realistic cost of reversing this decision?
-- What is the cost of *not* deciding?
-- What is the worst realistic outcome, and can I survive it?
-- What would I tell a trusted friend in this situation?
-- Is this a real risk or a story I'm telling myself?
+**challenge questions:**
 
-**Resolution/update:** [leave blank until resolved]
-**Status:** open | resolved | reframed
+- what is the realistic cost of reversing this decision?
+- what is the cost of *not* deciding?
+- what is the worst realistic outcome, and can i survive it?
+- what would i tell a trusted friend in this situation?
+- is this a real risk or a story i'm telling myself?
+
+**resolution/update:** [leave blank until something shifts]
+**status:** open | resolved | reframed
 ```
+
+### 00-system/JOURNAL.md
+
+*A living record of the vault as a used thing. Not structural — temporal. Captures when things were added, what changed in your thinking, what the system felt like to use. The changelog records what the system is; the journal records what it was like to build it.*
+
+Lives on the `personal` branch. Never merges back to `main`. Entries newest first.
 
 ### 00-system/SCHEMA-CHANGELOG.md
 
-*Schema version history.* Append-only.
+*Schema version history.* Append-only. Covers structural changes as they land in the vault — not a narrative, a technical record.
 
 ```markdown
-## v1.0 — [date of first commit]
+## v1.0 — 2026-05-16
 Initial schema. See SYSTEM.md §2 for frontmatter definition.
 Scope: all notes.
 ```
@@ -325,9 +331,29 @@ A lightweight pass, not a planning session. Run once per week.
 
 ## 7. git & version control
 
-### 7a. repository setup
+### 7a. branch model
 
-Two repos, one vault. See §1a for the full on-disk layout.
+Two branches per repo:
+
+| Branch | Purpose |
+|--------|---------|
+| `main` | Clean schema, templates, and system documentation. No personal data. Forkable. |
+| `personal` | Live working branch. Your actual notes, entries, and life. Never merges back to main. |
+
+Schema changes flow one direction: `main → personal`. Tag `main` with semantic versions (`v1.0`, `v1.1`). Tag `personal` with dates (`2026-05-16`).
+
+To pull a schema update from main into your personal branch:
+
+```bash
+git checkout personal
+git merge main --no-ff -m "merge: schema vX.X into personal (YYYY-MM-DD)"
+```
+
+Log the merge in `00-system/SCHEMA-CHANGELOG.md`.
+
+### 7b. repository setup
+
+Two repos, one vault. See §1a for the full on-disk layout. See §7a for the branch model.
 
 ```bash
 # create the repo directories
@@ -354,7 +380,7 @@ git remote add origin https://github.com/slack-water/tide-private.git
 
 Point Obsidian at `~/tide/` as the vault root.
 
-### 7b. github account migration
+### 7c. github account migration
 
 1. ~~check `github.com/slack-water` — if 404, the handle is available~~
 2. ~~open an incognito window, create a placeholder account with your old handle (`davidcolinsmith`) using a throwaway email — this prevents redirect breakage~~
@@ -364,7 +390,7 @@ Point Obsidian at `~/tide/` as the vault root.
 
 > ✓ migration complete as of 2026-05-16. steps 1–4 done.
 
-### 7c. commit hygiene
+### 7d. commit hygiene
 
 - no credentials, account numbers, or sensitive personal data in plaintext — ever
 - commit messages should be meaningful (`add: ben rent system v1` not `update notes`)
