@@ -7,6 +7,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com).
 
 ### Added
 
+- vault/00-system/JOURNAL.md — placeholder with format examples and an initialization entry;
+  intended to be hydrated with real entries on the `personal` branch
+- branching model: `main` holds clean schema/templates (forkable); `personal` holds live data;
+  schema changes flow main → personal, never back
+- `personal` branch created from `main` as the live working branch
+
+### Changed
+
+- README.md: full rewrite adopting forker-oriented framing — system intent, main/personal
+  separation, two-repo structure, philosophy section, fork instructions, versioning table
+
 - vault/ subdirectory — all Obsidian content lives here; repo tooling stays at repo root
 - vault/00-system/ with SYSTEM.md, GUIDE.md, PRAXIS.md, ANXIETIES.md, SCHEMA-CHANGELOG.md, VALUES.md
   (00-system and VALUES.md moved from tide-private — system files live in the public core)
