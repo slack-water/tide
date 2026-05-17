@@ -1,0 +1,61 @@
+name: sync tooling to tide-private
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - Makefile
+      - .markdownlint.json
+      - .mlc-config.json
+      - .github/pull_request_template.md
+      - .github/workflows/ci.yml
+      - .github/workflows/links.yml
+      - REPO-MANAGEMENT.md
+      - scripts/validate-frontmatter.py
+
+jobs:
+  sync:
+    name: Sync shared tooling files
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout tide
+        uses: actions/checkout@v4
+        with:
+          path: tide
+
+      - name: checkout tide-private
+        uses: actions/checkout@v4
+        with:
+          repository: slack-water/tide-private
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          path: tide-private
+
+      - name: sync files
+        run: |
+          files=(
+            "Makefile"
+            ".markdownlint.json"
+            ".mlc-config.json"
+            ".github/pull_request_template.md"
+            ".github/workflows/ci.yml"
+            ".github/workflows/links.yml"
+            "REPO-MANAGEMENT.md"
+            "scripts/validate-frontmatter.py"
+          )
+          for file in "${files[@]}"; do
+            if [ -f "tide/$file" ]; then
+              mkdir -p "tide-private/$(dirname "$file")"
+              cp "tide/$file" "tide-private/$file"
+              echo "synced: $file"
+            fi
+          done
+
+      - name: commit and push if changed
+        working-directory: tide-private
+        run: |
+          git config user.name "tide-sync"
+          git config user.email "actions@github.com"
+          git add -A
+          git diff --cached --quiet && echo "no changes to sync" && exit 0
+          git commit -m "sync: tooling from tide/main $(date +%Y-%m-%d)"
+          git push
