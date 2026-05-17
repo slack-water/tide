@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Validate that all vault notes have required frontmatter fields and valid values."""
 
+import json
 import sys
 import re
 from pathlib import Path
@@ -10,8 +11,10 @@ VALID_TYPES = {"note", "project", "log", "reference", "output", "template"}
 VALID_STATUSES = {"active", "incubating", "complete", "archived", "needs-review"}
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
-SKIP_ROOTS = {"CHANGELOG.md", "README.md", "REPO-MANAGEMENT.md", "SETUP.md"}
-SKIP_DIRS = {"_template", ".git", ".github", "scripts"}
+_config_path = Path(__file__).parent / "validate-skip.json"
+_config = json.loads(_config_path.read_text()) if _config_path.exists() else {}
+SKIP_ROOTS = set(_config.get("skip_roots", []))
+SKIP_DIRS = set(_config.get("skip_dirs", [".git"]))
 
 
 def parse_frontmatter(path):

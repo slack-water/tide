@@ -1,0 +1,4 @@
+{
+  "skip_roots": ["CHANGELOG.md", "README.md", "REPO-MANAGEMENT.md", "SETUP.md"],
+  "skip_dirs": ["_template", ".git", ".github", "scripts"]
+}
