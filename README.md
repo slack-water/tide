@@ -33,7 +33,7 @@ gitGraph
     checkout values
     merge inbox id: "reset — reviewed"
     checkout vault
-    merge values id: "vault grows"
+    merge values id: "vault grows deeper"
 ```
 
 two repositories — one public, one private — symlinked into a single vault your editor sees as one. one branch for the structure, one branch for your life. schema changes flow in one direction. your data never touches the template.
