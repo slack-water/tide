@@ -1,4 +1,4 @@
-.PHONY: lint validate links spell check all
+.PHONY: lint validate links spell check all init
 
 MARKDOWN_FILES := $(shell find . -name '*.md' -not -path './.git/*')
 
@@ -17,3 +17,9 @@ spell:
 check: lint validate
 
 all: lint validate links spell
+
+init: ## remove example files after forking — run once
+	rm -f vault/00-system/PRAXIS_example.md
+	rm -f vault/00-system/VALUES_example.md
+	rm -f vault/00-system/ANXIETIES_example.md
+	@echo "example files removed. your vault is ready."

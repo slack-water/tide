@@ -6,5 +6,6 @@
   "MD028": false,
   "MD040": false,
   "MD041": false,
-  "MD060": false
+  "MD060": false,
+  "MD033": { "allowed_elements": ["div"] }
 }

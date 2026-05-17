@@ -1,7 +1,15 @@
 # tide
 
-> *slack water: the still moment between tides. not empty — suspended.*
-> *the water isn't going nowhere; it's deciding.*
+<div align="center">
+
+**tide** &nbsp;|&nbsp; *tīd* &nbsp;|&nbsp; *noun*
+
+*the organized, regular movement between high and low —*
+*predictable in rhythm, powerful in accumulation, indifferent to urgency.*
+
+</div>
+
+---
 
 More arrives each day than you can hold. Most systems for managing this ask you to commit — to a method, a tool, a subscription, a version of yourself that has it all organized. tide asks for almost nothing: a folder structure, a convention, plain text files.
 
@@ -9,39 +17,32 @@ if the tools change — and they will — your files don't.
 
 ```mermaid
 flowchart LR
-    life([life]) --> inbox[inbox]
-    inbox --> reset{weekly reset}
-    reset -->|it matters| vault[(vault)]
-    reset -->|it doesn't| released([released])
-    values[values] -.-> vault
+    subgraph you [your life]
+        values([values])
+        information([information])
+    end
+
+    subgraph tide
+        VALUES[VALUES.md]
+        inbox[inbox]
+        reset{reset\ndaily / weekly / monthly}
+        vault[(vault)]
+        archive([archive])
+    end
+
+    values --> VALUES
+    information --> inbox
+    inbox --> reset
+    reset -->|stays| vault
+    reset -->|released| archive
+    VALUES -. shapes .-> vault
 ```
 
 two repositories — one public, one private — symlinked into a single vault your editor sees as one. one branch for the structure, one branch for your life. schema changes flow in one direction. your data never touches the template.
 
 ---
 
-[philosophy](PHILOSOPHY.md) · [how it works](vault/00-system/SYSTEM.md) · [how to use it](vault/00-system/GUIDE.md) · [set it up](SETUP.md)
-
----
-
-## fork it
-
-```bash
-# clone the repos
-git clone https://github.com/your-handle/tide ~/code/tide
-git clone https://github.com/your-handle/tide-private ~/code/tide-private
-
-# create the vault and symlinks
-mkdir ~/tide
-ln -s ~/code/tide/vault ~/tide/public
-ln -s ~/code/tide-private/vault ~/tide/private
-
-# create your personal branch in each repo
-cd ~/code/tide && git checkout -b personal && git push -u origin personal
-cd ~/code/tide-private && git checkout -b personal && git push -u origin personal
-```
-
-open `~/tide` as your Obsidian vault. start with [`VALUES.md`](vault/00-system/VALUES.md).
+[philosophy](PHILOSOPHY.md) &nbsp;·&nbsp; [how it works](vault/00-system/SYSTEM.md) &nbsp;·&nbsp; [how to use it](vault/00-system/GUIDE.md) &nbsp;·&nbsp; [set it up](SETUP.md)
 
 ---
 
@@ -50,7 +51,7 @@ open `~/tide` as your Obsidian vault. start with [`VALUES.md`](vault/00-system/V
 | document | purpose |
 |----------|---------|
 | [`PHILOSOPHY.md`](PHILOSOPHY.md) | why the system is shaped the way it is |
-| [`SETUP.md`](SETUP.md) | full bootstrap: layout, git, symlinks, gitignore |
+| [`SETUP.md`](SETUP.md) | full bootstrap: layout, git, symlinks, tooling |
 | [`REPO-MANAGEMENT.md`](REPO-MANAGEMENT.md) | repo hygiene: PRs, branches, CI, changelog |
 | [`vault/00-system/SYSTEM.md`](vault/00-system/SYSTEM.md) | full spec: schema, folder weights, cascade protocol, weekly ritual |
 | [`vault/00-system/GUIDE.md`](vault/00-system/GUIDE.md) | day-to-day: capturing, inbox, projects, committing |

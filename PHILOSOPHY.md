@@ -1,6 +1,6 @@
 # philosophy
 
-**markdown is the contract.** the app is a viewport. obsidian, vs code, ia writer, a terminal — any of them work, none of them matter. optimize for the files, not the tool that opens them. when the tool changes — and it will — the files remain.
+**markdown is the contract.** the app is a viewport. any editor works — none of them matter. optimize for the files, not the tool that opens them. when the tool changes — and it will — the files remain.
 
 **intent before implementation.** every folder, template, and convention in tide starts with *what you want*, not *how to achieve it*. the how is fragile: it depends on which tools exist, which habits stick, which version of yourself shows up this month. the what is stable. write what you want first and let the structure serve it.
 
