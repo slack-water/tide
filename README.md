@@ -42,7 +42,7 @@ the vault root (`~/tide/`) is not itself a git repo. it contains two symlinked s
 ```
 ~/tide/
 ├── public  →  ~/code/tide/vault/
-│   ├── 00-system/      ← schema, values, praxis (this repo)
+│   ├── 00-system/      ← schema, values, praxis, anxieties (this repo)
 │   ├── 40-projects/
 │   ├── 50-knowledge/
 │   ├── 60-making/
@@ -53,6 +53,8 @@ the vault root (`~/tide/`) is not itself a git repo. it contains two symlinked s
     ├── 20-family/
     └── 30-work/
 ```
+
+the symlinks point to `vault/` subdirectories, not the repo roots. this keeps repo-level tooling — `Makefile`, `scripts/`, CI workflows, `SETUP.md` — out of the obsidian view entirely. obsidian sees only vault content; the editor never prompts you to open a yaml frontmatter validation script.
 
 push each repo independently:
 
@@ -98,6 +100,53 @@ related: []       # [[wikilinks]]
 schema-version:   # matches current version in 00-system/SCHEMA-CHANGELOG.md
 ---
 ```
+
+`needs-review` is a special status — see [the review cascade](#the-review-cascade) below.
+
+---
+
+## the review cascade
+
+this is the feature that differentiates tide from a folder layout. when the structure or frontmatter schema of a section changes, affected notes are not silently updated — they are **tagged and queued**.
+
+the protocol:
+
+1. **log the change** in `00-system/SCHEMA-CHANGELOG.md` — what changed, which folders are affected, and what a note needs to do to comply
+2. **tag affected notes** with `status: needs-review` and add two fields:
+
+   ```yaml
+   review-reason: "schema change 2026-05-16 — added importance field"
+   review-confidence: 0.8   # how likely the auto-tag is correct (0.0–1.0)
+   ```
+
+3. **prioritize the queue** by `folder-weight × importance × review-confidence`. high-confidence tags on high-importance notes surface first — you do the definite, impactful work before triaging uncertain auto-tags.
+
+4. **work through the queue** during the weekly reset — review, update, and clear the tag. flag, don't auto-fix.
+
+the rule: **a change at the top trickles down**. you do not silently migrate content. you build a visible queue and work through it deliberately.
+
+> this system is intentionally lightweight until the vault has 100+ notes and schema changes have actually happened. do not build automation for it prematurely.
+
+---
+
+## values weighting
+
+folder importance weights are defined in `00-system/SYSTEM.md §4` and are used to calculate a note's default importance when no explicit `importance` is set.
+
+| folder | weight | rationale |
+|--------|--------|-----------|
+| 00-system | 1.0 | holds VALUES.md — values are upstream of everything |
+| 20-family | 0.95 | core relationships and responsibilities |
+| 10-self | 0.85 | health and wellbeing |
+| 40-projects | 0.7 | active work; varies by project |
+| 30-work | 0.65 | important but bounded |
+| 60-making | 0.6 | identity-adjacent; high intrinsic value |
+| 50-knowledge | 0.55 | feeds everything; low urgency |
+| 90-archive | 0.2 | historical; rarely needs review |
+
+**effective importance** (for review queue prioritization) = `folder-weight × note-importance`
+
+these weights are a starting point. revisit them after `VALUES.md` is written.
 
 ---
 
@@ -160,6 +209,26 @@ make all     # also runs broken link check and spell check
 | [`REPO-MANAGEMENT.md`](REPO-MANAGEMENT.md) | repo hygiene: PR workflow, branch naming, CI, changelog, releases |
 | [`vault/00-system/SYSTEM.md`](vault/00-system/SYSTEM.md) | full system spec: principles, schema, folder weights, weekly ritual, AI protocol |
 | [`vault/00-system/GUIDE.md`](vault/00-system/GUIDE.md) | day-to-day operating guide: capturing, inbox, projects, wikilinks |
+| [`vault/00-system/PRAXIS.md`](vault/00-system/PRAXIS.md) | how you operate: agency, decision-making, known failure modes |
+| [`vault/00-system/ANXIETIES.md`](vault/00-system/ANXIETIES.md) | anxiety tracker: structured challenge questions and resolution log |
+| [`vault/00-system/JOURNAL.md`](vault/00-system/JOURNAL.md) | temporal log of the vault as a lived thing — personal branch only |
+| [`vault/00-system/SCHEMA-CHANGELOG.md`](vault/00-system/SCHEMA-CHANGELOG.md) | schema version history; referenced when merging main into personal |
+
+**three changelogs, three purposes:**
+
+- `CHANGELOG.md` (repo root) — structural changes to the repo: folders added, CI updated, tooling changed. what a developer expects from a changelog.
+- `vault/00-system/SCHEMA-CHANGELOG.md` — frontmatter schema version history. the source of truth for `schema-version` in every note. what you reference when merging main into personal to understand what migrated.
+- `vault/00-system/JOURNAL.md` — not a changelog. the lived experience: what the system felt like to build, when things were added, what changed in your thinking. temporal and personal; never merges back to main.
+
+---
+
+## roadmap
+
+these patterns are designed but not yet implemented as working tooling:
+
+**capture from anywhere** — an iOS Shortcut that writes directly to `inbox.md` in the private repo via the GitHub Contents API. no app required; a shortcut shares text → it commits to the `personal` branch. see [tide-private issue #4](https://github.com/slack-water/tide-private/issues/4).
+
+**selective publication** — a `public: true` frontmatter field combined with a GitHub Action that copies tagged notes from the private repo into the public one on push. one field decides what surfaces. see [tide-private issue #5](https://github.com/slack-water/tide-private/issues/5).
 
 ---
 
