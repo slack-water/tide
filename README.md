@@ -1,27 +1,30 @@
 # tide
 
-<div align="center">
-
-**tide** &nbsp;|&nbsp; *tīd* &nbsp;|&nbsp; *noun*
-
-*the organized, regular movement between high and low —*
-*predictable in rhythm, powerful in accumulation, indifferent to urgency.*
-
-</div>
+*the ocean of information is overwhelming*
+*tide makes it feel more organized and predictable*
 
 ---
 
-More arrives each day than you can hold. Most systems for managing this ask you to commit — to a method, a tool, a subscription, a version of yourself that has it all organized. tide asks for almost nothing: a folder structure, a convention, plain text files.
+More information arrives each day than you can hold. Most systems for managing this ask you to commit to a method, a tool, a subscription, a version of yourself that has it all organized. tide asks for almost nothing: an architecture, a convention, plain text files.
 
 if the tools change — and they will — your files don't.
 
-<div align="center">
-
-`inbox` &nbsp;→&nbsp; `reset` &nbsp;→&nbsp; `vault`
-
-*what doesn't belong gets released. values shape what rises.*
-
-</div>
+```mermaid
+gitGraph LR
+    commit id: "values — the seabed"
+    branch personal
+    checkout personal
+    commit id: "life arrives"
+    commit id: "inbox fills"
+    commit id: "and more"
+    checkout main
+    merge personal id: "reset — keep what matters"
+    checkout personal
+    commit id: "it keeps coming"
+    commit id: "inbox fills again"
+    checkout main
+    merge personal id: "reset — vault grows"
+```
 
 two repositories — one public, one private — symlinked into a single vault your editor sees as one. one branch for the structure, one branch for your life. schema changes flow in one direction. your data never touches the template.
 
