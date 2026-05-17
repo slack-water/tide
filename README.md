@@ -10,20 +10,30 @@ More information arrives each day than you can hold. Most systems for managing t
 if the tools change — and they will — your files don't.
 
 ```mermaid
+%%{init: { 'gitGraph': { 'mainBranchName': 'vault' } } }%%
 gitGraph
-    commit id: "values — the seabed"
-    branch personal
-    checkout personal
-    commit id: "life arrives"
-    commit id: "inbox fills"
-    commit id: "and more"
-    checkout main
-    merge personal id: "reset — keep what matters"
-    checkout personal
-    commit id: "it keeps coming"
-    commit id: "inbox fills again"
-    checkout main
-    merge personal id: "reset — vault grows"
+    commit id: "initial structure"
+    branch values
+    checkout values
+    commit id: "depth over breadth"
+    commit id: "hospitality"
+    branch inbox
+    checkout inbox
+    commit id: "web clip"
+    commit id: "voice note"
+    commit id: "quick idea"
+    commit id: "slack thread"
+    checkout values
+    merge inbox id: "reset — reviewed against values"
+    checkout vault
+    merge values id: "vault grows"
+    checkout inbox
+    commit id: "more arrives"
+    commit id: "article saved"
+    checkout values
+    merge inbox id: "reset — reviewed"
+    checkout vault
+    merge values id: "vault grows"
 ```
 
 two repositories — one public, one private — symlinked into a single vault your editor sees as one. one branch for the structure, one branch for your life. schema changes flow in one direction. your data never touches the template.
