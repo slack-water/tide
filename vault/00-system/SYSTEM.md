@@ -190,7 +190,7 @@ When the structure of a section, a folder, or this frontmatter schema changes:
    review-confidence: 0.0–1.0   # how likely auto-tag is correct
    ```
 
-3. **Prioritize the review queue** by `importance` × `review-confidence`. High-importance notes with low confidence should be reviewed first.
+3. **Prioritize the review queue** by `folder-weight × importance × review-confidence`. High-confidence tags on high-importance notes surface first — do the definite, impactful updates before triaging uncertain auto-tags. Low-confidence items settle to the bottom where a quick scan can dismiss them in bulk.
 
 4. **AI-assisted migration:** When using Claude Code or any AI to apply a schema change, instruct it to: tag, score, and add `review-reason`, but NOT to silently rewrite content. Flag, don't fix.
 

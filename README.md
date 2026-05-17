@@ -119,7 +119,7 @@ the protocol:
    review-confidence: 0.8   # how likely the auto-tag is correct (0.0–1.0)
    ```
 
-3. **prioritize the queue** by `folder-weight × importance × (1 - review-confidence)`. low-confidence tags on high-importance notes surface first.
+3. **prioritize the queue** by `folder-weight × importance × review-confidence`. high-confidence tags on high-importance notes surface first — you do the definite, impactful work before triaging uncertain auto-tags.
 
 4. **work through the queue** during the weekly reset — review, update, and clear the tag. flag, don't auto-fix.
 
