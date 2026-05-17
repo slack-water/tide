@@ -15,28 +15,13 @@ More arrives each day than you can hold. Most systems for managing this ask you 
 
 if the tools change — and they will — your files don't.
 
-```mermaid
-flowchart LR
-    subgraph you [your life]
-        values([values])
-        information([information])
-    end
+<div align="center">
 
-    subgraph tide
-        VALUES[VALUES.md]
-        inbox[inbox]
-        reset{reset\ndaily / weekly / monthly}
-        vault[(vault)]
-        archive([archive])
-    end
+`inbox` &nbsp;→&nbsp; `reset` &nbsp;→&nbsp; `vault`
 
-    values --> VALUES
-    information --> inbox
-    inbox --> reset
-    reset -->|stays| vault
-    reset -->|released| archive
-    VALUES -. shapes .-> vault
-```
+*what doesn't belong gets released. values shape what rises.*
+
+</div>
 
 two repositories — one public, one private — symlinked into a single vault your editor sees as one. one branch for the structure, one branch for your life. schema changes flow in one direction. your data never touches the template.
 
