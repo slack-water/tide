@@ -1,6 +1,7 @@
 {
   "ignorePatterns": [
-    { "pattern": "^\\[\\[" }
+    { "pattern": "^\\[\\[" },
+    { "pattern": "^https://github\\.com/slack-water/tide-private" }
   ],
   "retryOn429": true,
   "retryCount": 2,
