@@ -9,9 +9,11 @@ importance: 5
 schema-version: 1.0
 ---
 
-# tide — system definition
+# tide — infrastructure
 
 > **purpose:** a single source of truth for how this vault is structured, why it's structured that way, and how changes to the structure propagate. a change at this level is a schema change. schema changes trigger a review cascade.
+
+*this is the infrastructure layer. the reasoning layer — values, failure modes, and the decision prompt — lives in [PHILOSOPHY.md](../../PHILOSOPHY.md).*
 
 ---
 
@@ -94,6 +96,7 @@ public/ (→ ~/code/tide/vault/)
 │   ├── PRAXIS.md           ← how you operate. what you believe about your own agency.
 │   ├── ANXIETIES.md        ← anxiety tracker and challenger.
 │   ├── VALUES.md           ← personal values definition.
+│   ├── FAILURE-MODES.md    ← known patterns where you get stuck or self-sabotage.
 │   └── SCHEMA-CHANGELOG.md ← log of all schema changes and their cascade scope.
 │
 ├── 40-projects/            ← active, time-bounded work. cross-domain.
@@ -213,6 +216,10 @@ Each file below has an example file alongside it showing what a hydrated version
 ### VALUES.md
 
 *Your personal values definition.* The output of deliberate reflection — what you actually care about, not what you think you should care about. Shapes folder weights and review priority. Write this first. See [VALUES_example.md](VALUES_example.md).
+
+### FAILURE-MODES.md
+
+*Known patterns where you get stuck, spiral, or self-sabotage.* Each entry has early signals, a real cost, and a redirect. Read alongside VALUES.md — failure modes are often values in conflict. See [FAILURE-MODES_example.md](FAILURE-MODES_example.md).
 
 ### JOURNAL.md
 

@@ -1,6 +1,6 @@
-# tide — setup guide
+# configuration
 
-Everything here is about getting the system running. For the principles behind these decisions, see [PHILOSOPHY.md](PHILOSOPHY.md). For the full system spec, see [SYSTEM.md](vault/00-system/SYSTEM.md).
+Everything here is about getting the system running. For the reasoning behind it, see [PHILOSOPHY.md](PHILOSOPHY.md). For the full infrastructure spec, see [SYSTEM.md](vault/00-system/SYSTEM.md).
 
 ---
 

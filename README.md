@@ -1,30 +1,24 @@
 # tide
 
-*the ocean of information is overwhelming.*
-
-*tide makes it feel more organized and predictable.*
+*you are the ocean. tide is the honest rhythm of your nature — your highs and lows, your patterns, your pull.*
 
 ---
 
-## the idea
+the ocean doesn't change. but it's dangerous if you're not prepared.
 
-More information arrives each day than you can hold. Most systems for managing this ask you to commit — to a method, a tool, a subscription, a version of yourself that has it all organized.
+tide is a decision support engine built on plain text. it makes your values and known failure modes first-class, queryable objects — so that when you face a decision, you have a partner who has read your charts and knows where the rocks are.
 
-if the tools change — and they will — your files don't. tide asks for almost nothing: it's an architecture, a convention, plain text files.
-
----
-
-## start here
-
-[philosophy](PHILOSOPHY.md) &nbsp;·&nbsp; [how it works](vault/00-system/SYSTEM.md) &nbsp;·&nbsp; [how to use it](vault/00-system/GUIDE.md) &nbsp;·&nbsp; [set it up](SETUP.md)
+most decisions go wrong not because of missing information, but because the reasoning frame is wrong: you optimize for the wrong thing, or you follow a known pattern you didn't catch in time. tide addresses both.
 
 ---
 
-## details
+[philosophy](PHILOSOPHY.md) &nbsp;·&nbsp; [infrastructure](vault/00-system/SYSTEM.md) &nbsp;·&nbsp; [usage](vault/00-system/GUIDE.md) &nbsp;·&nbsp; [configuration](SETUP.md)
+
+---
 
 | document | purpose |
 |----------|---------|
-| [`PHILOSOPHY.md`](PHILOSOPHY.md) | why the system is shaped the way it is |
+| [`PHILOSOPHY.md`](PHILOSOPHY.md) | what this is and why it's shaped the way it is |
 | [`SETUP.md`](SETUP.md) | full bootstrap: layout, git, symlinks, tooling |
 | [`REPO-MANAGEMENT.md`](REPO-MANAGEMENT.md) | repo hygiene: PRs, branches, CI, changelog |
 | [`vault/00-system/SYSTEM.md`](vault/00-system/SYSTEM.md) | full spec: schema, folder weights, cascade protocol, weekly ritual |
