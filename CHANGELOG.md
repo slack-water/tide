@@ -5,6 +5,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+### Planned
+
+- **Capture from anywhere (iOS Shortcut)** — iOS Shortcut that appends to `vault/inbox.md` in the
+  private repo via the GitHub Contents API; commits directly to the `personal` branch with no app
+  required. See [tide-private #4](https://github.com/slack-water/tide-private/issues/4).
+- **Selective publication (`public: true`)** — GitHub Action that copies notes with `public: true`
+  frontmatter from the private repo into the public repo on push. Visibility stays a frontmatter
+  decision; no manual file moves required. See [tide-private #5](https://github.com/slack-water/tide-private/issues/5).
+
 ## [2026-05-16]
 
 ### Added
