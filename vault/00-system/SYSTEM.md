@@ -96,7 +96,7 @@ public/ (→ ~/code/tide/vault/)
 │   ├── PRAXIS.md           ← how you operate. what you believe about your own agency.
 │   ├── ANXIETIES.md        ← anxiety tracker and challenger.
 │   ├── VALUES.md           ← personal values definition.
-│   ├── FAILURE-MODES.md    ← known patterns where you get stuck or self-sabotage.
+│   ├── FAILURE-MODES.md    ← named patterns where you get stuck, spiral, or self-sabotage.
 │   └── SCHEMA-CHANGELOG.md ← log of all schema changes and their cascade scope.
 │
 ├── 40-projects/            ← active, time-bounded work. cross-domain.
@@ -219,7 +219,7 @@ Each file below has an example file alongside it showing what a hydrated version
 
 ### FAILURE-MODES.md
 
-*Known patterns where you get stuck, spiral, or self-sabotage.* Each entry has early signals, a real cost, and a redirect. Read alongside VALUES.md — failure modes are often values in conflict. See [FAILURE-MODES_example.md](FAILURE-MODES_example.md).
+*Named patterns where you get stuck, spiral, or self-sabotage.* Each entry has observable early signals, a concrete cost, a redirect, and an accountability mechanism. Read alongside VALUES.md — failure modes are often values in conflict. Claude reads this second, after VALUES.md, in any decision query. See [FAILURE-MODES_example.md](FAILURE-MODES_example.md).
 
 ### JOURNAL.md
 

@@ -33,19 +33,26 @@ Your daily work lives on `personal`. Structural changes (new folders, schema upd
 
 ## 2. vault root and symlinks
 
-The vault root is a plain directory — not a git repo. It contains two symlinks pointing at the `vault/` subdirectory of each repo. Your editor sees everything as one unified space; the git boundary is invisible.
+The vault root is a plain directory — not a git repo. It contains symlinks pointing at the `vault/` subdirectory of each repo, plus a symlink to `CLAUDE.md` so Claude Code picks up the project instructions when you open `~/tide` as a workspace.
+
+```bash
+make install   # run from ~/code/tide/
+```
+
+Or manually:
 
 ```bash
 mkdir ~/tide
 ln -s ~/code/tide/vault ~/tide/public
 ln -s ~/code/tide-private/vault ~/tide/private
+ln -s ~/code/tide/CLAUDE.md ~/tide/CLAUDE.md
 ```
 
-The symlinks point to `vault/` subdirs, not the repo roots. This keeps tooling files (Makefile, scripts, CI) out of your editor's view.
+The symlinks point to `vault/` subdirs, not the repo roots. This keeps tooling files (Makefile, scripts, CI) out of your editor's view. `make install` assumes tide-private is cloned to `~/code/tide-private/` — update the path if yours differs.
 
 > Do not use iCloud or Dropbox to sync the vault root — both handle symlinks poorly. Use a sync tool that respects symlinks, or rely on git alone.
 
-Open `~/tide` as your vault root in your editor of choice.
+Open `~/tide` as your vault root in your editor and in Claude Code.
 
 ---
 
@@ -72,9 +79,10 @@ Order of operations after setup:
 
 1. `make init` — clear the examples
 2. Write `VALUES.md` — values shape everything else
-3. Write `PRAXIS.md` — how you operate, honestly
-4. Write `ANXIETIES.md` — open with whatever's on your mind
-5. Start your `personal` branch and push — this is your vault now
+3. Write `FAILURE-MODES.md` — named patterns; read alongside values
+4. Write `PRAXIS.md` — how you operate, honestly
+5. Write `ANXIETIES.md` — open with whatever's on your mind
+6. Start your `personal` branch and push — this is your vault now
 
 ---
 

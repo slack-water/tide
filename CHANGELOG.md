@@ -5,6 +5,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [2026-05-20]
+
+### Added
+
+- `make install` target — creates `~/tide/` vault root, both repo symlinks (`public/`, `private/`),
+  and `~/tide/CLAUDE.md` symlink so Claude Code loads instructions at the vault root
+
+### Changed
+
+- `CLAUDE.md` — extended with `/init` health check, per-folder context pattern, vault structure
+  map, and `make upgrade` reference in system mode; `make install` now referenced for setup
+- `SETUP.md` §2 — vault root setup now leads with `make install`
+- `scripts/validate-skip.json` — `PRIORITIES.md` added to frontmatter skip list
+
 ## [2026-05-17]
 
 ### Added

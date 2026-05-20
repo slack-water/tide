@@ -11,11 +11,11 @@ schema-version: 1.0
 
 # Failure Modes
 
-*known patterns where you get stuck, spiral, or self-sabotage. each entry has early signals and a redirect. newest first.*
+*known patterns where i get stuck, spiral, or self-sabotage. not character flaws — named behaviors with observable signals and defined costs.*
 
-*a failure mode is only protective if it is visible (you can catch yourself before it's too late) and costly (ignoring it has a consequence you actually care about).*
+*read alongside [[VALUES]] — failure modes are often values in conflict.*
 
-*see [FAILURE-MODES_example.md](FAILURE-MODES_example.md) for the entry format and guidance.*
+*see [FAILURE-MODES_example.md](FAILURE-MODES_example.md) for the entry format, worked examples, and guidance on how to fill this in.*
 
 ---
 
@@ -34,5 +34,3 @@ schema-version: 1.0
 **the redirect:** close the config. open the inbox. write one real thing before touching structure again.
 
 **accountability:** if you've made more than one structural change this week without a corresponding substantive note, you're in this pattern.
-
----
