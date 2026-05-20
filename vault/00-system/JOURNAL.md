@@ -1,7 +1,7 @@
 ---
 title: Journal
 created: 2026-05-16
-updated: 2026-05-16
+updated: 2026-05-20
 folder: 00
 type: log
 status: active
@@ -37,6 +37,20 @@ For schema merges specifically:
 Merged schema vX.X from main. [What changed structurally.] [Any notes needing
 migration, and whether they were handled.]
 ```
+
+---
+
+## 2026-05-20 — personal branch initialized, schema v1.0
+
+personal branch cut from main at commit 8ad58fe. schema v1.0 already in place — no
+migration needed.
+
+what's in the schema at v1.0: VALUES.md, FAILURE-MODES.md, PRAXIS.md, ANXIETIES.md,
+JOURNAL.md (this file), GUIDE.md, SYSTEM.md, SCHEMA-CHANGELOG.md. CLAUDE.md at repo
+root tells Claude how to reason through the vault. make install wires ~/tide/.
+
+VALUES.md and FAILURE-MODES.md are stubs. that's the only thing that matters next.
+the system doesn't work until those are written.
 
 ---
 

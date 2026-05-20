@@ -5,6 +5,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [personal — 2026-05-20]
+
+- personal branch initialized from main at schema v1.0
+- JOURNAL.md first entry written; example entry retained for reference
+- VALUES.md and FAILURE-MODES.md are stubs — hydration is the next step
+
 ## [2026-05-20]
 
 ### Added
