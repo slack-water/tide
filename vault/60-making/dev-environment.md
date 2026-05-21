@@ -1,7 +1,7 @@
 ---
 title: Dev Environment
 created: 2026-05-20
-updated: 2026-05-20
+updated: 2026-05-21
 folder: 60
 type: reference
 status: active
@@ -274,9 +274,12 @@ all installed via homebrew. every package here lands on `$PATH` automatically vi
 # formulae
 brew install \
   tree bat ripgrep fzf fd jq gh tmux \
-  eza zoxide btop wget ncdu tldr \
+  eza zoxide btop wget ncdu tlrc \
   yazi hyperfine lazygit glow git-delta \
   neovim
+
+# note: brew deprecated 'tldr' in 2024; the maintained replacement is 'tlrc'
+# both provide the same simplified man-page interface
 
 # post-install: fzf shell bindings
 # (handled by 'source <(fzf --zsh)' in .zshrc — no separate step needed)
@@ -297,7 +300,7 @@ brew install \
 | `btop` | `btop` / aliased to `top` | process and resource monitor |
 | `wget` | `wget` | http downloader |
 | `ncdu` | `ncdu` / aliased to `du` | disk usage ncurses ui |
-| `tldr` | `tldr` | simplified man pages with examples |
+| `tlrc` | `tldr` | simplified man pages with examples (replaces deprecated `tldr` formula) |
 | `yazi` | `yazi` | terminal file manager |
 | `hyperfine` | `hyperfine` | cli benchmarking |
 | `lazygit` | `lazygit` / `<leader>lg` in nvim | terminal ui for git |
@@ -340,7 +343,7 @@ eval "$(/opt/homebrew/bin/brew shellenv)"   # add to .zshrc permanently afterwar
 brew install \
   git zsh neovim \
   tree bat ripgrep fzf fd jq gh tmux \
-  eza zoxide btop wget ncdu tldr \
+  eza zoxide btop wget ncdu tlrc \
   yazi hyperfine lazygit glow git-delta
 
 # 3. casks
@@ -360,11 +363,11 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 #    - write ~/.config/ghostty/config (see terminal section above)
 
 # 8. neovim
-#    - create ~/.config/nvim/init.lua
-#    - bootstrap lazy.nvim (see https://github.com/folke/lazy.nvim#-installation)
-#    - paste plugin list and keymaps
-#    - open nvim — lazy installs everything on first launch
-#    - run :TSUpdate
+#    - create ~/.config/nvim/ config files (init.lua, lua/options.lua,
+#      lua/keymaps.lua, lua/plugins/init.lua)
+#    - open nvim — lazy.nvim bootstraps and installs all plugins on first launch
+#    - treesitter parsers install automatically via 'ensure_installed' on first use
+#      (no manual :TSUpdate needed)
 
 # 9. wire the vault
 #    - clone tide and tide-private to ~/code/
