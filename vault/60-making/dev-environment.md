@@ -31,7 +31,7 @@ warm, focused, slightly anachronistic. the aesthetic is amber CRT — the termin
 ```ini
 # ~/.config/ghostty/config
 
-theme = GruvboxDark
+theme = Gruvbox Dark Hard
 
 font-family = "IBM Plex Mono"
 font-size = 14
@@ -54,9 +54,9 @@ shell-integration = zsh
 
 ---
 
-## shell — zsh + oh-my-zsh
+## shell — zsh + oh-my-zsh + starship
 
-oh-my-zsh with a minimal plugin set. no theme bloat. the prompt should tell me what i need and nothing else.
+oh-my-zsh for tab completions and git aliases. starship for the prompt. they run together: omz handles completions, starship replaces the theme.
 
 **plugins:**
 
@@ -65,17 +65,28 @@ oh-my-zsh with a minimal plugin set. no theme bloat. the prompt should tell me w
 plugins=(git github)
 ```
 
-- `git` — git aliases and prompt context (`gst`, `gco`, `gcmsg`, etc.)
+- `git` — git aliases (`gst`, `gco`, `gcmsg`, etc.) and completions
 - `github` — git shortcuts for github operations, `empty_gh` for new repos
 
-**prompt theme:** `robbyrussell` (omz default) or `af-magic` for slightly more context. keep it single-line. no powerline glyphs that require patched fonts.
+**prompt:** starship — fast, cross-shell, no patched fonts required. `ZSH_THEME=""` disables the omz theme so starship takes over.
 
-**`.zshrc` additions — paste below the omz source line:**
+**full `.zshrc`:**
 
 ```bash
+export ZSH="$HOME/.oh-my-zsh"
+
+ZSH_THEME=""   # disabled — starship handles the prompt
+
+plugins=(git github)
+
+source $ZSH/oh-my-zsh.sh
+
 # ── path ──────────────────────────────────────────────────────────────────────
 # homebrew (apple silicon — change to /usr/local for intel)
 eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# claude cli — installed to ~/.local/bin by the Claude desktop app
+export PATH="$HOME/.local/bin:$PATH"
 
 # ── editor ────────────────────────────────────────────────────────────────────
 export EDITOR="nvim"
@@ -92,6 +103,9 @@ eval "$(zoxide init zsh)"
 
 # bat — themed to match gruvbox
 export BAT_THEME="gruvbox-dark"
+
+# starship prompt — must be last
+eval "$(starship init zsh)"
 
 # ── aliases ───────────────────────────────────────────────────────────────────
 # navigation
@@ -166,14 +180,13 @@ vim.opt.termguicolors = true    -- full color support
   -- syntax highlighting
   { "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
-    config = function()
-      require("nvim-treesitter.configs").setup({
-        ensure_installed = { "lua", "python", "javascript", "typescript",
-                             "bash", "markdown", "yaml", "json" },
-        highlight = { enable = true },
-        indent   = { enable = true },
-      })
-    end },
+    main = "nvim-treesitter",
+    opts = {
+      ensure_installed = { "lua", "python", "javascript", "typescript",
+                           "bash", "markdown", "yaml", "json" },
+      highlight = { enable = true },
+      indent   = { enable = true },
+    }},
 
   -- status line
   { "nvim-lualine/lualine.nvim",
@@ -276,7 +289,7 @@ brew install \
   tree bat ripgrep fzf fd jq gh tmux \
   eza zoxide btop wget ncdu tlrc \
   yazi hyperfine lazygit glow git-delta \
-  neovim
+  starship neovim
 
 # note: brew deprecated 'tldr' in 2024; the maintained replacement is 'tlrc'
 # both provide the same simplified man-page interface
@@ -306,6 +319,7 @@ brew install \
 | `lazygit` | `lazygit` / `<leader>lg` in nvim | terminal ui for git |
 | `glow` | `glow` | markdown renderer — `glow vault/00-system/VALUES.md` |
 | `git-delta` | `delta` | syntax-highlighted git diffs (configured via gitconfig) |
+| `starship` | prompt via `eval` | fast cross-shell prompt — replaces oh-my-zsh theme |
 
 ---
 
@@ -329,6 +343,20 @@ the single theme across terminal, editor, and anything else that takes a color s
 | orange | bright_orange | `#fe8019` |
 
 **use `contrast = "hard"`** in gruvbox.nvim for the darkest background. medium and soft are warmer but harder to read in bright environments.
+
+---
+
+## claude cli
+
+installed via the [Claude desktop app](https://claude.ai/download). the app places a symlink at `~/.local/bin/claude`, which is already on `$PATH` via the `.zshrc` block above.
+
+**default model:** set once in `~/.claude/settings.json` so every session starts on sonnet. opus is available on demand via `/model opus` for hard problems.
+
+```json
+{
+  "model": "claude-sonnet-4-6"
+}
+```
 
 ---
 
@@ -369,7 +397,11 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 #    - treesitter parsers install automatically via 'ensure_installed' on first use
 #      (no manual :TSUpdate needed)
 
-# 9. wire the vault
+# 9. claude cli
+#    - install the Claude desktop app, which places claude at ~/.local/bin/claude
+#    - set default model: add {"model": "claude-sonnet-4-6"} to ~/.claude/settings.json
+
+# 10. wire the vault
 #    - clone tide and tide-private to ~/code/
 #    - run: make install (from ~/code/tide/)
 ```
