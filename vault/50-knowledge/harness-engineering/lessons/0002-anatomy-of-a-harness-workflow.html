@@ -1,0 +1,150 @@
+<title>Lesson 2 — Anatomy of a Harness Workflow</title>
+<link rel="stylesheet" href="../assets/style.css">
+
+<nav class="crumbs"><a href="../MISSION.md">mission</a> · <a href="../reference/glossary.html">glossary</a> · <a href="0001-the-three-layer-harness-model.html">lesson 1</a> · lesson 2</nav>
+
+<p class="kicker">Lesson 2</p>
+<h1>Anatomy of a Harness Workflow</h1>
+<p class="dek">Lesson 1 gave you <em>what kind</em> of constraint to apply. This lesson adds the missing dimension — <em>where</em>, in a running loop, each one actually sits — down to a script simple enough to run today.</p>
+
+<div class="box source">
+  <span class="label">Primary sources — read in full</span>
+  <a href="https://arxiv.org/abs/2606.10106">"What makes a harness a harness"</a> (component taxonomy) and
+  <a href="https://www.anthropic.com/engineering/building-effective-agents">"Building Effective Agents"</a> (the evaluator-optimizer pattern). This lesson's script uses the documented flags from <a href="https://code.claude.com/docs/en/headless">Claude Code's headless-mode docs</a>.
+</div>
+
+<h2>The four required parts of any harness</h2>
+<p>The taxonomy paper from Lesson 1 doesn't stop at defining "harness" — it names the parts every harness needs, and separates them from the parts that just make one <em>better</em>:</p>
+
+<ul>
+  <li><strong>Agent Loop</strong> — interleaves reasoning, action, and observation; the model decides its next step from what it just observed, rather than following a fixed script.</li>
+  <li><strong>Tool Interface</strong> — the actual mechanism to read files, run commands, alter the outside world. Without this, nothing the model "decides" has any effect.</li>
+  <li><strong>Context Management</strong> — actively decides what enters and leaves the model's context, task-aware rather than a blind truncation.</li>
+  <li><strong>Control Mechanisms</strong> — limits, verification, and deterministic actions that hold <em>independent of whether the model cooperates</em>.</li>
+</ul>
+
+<p>Everything else — memory across steps, retry logic, observability, guardrails — is optional hardening on top of those four. Useful, sometimes essential for a given blast radius, but not what makes something a harness in the first place.</p>
+
+<h2>The workflow, as a diagram</h2>
+<p>Laid out in the order a real run actually executes, with each step tagged back to its Lesson 1 layer where one applies:</p>
+
+<div class="flow-wrap">
+  <div class="flow-rail">observability — every step logged</div>
+  <div class="flow">
+    <div class="flow-step"><span class="tag">Trigger</span>Task arrives — a CI failure, a cron tick, a human prompt.</div>
+    <div class="flow-step"><span class="tag">Context management</span>Assemble only what's task-relevant into the prompt.</div>
+    <div class="flow-step"><span class="tag">Layer 1 · Constraint harness</span>Agent loop starts, scoped to an explicit, narrow tool allowlist.</div>
+    <div class="flow-step"><span class="tag">Layer 2 · Feedback loop</span>Tool interface executes an action; the observation returned is legible, not a raw traceback.</div>
+    <div class="flow-step"><span class="tag">Control mechanism</span>Loop repeats reason → act → observe until the agent stops or a turn/step limit is hit.</div>
+    <div class="flow-step"><span class="tag">Verification</span>A <em>separate</em> check — deterministic test, or a second LLM call — decides if the task is actually done. Never the agent's own say-so.</div>
+    <div class="flow-branch">
+      <div class="flow-step"><span class="tag">Layer 3 · Quality gate — pass</span>Done. Nothing further runs automatically.</div>
+      <div class="flow-step"><span class="tag">Layer 3 · Quality gate — fail</span>Feed the failure back as the next prompt (bounded retries), or escalate to a human.</div>
+    </div>
+  </div>
+</div>
+
+<p>Two things worth noticing about this shape. First, <strong>verification sits outside the loop</strong>, not inside it — it's a separate step the harness runs, structurally unable to be talked out of failing by the same agent that produced the work. Second, <strong>observability isn't a box in the sequence</strong> — it's the rail running alongside every one of them. If you only log the final result, you can't debug a run where the gate passed for the wrong reason.</p>
+
+<h2>Where "testing agent responses" actually lives</h2>
+<p>Two different things get called "verification," and conflating them is a common design mistake:</p>
+
+<ul>
+  <li><strong>Deterministic verification</strong> — a test suite, a schema check, a query that confirms a row changed. Cheap, unambiguous, preferred whenever the task admits one. This is what the script below uses.</li>
+  <li><strong>Evaluator-optimizer</strong> — when no deterministic check exists (is this translation good? is this summary faithful?), a <em>second</em>, separately-prompted model call grades the first one's output against explicit criteria, in a loop. Anthropic's own framing: "one LLM call generates a response while another provides evaluation and feedback in a loop."<sup><a href="https://www.anthropic.com/engineering/building-effective-agents">[1]</a></sup></li>
+</ul>
+
+<p>The design rule that matters more than which of the two you use: <strong>the thing that produced the answer must never be the sole judge of whether it's correct.</strong> That's true whether the judge is a shell command or another model call.</p>
+
+<h2>The simplest version that's still a real harness</h2>
+<p>No framework, no orchestrator — one bash script, using Claude Code's documented headless-mode flags directly. Every labeled comment corresponds to a box in the diagram above.</p>
+
+<pre><code>#!/usr/bin/env bash
+# harness-min.sh — trigger -&gt; agent -&gt; verify -&gt; gate
+set -euo pipefail
+
+task="$1"
+verify_cmd="${2:-npm test}"
+max_attempts=3
+run_id="$(date +%s)-$$"
+run_dir="./harness-runs/${run_id}"
+mkdir -p "$run_dir"
+log_file="$run_dir/events.jsonl"
+
+log() {                                              # observability rail
+  jq -nc --arg ts "$(date -Iseconds)" --arg event "$1" --arg detail "$2" \
+    '{ts:$ts, event:$event, detail:$detail}' &gt;&gt; "$log_file"
+}
+
+session_id=""
+prompt="$task"
+
+for attempt in $(seq 1 "$max_attempts"); do
+  log "agent_start" "attempt $attempt"
+
+  # constraint harness: agent gets Read/Edit only — nothing else
+  claude_args=(--bare -p "$prompt" --allowedTools "Read,Edit" --output-format json)
+  [[ -n "$session_id" ]] &amp;&amp; claude_args+=(--resume "$session_id")
+
+  response="$(claude "${claude_args[@]}")"
+  session_id="$(jq -r '.session_id' &lt;&lt;&lt; "$response")"
+  is_error="$(jq -r '.is_error' &lt;&lt;&lt; "$response")"
+  log "agent_result" "is_error=$is_error session=$session_id"
+
+  if [[ "$is_error" == "true" ]]; then
+    log "escalate" "agent call itself errored"
+    echo "Agent call failed — escalating. Events: $log_file" &gt;&amp;2
+    exit 1
+  fi
+
+  # verification: deterministic, run by the harness, not the agent
+  if eval "$verify_cmd" &gt; "$run_dir/verify-$attempt.log" 2&gt;&amp;1; then
+    log "gate_pass" "verified on attempt $attempt"
+    echo "Done — verified in $attempt attempt(s). Events: $log_file"
+    exit 0
+  fi
+
+  log "gate_fail" "verification failed on attempt $attempt"
+  prompt="Verification failed. Output:
+$(tail -n 40 "$run_dir/verify-$attempt.log")
+Fix it."                                             # feedback loop
+done
+
+log "escalate" "exhausted $max_attempts attempts"
+echo "Exhausted $max_attempts attempts — escalating. Events: $log_file" &gt;&amp;2
+exit 1</code></pre>
+
+<p>Full copy at <code>assets/harness-min.sh</code> in this workspace, syntax-checked and executable. Run it as <code>./harness-min.sh "fix the failing test in src/parser.ts" "npm test"</code>.</p>
+
+<p>Notice what's <em>not</em> here: no framework, no queue, no separate evaluator model. That's deliberate — the workflow-vs-agent guidance from Lesson 1's sources applies to harness scaffolding too: "find the simplest solution possible, and only increase complexity when needed."<sup><a href="https://www.anthropic.com/engineering/building-effective-agents">[1]</a></sup> This script is a real harness by the taxonomy above (it has all four required parts) — it's just not an elaborate one. Elaborate comes later, driven by a specific activity's blast radius, not by default.</p>
+
+<h2>Check your recall</h2>
+
+<div class="quiz">
+  <p class="q">1. In the script, which line is the constraint harness (Layer 1)?</p>
+  <details><summary>Reveal</summary><p class="a">The <code>--allowedTools "Read,Edit"</code> argument — it removes every other action from the agent's reach before the loop even starts.</p></details>
+</div>
+
+<div class="quiz">
+  <p class="q">2. Why does <code>eval "$verify_cmd"</code> run in the harness script rather than being one of the agent's allowed tools?</p>
+  <details><summary>Reveal</summary><p class="a">So the thing being graded can't also grade itself — verification must stay independent of the agent's cooperation.</p></details>
+</div>
+
+<div class="quiz">
+  <p class="q">3. What would you lose if the <code>log()</code> calls were deleted but everything else stayed the same?</p>
+  <details><summary>Reveal</summary><p class="a">The ability to debug a run after the fact, including cases where the gate passed for the wrong reason.</p></details>
+</div>
+
+<div class="quiz">
+  <p class="q">4. Name the two forms verification can take, from this lesson.</p>
+  <details><summary>Reveal</summary><p class="a">Deterministic check, or an evaluator-optimizer second model call.</p></details>
+</div>
+
+<div class="box ask-teacher">
+  <span class="label">Ask your teacher</span>
+  If you want to see this script extended for a specific activity — say, gated so the verify step can never run a destructive DB command — ask now. That's very likely the shape of Lesson 3.
+</div>
+
+<footer class="lesson-footer">
+  New terms: see <a href="../reference/glossary.html">glossary</a> — Agent Loop, Tool Interface, Context Management, Control Mechanism, Evaluator-Optimizer, Verification.
+</footer>

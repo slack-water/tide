@@ -1,0 +1,89 @@
+<title>Lesson 1 — The Three-Layer Harness Model</title>
+<link rel="stylesheet" href="../assets/style.css">
+
+<nav class="crumbs"><a href="../MISSION.md">mission</a> · <a href="../reference/glossary.html">glossary</a> · lesson 1 of the harness-engineering course</nav>
+
+<p class="kicker">Lesson 1</p>
+<h1>The Three-Layer Harness Model</h1>
+<p class="dek">One vocabulary for "is this skill safe" that isn't vibes — used in every lesson that follows.</p>
+
+<p>You already know how to write a <code>SKILL.md</code>, wire a subagent, and register a hook. That's mechanics. What this course is actually about is a harder question: before you point one of those things at a live database or a broken CI pipeline, <strong>how do you know it's safe to trust with the blast radius involved?</strong></p>
+
+<p>"Follow good practices" isn't an answer — it's a hope. This lesson gives you a concrete model to reason with instead, borrowed from a framing that's specific to AI coding agents rather than general software architecture.</p>
+
+<div class="box source">
+  <span class="label">Primary source — read in full</span>
+  <a href="https://www.augmentcode.com/guides/harness-engineering-ai-coding-agents">"Harness Engineering for AI Coding Agents" — Augment Code</a>. This lesson compresses one framework from it; the article has more worked examples than fit here.
+</div>
+
+<h2>What a harness actually is</h2>
+<p>"Agent harness" gets used loosely — sometimes for the whole product (Claude Code), sometimes for an evaluation scaffold (the SWE-bench harness), sometimes conflated with a framework or SDK. The precise version: a harness is the layer wrapping a model that turns it into something able to <em>act</em> — it owns the tool interface, the control loop, and, most importantly for this course, <strong>the constraints on what the agent is allowed to do</strong>. A framework is a library for building harnesses. An SDK is an API. An orchestrator coordinates several agents. None of those are the thing itself.<sup><a href="https://arxiv.org/abs/2606.10106">[1]</a></sup></p>
+
+<p>That last clause — constraints on what the agent is allowed to do — is the whole course. Everything below is about how to design those constraints deliberately instead of by accident.</p>
+
+<h2>The core claim: humans steer, agents execute</h2>
+<p>The Augment Code framework's thesis is blunt: reliability doesn't come from an agent being well-instructed and choosing to comply. It comes from <strong>deterministic constraints</strong> that don't depend on compliance at all. Telling an agent "follow our logging standard" is probabilistic. A linter that blocks the commit until it does is deterministic. The gap between those two is most of what separates a harness that occasionally embarrasses you from one you can actually trust with production systems.</p>
+
+<p>That gap decomposes into three layers.</p>
+
+<h2>Layer 1 — Constraint Harnesses (feedforward)</h2>
+<p>Rules that shrink what's <em>possible</em> before the agent ever acts. A tool allowlist on a skill. A subagent's restricted permission set — remember, subagents don't inherit the parent's permissions automatically, so whatever you grant is the ceiling.<sup><a href="https://code.claude.com/docs/en/hooks">[2]</a></sup> A read-only database credential. This layer doesn't correct bad behavior — it makes whole categories of bad behavior unreachable.</p>
+
+<h2>Layer 2 — Feedback Loops (corrective)</h2>
+<p>Signals returned <em>mid-task</em> that let the agent notice and fix its own mistake. A failing test. A lint error phrased as an instruction rather than a stack trace. Anthropic's tool-design guidance makes the same point from the other direction: error responses should "clearly communicate specific and actionable improvements, rather than opaque error codes or tracebacks."<sup><a href="https://www.anthropic.com/engineering/writing-tools-for-agents">[3]</a></sup> A feedback loop only works if the agent can act on the signal — a cryptic error is not a feedback loop, it's noise.</p>
+
+<h2>Layer 3 — Quality Gates (enforcement)</h2>
+<p>Checks that block a bad outcome from landing <em>regardless of whether the agent cooperated</em>. CI refusing to merge. A <code>PreToolUse</code> hook that hard-blocks a <code>DROP TABLE</code> before it ever reaches the database, no matter what the agent intended. This is the layer that doesn't trust the agent at all — it trusts the gate.</p>
+
+<p>The three layers aren't redundant — they fail differently. Constraint harnesses fail by being too narrow (the agent can't do its job). Feedback loops fail by being illegible (the agent can't act on the signal). Quality gates fail by being absent (nothing stops the bad outcome once the first two layers are bypassed or wrong). A harness worth trusting with real blast radius needs an honest answer at all three layers, not just the one that was easiest to build.</p>
+
+<h2>This is not a new idea — it's twelve-factor, renamed</h2>
+<p>The three-layer model is a specific case of discipline that predates agents entirely. The <a href="https://12factor.net/">Twelve-Factor App</a> encoded the same instinct for human-run services fifteen years ago:</p>
+
+<ul>
+  <li><strong>Factor 5, build/release/run</strong> is a constraint harness — the agent should be structurally unable to run untested code against production, because the stages are separated, not because it was asked nicely.</li>
+  <li><strong>Factor 11, logs as event streams</strong> is what makes feedback loops legible in the first place — you can't correct on a signal you can't read.</li>
+  <li><strong>Factor 12, admin processes as one-off</strong> is the direct ancestor of "backup and restore run as their own scoped, disposable subagent invocation" — never folded into whatever else the main session happens to be doing.</li>
+</ul>
+
+<p>You'll see this pattern repeat all course: agent harness engineering is mostly twelve-factor and SRE discipline, translated for a system that can also decide what to type next.</p>
+
+<h2>Where this is going</h2>
+<p>Each of your four target activities is currently weak at a different layer — that's next lesson's territory, but hold the shape of it now:</p>
+<ul>
+  <li><strong>Database ops</strong> — usually missing quality gates. Nothing structurally stops a bad <code>UPDATE</code>.</li>
+  <li><strong>Backup/restore</strong> — usually missing feedback loops. A silently corrupt backup looks identical to a good one until restore day.</li>
+  <li><strong>CI debugging</strong> — usually missing constraint harnesses. The agent can see and touch far more of the repo than the failing job needs.</li>
+  <li><strong>Feature development</strong> — usually has strong quality gates already (tests, CI) but weak constraint harnesses at the design stage — nothing stops overbuilding before a line of code is written.</li>
+</ul>
+
+<h2>Check your recall</h2>
+
+<div class="quiz">
+  <p class="q">1. A <code>PreToolUse</code> hook that hard-blocks any shell command containing <code>DROP TABLE</code> — which layer?</p>
+  <details><summary>Reveal</summary><p class="a">3 — quality gate. It blocks the outcome regardless of agent intent or cooperation.</p></details>
+</div>
+
+<div class="quiz">
+  <p class="q">2. A skill's frontmatter restricts it to three read-only tools — which layer?</p>
+  <details><summary>Reveal</summary><p class="a">1 — constraint harness. It removes the dangerous action from the possibility space before execution.</p></details>
+</div>
+
+<div class="quiz">
+  <p class="q">3. A failing test returns "expected 3 rows, got 0 — check the WHERE clause on line 42" instead of a raw stack trace — which layer?</p>
+  <details><summary>Reveal</summary><p class="a">2 — feedback loop. It's a mid-task signal legible enough for the agent to self-correct.</p></details>
+</div>
+
+<div class="quiz">
+  <p class="q">4. From memory, name all three layers in order, feedforward to enforcement.</p>
+  <details><summary>Reveal</summary><p class="a">Constraint harness, feedback loop, quality gate.</p></details>
+</div>
+
+<div class="box ask-teacher">
+  <span class="label">Ask your teacher</span>
+  If a layer feels fuzzy — especially the constraint-harness/quality-gate boundary, which trips people up — ask Claude directly in this session before moving on. That's what it's there for.
+</div>
+
+<footer class="lesson-footer">
+  New terms: see <a href="../reference/glossary.html">glossary</a> — Agent Harness, Constraint Harness, Feedback Loop, Quality Gate, Admin Process, Disposability.
+</footer>
