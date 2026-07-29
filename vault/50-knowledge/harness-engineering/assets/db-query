@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# db-query — the only DB-shaped tool ever exposed to an agent.
+# Wraps db_query() as a single-purpose CLI so a harness can grant
+# --allowedTools "Bash(./assets/db-query *)" and nothing psql-shaped,
+# broader, or write-capable ever reaches the agent's hands.
+set -euo pipefail
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$DIR/db-readonly-guard.sh"
+db_query "$1"

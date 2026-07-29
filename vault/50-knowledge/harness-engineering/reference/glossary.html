@@ -1,0 +1,83 @@
+<title>Glossary — Harness Engineering</title>
+<link rel="stylesheet" href="../assets/style.css">
+
+<nav class="crumbs"><a href="../MISSION.md">mission</a> · reference doc</nav>
+
+<p class="kicker">Reference</p>
+<h1>Glossary</h1>
+<p class="dek">The vocabulary this course adheres to. If a lesson uses a term below, it means exactly this — nothing looser.</p>
+
+<dl class="glossary">
+
+  <dt>Agent Harness</dt>
+  <dd>The software layer wrapping a language model that turns it into an agent able to act on a real system — it owns the tool interface, the control loop, and the constraints on what the agent may do. Distinct from an agent <em>framework</em> (a library for building harnesses), an <em>SDK</em>, an <em>orchestrator</em> (coordinates multiple agents), and an <em>evaluation harness</em> (runs an agent against benchmark tasks). <span class="cite">— <a href="https://arxiv.org/abs/2606.10106">arXiv 2606.10106</a></span></dd>
+
+  <dt>Constraint Harness (Feedforward layer)</dt>
+  <dd>Rules that shrink the solution space <em>before</em> the agent acts — tool allowlists, permission scopes, rules files, type systems. Reduces what can go wrong by reducing what's possible at all. <span class="cite">— <a href="https://www.augmentcode.com/guides/harness-engineering-ai-coding-agents">Augment Code</a></span></dd>
+
+  <dt>Feedback Loop (Corrective layer)</dt>
+  <dd>Structured signals returned mid-task that let the agent self-correct — a failing test, a lint error with an actionable message, a tool response describing exactly what went wrong. The signal must be legible enough for the agent to act on it, not a raw traceback. <span class="cite">— <a href="https://www.augmentcode.com/guides/harness-engineering-ai-coding-agents">Augment Code</a>, <a href="https://www.anthropic.com/engineering/writing-tools-for-agents">Anthropic</a></span></dd>
+
+  <dt>Quality Gate (Enforcement layer)</dt>
+  <dd>A deterministic check that blocks a bad outcome from landing, independent of whether the agent "listened" — CI, a pre-merge hook, a <code>PreToolUse</code> hook that hard-blocks a dangerous call. The layer that doesn't rely on the agent's cooperation. <span class="cite">— <a href="https://www.augmentcode.com/guides/harness-engineering-ai-coding-agents">Augment Code</a></span></dd>
+
+  <dt>Progressive Disclosure</dt>
+  <dd>The principle that a skill should load information incrementally — metadata first, full content when relevant, supplementary files only when needed — rather than dumping everything into context up front. <span class="cite">— <a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">Anthropic</a></span></dd>
+
+  <dt>Blast Radius</dt>
+  <dd>The scope of damage a single agent action could cause if wrong — how many rows, how many services, how reversible. The central variable that determines how many harness layers a given operation needs.</dd>
+
+  <dt>Idempotency</dt>
+  <dd>A property of an operation: running it twice (e.g. after a retry, or an agent re-attempting a failed step) produces the same result as running it once, with no compounding side effects. Essential for any harness layer that retries automatically.</dd>
+
+  <dt>Admin Process (12-factor, Factor 12)</dt>
+  <dd>One-off tasks (migrations, backfills, console/REPL access) run as separate, disposable processes against the same codebase and config as the app itself — never folded into the running app's request path. Direct ancestor of "run backup/restore as its own scoped subagent invocation, not a side effect of the main session."</dd>
+
+  <dt>Disposability (12-factor, Factor 9)</dt>
+  <dd>Processes should start fast and shut down gracefully, and be safe to kill and restart at any time. Maps onto harness design as: an agent task interrupted or retried mid-way should leave the system in a safe, resumable state.</dd>
+
+  <dt>Agent Loop</dt>
+  <dd>The runtime cycle that interleaves reasoning, action, and observation — the model decides its next step from what it just observed rather than following a fixed script. One of the four required parts of any harness. <span class="cite">— <a href="https://arxiv.org/abs/2606.10106">arXiv 2606.10106</a></span></dd>
+
+  <dt>Tool Interface</dt>
+  <dd>The mechanism that lets a harness perceive and alter an external environment — read files, run commands, modify a repository. Without it, the agent loop's decisions have no effect. <span class="cite">— <a href="https://arxiv.org/abs/2606.10106">arXiv 2606.10106</a></span></dd>
+
+  <dt>Context Management</dt>
+  <dd>Actively deciding what enters and leaves the model's context — task-aware selection, not blind truncation. One of the four required harness parts.</dd>
+
+  <dt>Control Mechanism</dt>
+  <dd>Limits, verification, and deterministic actions that hold independent of whether the model cooperates — e.g. a bounded retry count, a hard turn limit. The harness-level ancestor of Layer 3 (quality gate).</dd>
+
+  <dt>Verification</dt>
+  <dd>A check, separate from the step that produced the work, confirming the task is actually done. Takes one of two forms: <em>deterministic</em> (a test suite, a schema check — preferred whenever possible) or <em>evaluator-optimizer</em> (a second model call grading the first). The producer must never be the sole judge.</dd>
+
+  <dt>Evaluator-Optimizer</dt>
+  <dd>A workflow pattern where one LLM call generates a response and a separate LLM call evaluates it against explicit criteria, iterating until it passes. Used when no deterministic check exists for the task. <span class="cite">— <a href="https://www.anthropic.com/engineering/building-effective-agents">Anthropic</a></span></dd>
+
+  <dt>Soft Boundary</dt>
+  <dd>A constraint living inside the harness process itself — prompts, hooks, regex, tool allowlists. Fast and cheap, but only as good as what its author anticipated; a gap in it fails silently. Necessary, never sufficient alone for a destructive action. <span class="cite">— see <a href="https://zenity.io/blog/current-events/ai-agent-database-deletion-pocketos">Zenity</a>, "system prompts are not security controls"</span></dd>
+
+  <dt>Hard Boundary</dt>
+  <dd>A constraint enforced by a system outside the harness entirely — a database role's missing write grants, checked by the database engine itself. Doesn't anticipate intent; checks a fact. The only kind of boundary a destructive action should ultimately depend on. <span class="cite">— <a href="https://blog.railway.com/p/your-ai-wants-to-nuke-your-database">Railway</a></span></dd>
+
+  <dt>Skill (Claude Code)</dt>
+  <dd>A packaged, invocable set of instructions (a <code>SKILL.md</code> with frontmatter, optionally with scripts/resources) that Claude Code loads on demand. User-invoked (<code>/name</code>) or model-invoked (triggered by description match).</dd>
+
+  <dt>Subagent</dt>
+  <dd>A fresh Claude Code agent instance spawned to handle a scoped task, with its own context window and — critically — its own permissions, which are <em>not</em> automatically inherited from the parent agent. <span class="cite">— <a href="https://code.claude.com/docs/en/hooks">Claude Code docs</a></span></dd>
+
+  <dt>Hook</dt>
+  <dd>A deterministic shell command the harness runs at a defined lifecycle point (<code>PreToolUse</code>, <code>PostToolUse</code>, <code>Stop</code>, <code>SubagentStop</code>, …), able to inspect, block, or react to agent actions. The primary mechanism for building quality gates in Claude Code specifically. <span class="cite">— <a href="https://code.claude.com/docs/en/hooks">Claude Code docs</a></span></dd>
+
+  <dt>Durable State</dt>
+  <dd>Harness state written to files the harness itself owns, surviving process exit, reboot, and crash — as opposed to <em>ephemeral</em> state (shell variables, the assembled prompt) that dies with the process, or <em>model-side</em> state (the transcript behind a <code>session_id</code>) that persists but is opaque and uneditable. Anything a human authored belongs here. <span class="cite">— <a href="https://12factor.net/processes">Twelve-Factor VI</a></span></dd>
+
+  <dt>Staged Draft</dt>
+  <dd>A durable input file created before the agent runs and deleted only after verification confirms the outward-facing action succeeded — never in a cleanup trap. Its continued presence <em>is</em> the signal that unfinished work exists, making the next invocation's first job to notice it. Write-ahead logging applied to human input.</dd>
+
+  <dt>Context Retention</dt>
+  <dd>The per-attempt decision to resume a prior agent session (<code>--resume</code>) or start fresh. Retaining buys continuity of the agent's reasoning about an earlier failure; it is <em>not</em> a token optimization, since it trades a cacheable instructions prefix for a transcript that grows each attempt. Discard deliberately when the corrected input differs enough that the prior transcript would anchor rather than inform. <span class="cite">— <a href="https://code.claude.com/docs/en/headless">Claude Code docs</a></span></dd>
+
+</dl>
+
+<footer class="lesson-footer">Harness Engineering workspace · updated as new terms are introduced in lessons</footer>

@@ -1,0 +1,169 @@
+<title>Lesson 4 — State That Outlives the Loop</title>
+<link rel="stylesheet" href="../assets/style.css">
+
+<nav class="crumbs"><a href="../MISSION.md">mission</a> · <a href="../reference/glossary.html">glossary</a> · <a href="0001-the-three-layer-harness-model.html">lesson 1</a> · <a href="0002-anatomy-of-a-harness-workflow.html">lesson 2</a> · <a href="0003-gating-destructive-db-access.html">lesson 3</a> · lesson 4</nav>
+
+<p class="kicker">Lesson 4</p>
+<h1>State That Outlives the Loop</h1>
+<p class="dek">Lesson 2's harness retries cleanly — as long as nothing kills the process. This lesson asks the harder question: when the run ends <em>without</em> finishing, what is still on disk, and what did you just make someone type again?</p>
+
+<div class="box source">
+  <span class="label">Primary sources — read in full</span>
+  <a href="https://12factor.net/processes">Twelve-Factor VI — Processes</a> and
+  <a href="https://12factor.net/disposability">Twelve-Factor IX — Disposability</a>: processes are stateless and share-nothing, anything that must persist belongs in a backing service, and a well-built process can die at any moment without losing work. This lesson applies both to a harness. Session and cost semantics come from <a href="https://code.claude.com/docs/en/headless">Claude Code's headless-mode docs</a>.
+</div>
+
+<h2>The bug in Lesson 2's script</h2>
+<p>Look again at the retry mechanism in <code>harness-min.sh</code>:</p>
+
+<pre><code>session_id=""
+prompt="$task"
+
+for attempt in $(seq 1 "$max_attempts"); do
+  ...
+  [[ -n "$session_id" ]] &amp;&amp; claude_args+=(--resume "$session_id")</code></pre>
+
+<p>That is correct, and it is also entirely <strong>in-process</strong>. <code>session_id</code> is a shell variable. So is the corrected <code>prompt</code>. They survive iteration two of the <code>for</code> loop and nothing else. Ctrl-C, a laptop sleeping, a <code>set -e</code> abort on an unrelated line, or simply exhausting <code>max_attempts</code> — and every one of them is gone.</p>
+
+<p>For the CI-debugging case that barely matters: the task description came from a CI event and can be regenerated. It matters enormously the moment a <em>human</em> supplied the input. If the trigger for your harness is a person writing something into an editor, then "the process exited early" and "the person retypes their work" are the same event. That is not a robustness nitpick; it is the harness actively costing more than it saves.</p>
+
+<blockquote>Twelve-factor processes are stateless and share-nothing. Any data that needs to persist must be stored in a stateful backing service.</blockquote>
+
+<p>A harness has no database. Its backing service is the filesystem — which is fine, as long as you are deliberate about which files exist, and precisely when they stop existing.</p>
+
+<h2>Three tiers of harness state</h2>
+<p>Every piece of state in a harness sits in exactly one of these, and most design mistakes here are a piece of state sitting in the wrong one:</p>
+
+<ul>
+  <li><strong>Ephemeral</strong> — shell variables, the assembled prompt string, anything in the process's memory. Dies at exit. Correct home for genuinely derived values; wrong home for anything a human authored.</li>
+  <li><strong>Model-side</strong> — the conversation transcript, addressed by <code>session_id</code>. Survives process exit, but you do not own it: it lives in the CLI's session storage, is opaque to inspection, can be cleared, and cannot be edited to fix a mistake. Good for continuity, unacceptable as your only copy.</li>
+  <li><strong>Durable</strong> — files the harness writes and owns. Survives exit, survives reboot, is greppable, diffable, and — critically — <em>editable by the human</em> when the agent got something wrong.</li>
+</ul>
+
+<p>The rule that falls out: <strong>anything a human typed, and anything you will later need to account for, belongs in tier three.</strong> Everything else is an optimization.</p>
+
+<h2>The loop, as a diagram</h2>
+<p>The same trigger → agent → verify → gate spine from Lesson 2, with the state boundaries made explicit. The rail is no longer observability — it is the durability question, asked at every step:</p>
+
+<div class="flow-wrap">
+  <div class="flow-rail">durable state — survives process exit</div>
+  <div class="flow">
+    <div class="flow-step"><span class="tag">Trigger</span>A human edits a <strong>staged draft</strong> in <code>$EDITOR</code>. If a draft from a previous run is still on disk, that one opens — never a blank template.</div>
+    <div class="flow-step"><span class="tag">State load</span>Read the sidecar: attempts so far, accumulated cost, and the <code>session_id</code> of the last run that didn't finish.</div>
+    <div class="flow-step"><span class="tag">Context decision</span>Retain or discard. A stored <code>session_id</code> means resume; its absence means start fresh from the full instructions.</div>
+    <div class="flow-step"><span class="tag">Agent loop</span><code>claude -p</code> with an explicit tool allowlist — re-passed every run, never assumed to carry over.</div>
+    <div class="flow-step"><span class="tag">Verification</span>A separate check on structured output: did the outward-facing action actually happen? Not "did the agent say it did."</div>
+    <div class="flow-branch">
+      <div class="flow-step"><span class="tag">Gate — pass</span>Published. <em>Now</em> delete the draft and the sidecar — the last action taken, never the first.</div>
+      <div class="flow-step"><span class="tag">Gate — fail</span>Persist draft, sidecar, and <code>session_id</code>. Report which fields were missing. Exit cleanly; the next run picks up here.</div>
+    </div>
+  </div>
+</div>
+
+<h2>Ordering is the whole pattern</h2>
+<p>The single most important line in the prototype is a <code>rm</code>, and what matters is where it sits:</p>
+
+<div class="compare">
+  <div class="box soft">
+    <span class="label">Temp-file instinct</span>
+    <code>trap 'rm -f "$tmpfile"' EXIT</code> — clean up on the way out, unconditionally. The reflex every shell scripter has. It guarantees no litter, and it guarantees that the one run you most wanted to recover is the one you destroyed.
+  </div>
+  <div class="box hard">
+    <span class="label">Staged-draft pattern</span>
+    Delete only after verification confirms the outward action succeeded. Failure leaves a complete, editable draft exactly where the next run looks for it. Litter is the <em>signal</em> that work is outstanding.
+  </div>
+</div>
+
+<p>This is write-ahead logging with the serial numbers filed off: record the intent durably, perform the effect, and only then discard the record. A harness that cleans up before it commits has chosen tidiness over the user's work.</p>
+
+<p>One consequence worth stating plainly — the leftover file is not a failure artifact to be swept up by a cron job. It <em>is</em> the queue. Its presence means "unfinished work exists," and the next invocation's first job is to notice that.</p>
+
+<h2>Retain or discard: what resuming actually buys</h2>
+<p>Having stored a <code>session_id</code>, you get a real choice on the next run, and it is worth being precise about the tradeoff, because the intuitive answer is wrong in both directions.</p>
+
+<p><strong>What resuming buys:</strong> continuity of reasoning. The agent already worked out what was wrong with attempt one. Resume and it still knows; start fresh and it re-derives that from scratch, possibly differently. When the rejection reason was subtle, this is worth real money.</p>
+
+<p><strong>What resuming does <em>not</em> buy: a lower bill.</strong> This is the counterintuitive part. Resuming replaces "resend a fixed instructions block" — which is a stable prefix, and therefore highly cacheable across separate invocations — with "carry forward a transcript that grows with every attempt." For a short task, that trade is a wash at best. Resume for continuity, not for cost; if someone tells you <code>--resume</code> is a token optimization, ask them to measure it.</p>
+
+<p><strong>When to discard deliberately:</strong> if the human's edit substantially changed the input, the prior transcript is not context — it is anchoring. A fresh session is the right call when attempt two is a genuinely different entry rather than a correction of the first.</p>
+
+<h2>Accounting across attempts</h2>
+<p>The reason the sidecar holds more than just <code>session_id</code>: per the headless docs, the JSON result's cost and usage fields describe <strong>that invocation only</strong>. They do not accumulate across a resumed session. So a task that succeeded on attempt three, read naively, reports the cost of attempt three and silently discards attempts one and two.</p>
+
+<p>If you care what a unit of work actually cost — and on a metered workflow you do — the summing is the caller's job:</p>
+
+<pre><code>state="$(jq -n --argjson prev "$prior_state" --argjson cur "$output" '{
+  attempts:       ($prev.attempts       + 1),
+  total_cost_usd: ($prev.total_cost_usd + $cur.total_cost_usd),
+  num_turns:      ($prev.num_turns      + $cur.num_turns),
+  session_id:     $cur.session_id
+}')"</code></pre>
+
+<p>Note that <code>session_id</code> is carried, not summed — it is a pointer to model-side state, not a metric. That single asymmetry is the whole file in miniature: tier-three storage holding both an accounting record and an address into tier two.</p>
+
+<div class="box hard">
+  <span class="label">Field note — this will bite you on macOS</span>
+  Building the conditional resume flag, the obvious form is an array: <code>resume_args=(--resume "$id")</code>, empty when starting fresh. Expanding it as <code>"${resume_args[@]}"</code> under <code>set -u</code> aborts the entire run on bash 3.2 — still <code>/bin/bash</code> on current macOS — because an empty array expansion counts as an unbound variable. Confirmed at the prompt: <code>bash: resume_args[@]: unbound variable</code>. The portable form is <code>"${resume_args[@]+"${resume_args[@]}"}"</code>. A harness that only fails on the <em>fresh-session</em> path is a harness that works in every test you bothered to run.
+</div>
+
+<h2>The prototype</h2>
+<p>Full script at <code>assets/harness-durable.sh</code> — a generic "human drafts an entry, agent formats and publishes it" harness, structurally identical to the diagram above. Its lineage is a personal journaling workflow where exactly this failure occurred: a required field was missing, the agent correctly refused to publish, and the draft evaporated with the temp file.</p>
+
+<p>Two design choices inside it are worth lifting out. First, the tool allowlist is re-passed on every invocation rather than assumed to survive <code>--resume</code>; the docs are explicit about permission <em>mode</em> being restored but silent on tool allowlists, and a permission set that silently changes on retry is not something to discover in production. Second, the structured-output schema carries a <code>missing_fields</code> array alongside <code>published</code>:</p>
+
+<pre><code>schema='{"type":"object","properties":{
+  "entry":{"type":"string"},
+  "missing_fields":{"type":"array","items":{"type":"string"}},
+  "published":{"type":"boolean"}},
+  "required":["entry","missing_fields","published"]}'</code></pre>
+
+<p>That is Lesson 2's legible-observation principle applied to the human instead of the agent. A gate that fails with "not published" sends someone hunting; a gate that fails with <code>missing: weight</code> sends them straight back to the one line they need to fix.</p>
+
+<h2>Permutations from here</h2>
+<p>Once the harness owns a directory of its own state, several things that look like separate features turn out to be the same move:</p>
+
+<ul>
+  <li><strong>Run journals.</strong> Lesson 2's <code>events.jsonl</code> already does this per-run. Keying it by unit-of-work instead of by process gives you the full history of a single entry across every attempt it took.</li>
+  <li><strong>Subagent research stashes.</strong> When a subagent retrieves context — docs, schema dumps, API responses — writing it to <code>./state/research/&lt;topic&gt;.md</code> and passing the <em>path</em> back, rather than the content, keeps the parent's context clean while the retrieval stays reusable on the next attempt. The parent decides what to read; the retrieval survives the process that performed it.</li>
+  <li><strong>Decision records.</strong> An append-only <code>decisions.md</code> the agent writes to when it makes a judgment call ("chose to treat blank as unset"). Cheap, and it makes an unattended run reviewable after the fact.</li>
+  <li><strong>Crash-safe writes.</strong> Write to a sibling path and <code>mv</code> into place. Rename is atomic on a POSIX filesystem; a direct write that dies halfway leaves a truncated draft, which is worse than no draft.</li>
+</ul>
+
+<h2>What this doesn't solve</h2>
+<p>Durable state is not durable <em>correctness</em>. Nothing here stops a harness from confidently persisting a bad draft and resuming it forever — the gate still has to be right, and Lesson 3's argument about who is allowed to judge the work still stands. Nor does it address concurrency: two invocations racing on one staged draft will clobber each other, and the fix is a lockfile, which this prototype deliberately omits for a single-user workflow. Multi-writer harness state is its own lesson.</p>
+
+<h2>Check your recall</h2>
+
+<div class="quiz">
+  <p class="q">1. Lesson 2's script resumes sessions correctly. What exactly does it still lose, and when?</p>
+  <details><summary>Reveal</summary><p class="a">Everything held in shell variables — <code>session_id</code> and the corrected prompt — the moment the process exits for any reason other than completing the loop. Retries survive within one run; nothing survives across runs.</p></details>
+</div>
+
+<div class="quiz">
+  <p class="q">2. Why is the staged draft deleted after the publish rather than in an <code>EXIT</code> trap?</p>
+  <details><summary>Reveal</summary><p class="a">A trap fires on every exit, including the failures you most need to recover from. Deleting only on verified success turns a lost entry into a retryable one, and makes the file's presence the signal that work is outstanding.</p></details>
+</div>
+
+<div class="quiz">
+  <p class="q">3. Does <code>--resume</code> reduce token spend? Why or why not?</p>
+  <details><summary>Reveal</summary><p class="a">Not reliably. It trades a stable, cacheable instructions prefix for a transcript that grows each attempt. Its real benefit is continuity of the agent's reasoning about the earlier failure, not cost.</p></details>
+</div>
+
+<div class="quiz">
+  <p class="q">4. A harness reports <code>total_cost_usd</code> from a run that succeeded on its third attempt. What is wrong with that number?</p>
+  <details><summary>Reveal</summary><p class="a">It covers that invocation only — the cost fields do not accumulate across resumes — so attempts one and two are silently missing. The caller has to sum them in its own durable state.</p></details>
+</div>
+
+<div class="quiz">
+  <p class="q">5. Which tier does <code>session_id</code> live in, and which tier does it point at?</p>
+  <details><summary>Reveal</summary><p class="a">Stored in tier three (a durable file the harness owns); points at tier two (model-side transcript storage the harness does not own and cannot edit).</p></details>
+</div>
+
+<div class="box ask-teacher">
+  <span class="label">Ask your teacher</span>
+  The natural next step is the concurrency case this lesson skipped — lockfiles, stale-lock recovery, and what "resume" means when two runs both think they own the draft. Ask if you want that built out, or if you'd rather apply the staged-draft pattern to one of the four target activities from <a href="../MISSION.md">MISSION.md</a> first.
+</div>
+
+<footer class="lesson-footer">
+  New terms: see <a href="../reference/glossary.html">glossary</a> — Staged Draft, Durable State, Context Retention. New files: <code>assets/harness-durable.sh</code>.
+</footer>

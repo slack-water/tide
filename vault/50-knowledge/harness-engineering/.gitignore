@@ -1,0 +1,5 @@
+pdf/
+
+# Durable state written by assets/harness-durable.sh (lesson 4)
+.harness-draft.md*
+.harness-draft.state.json
