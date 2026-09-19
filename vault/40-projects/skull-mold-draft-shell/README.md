@@ -107,6 +107,25 @@ Full algorithmic detail, including the derivation of the draft-angle math, lives
 
 **General takeaway across all of the above:** every one of these bugs was silent — no exception, no error, just a wrong-looking (or wrong-in-a-way-that-doesn't-visually-register) result. Cheap synthetic test meshes (a simple mushroom shape with a known overhang) caught most of them in ~1 second instead of burning a ~1-minute real run per iteration, and geometric verification (ray-casting through a shape, checking volume against expected filled-voxel count, checking bounds after a transform) caught what visual inspection and `is_watertight` alone missed.
 
+## Half-scale test print recipe (2026-09-19)
+
+Same pipeline, `draft --scale 0.5` (new flag; scales about the origin so x=0 stays the parting plane). `--pitch` is in scaled units: 0.075 = 0.15 × 0.5 gives an identical voxel grid, so blur/teeth-radius behave the same relative to features. Shell wall stays an absolute 1.2 mm (≈ 3 loops of 0.42 mm on the A1).
+
+```bash
+python stl_add_draft.py draft "Skull (Left).stl" draft50.stl --scale 0.5 \
+    --pull-axis x --base min --pitch 0.075 --draft 5 --blur 6 --smooth 20 --smooth-method taubin
+python stl_add_draft.py shell draft50.stl "Skull (Left)_50pct_shell1.2mm_blur3_teeth1.stl" \
+    --pull-axis x --base min --pitch 0.075 --thickness 1.2 --blur 3 --teeth-blur 1 --teeth-radius 5 \
+    --smooth 20 --smooth-method taubin
+python stl_add_draft.py mirror "Skull (Left)_50pct_shell1.2mm_blur3_teeth1.stl" "Skull (Right)_50pct_shell1.2mm_blur3_teeth1.stl" --axis x --plane 0
+```
+
+Result: 19.6 × 63.1 × 48.1 mm, 5.3 cm³ of plastic (~¼ of full size, since wall thickness is constant). ~1 min per step.
+
+**Print orientation:** flat parting face on the bed (pull axis X = up). Measured on the half-scale shell: outer (cast) surface needs **0 mm²** of support; inner cavity ceiling needs support on ~23% of its 4184 mm² at Bambu's 30° threshold (33% at 45°), mostly a shallow dome 15–18 mm above the bed. So supports only ever touch the interior.
+
+**Bug fixed:** `field_to_mesh` emitted inside-out meshes (negative volume) for every draft/shell output before this date, including the full-size STLs. Slicers auto-repair it, so prints were unaffected, but fixed now (verified on a sphere: −4166 → +4166). Old full-size outputs are still inside-out.
+
 ## Log
 
 ### 2026-07-29

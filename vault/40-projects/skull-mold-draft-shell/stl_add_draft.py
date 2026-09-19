@@ -318,6 +318,16 @@ def field_to_mesh(field: np.ndarray, transform: np.ndarray,
     verts -= 1.0
     verts = trimesh.transform_points(verts, transform)
 
+    # skimage winds faces for a field that is LOWER inside, but every field
+    # this script builds is positive inside (see docstring above), so the
+    # raw output comes out inside-out (negative volume, normals pointing
+    # into the material). Verified on a synthetic sphere: volume -4166 as-is,
+    # +4166 flipped. Slicers tend to silently auto-repair this, which is how
+    # it went unnoticed, but anything that trusts normals (overhang/support
+    # analysis, boolean ops) gets it backwards. Flip so output is outward-
+    # facing like the input scan.
+    faces = faces[:, ::-1]
+
     out = trimesh.Trimesh(vertices=verts, faces=faces, process=True)
     out.remove_unreferenced_vertices()
     return out
@@ -778,6 +788,20 @@ def build_parser():
                           "widen as it moves from the tip back toward the "
                           "base, giving the print clearance in the mold "
                           "instead of an exact knife-edge fit.")
+    pd.add_argument("--scale", type=float, default=1.0,
+                     help="Uniformly scale the input mesh by this factor "
+                          "BEFORE voxelizing, e.g. 0.5 for a half-size test "
+                          "print. Scales about the origin, so a parting "
+                          "plane at x=0 stays at x=0 (mirror's default "
+                          "--plane keeps working). --pitch and everything "
+                          "downstream (shell --thickness, etc.) are in the "
+                          "scaled units, so to get an identical-looking "
+                          "result at a smaller size, scale --pitch by the "
+                          "same factor (voxel-denominated flags like --blur "
+                          "then behave the same relative to the features). "
+                          "Draft is a percentage grade, so it is scale-"
+                          "invariant. Run shell on this command's output "
+                          "with no scale of its own. Default: 1.0.")
     pd.add_argument("--blur", type=float, default=0.0,
                      help="Gaussian sigma, in voxels, used to round off "
                           "sharp crease lines that form where two nearby "
@@ -886,6 +910,11 @@ def main():
         print("WARNING: input mesh is not watertight -- voxelization may be "
               "imperfect. Consider running an STL repair pass first.",
               file=sys.stderr)
+
+    if args.command == "draft" and args.scale != 1.0:
+        mesh.apply_scale(args.scale)
+        print(f"Scaled input by {args.scale:g} about the origin; new extents "
+              f"{np.round(mesh.extents, 2).tolist()} mm")
 
     if args.pitch is None:
         diag = np.linalg.norm(mesh.bounding_box.extents)
