@@ -1,7 +1,7 @@
 ---
 title: Skull Mold Draft & Shell Pipeline
 created: 2026-07-29
-updated: 2026-07-29
+updated: 2026-09-21
 folder: 40
 type: project
 status: active
@@ -126,7 +126,30 @@ Result: 19.6 × 63.1 × 48.1 mm, 5.3 cm³ of plastic (~¼ of full size, since wa
 
 **Bug fixed:** `field_to_mesh` emitted inside-out meshes (negative volume) for every draft/shell output before this date, including the full-size STLs. Slicers auto-repair it, so prints were unaffected, but fixed now (verified on a sphere: −4166 → +4166). Old full-size outputs are still inside-out.
 
+## Print prep (learned 2026-09-20/21, from failed first-layer prints on the A1)
+
+**Import the `_PRINT` files, don't rotate in the slicer.** The rim (parting face) is flat to ~0.01 mm in the STL, but rotating/"Place on face" in the slicer can leave a fraction-of-a-degree tilt (0.1° over 126 mm = 0.22 mm, more than the whole first layer). Symptom: brim and first layer appear only along the lowest edge; the rest of the 1.2 mm ring isn't in layer 1, starts in mid-air at layers 2–3, and fails. Fix: bake the orientation into the file so it imports rim-down with no rotation — left rotated −90° about Y, right +90°, then translate so min z = 0 (`_PRINT` suffix). Verify: slice, scrub to layer 1, the whole ring must be there.
+
+**Other first-layer settings that matter for a 1.2 mm ribbon (Bambu A1, Overture PLA):** elephant-foot compensation 0 (default 0.075 shrinks the ribbon), slower/fatter first layer, fan off for first 3 layers, calibrated PA (0.058 for this Overture spool, not the 0.02 default). Supports: Tree Hybrid, build plate only, 3 wall loops (1.2 mm wall ≈ 3 × 0.42 mm lines). Cavity-ceiling supports are the only ones that touch cast surfaces.
+
+**Shell thickness runs ~half a voxel thin** (distance is measured voxel-centre to voxel-centre): pitch 0.15 → ~1.17 mm, pitch 0.2 → ~1.10 mm for a requested 1.2. At 150% I requested `--thickness 1.3` at pitch 0.2 to land at median 1.23 mm (p5 1.06).
+
+**150% recipe** (near real skull size; 143.8 × 188.7 × 58.6 mm printed, ~52 cm³ each half). Pitch 0.2, not 0.15: at 0.15 the grid is ~474M voxels, too much for 16 GB RAM.
+
+```bash
+python stl_add_draft.py draft "Skull (Left).stl" draft150.stl --scale 1.5 \
+    --pull-axis x --base min --pitch 0.2 --draft 5 --blur 6 --smooth 20 --smooth-method taubin
+python stl_add_draft.py shell draft150.stl shell150.stl --pull-axis x --base min --pitch 0.2 \
+    --thickness 1.3 --blur 3 --teeth-blur 1 --teeth-radius 5 --smooth 20 --smooth-method taubin
+python stl_add_draft.py mirror shell150.stl shell150R.stl --axis x --plane 0
+# then rotate to rim-down (see Print prep): left -90°, right +90° about Y, drop to z=0
+```
+
 ## Log
+
+### 2026-09-19 to 2026-09-21
+
+Half-scale, then 100% and 150% shells generated with the fixed script. First-layer failures on Overture PLA traced to slicer tilt of the rim, not the filament (see Print prep). 150% (closer to real skull size) is the current print target; plaster release and support release still untested.
 
 ### 2026-07-29
 
