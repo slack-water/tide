@@ -147,6 +147,20 @@ python stl_add_draft.py mirror shell150.stl shell150R.stl --axis x --plane 0
 
 ## Log
 
+### 2026-10-04
+
+150% shell printed and cast into a plaster negative (worked). Added a `core` command (solid inward erosion by `--inset` mm, flush at the parting face — `shell`'s padding trick without the hollowing) to make a clay-pressing plug: its outer surface sits 5 mm inside the plaster cavity, leaving a 5 mm gap for a clay sheet. Detail is already in the plaster, so it's low-res for fast printing:
+
+```bash
+python stl_add_draft.py draft "Skull (Left).stl" draft150_p04.stl --scale 1.5 \
+    --pull-axis x --base min --pitch 0.4 --draft 5 --blur 3 --smooth 20 --smooth-method taubin
+python stl_add_draft.py core draft150_p04.stl core150.stl --pull-axis x --base min \
+    --pitch 0.4 --inset 5 --blur 1.5 --smooth 20 --smooth-method taubin
+# rotate -90° about Y, drop to z=0 -> `Skull (Left)_150pct_core5mm_PRINT.stl`
+```
+
+Verified: watertight, 556 cm³, 132.4 × 175.6 × 53.7 mm printed; vertex distance to the drafted outer surface 4.3–5.3 mm (median 4.85, same half-voxel-thin bias as `shell`). Teeth and thin ridges vanish (narrower than 10 mm). Not yet printed.
+
 ### 2026-09-19 to 2026-09-21
 
 Half-scale, then 100% and 150% shells generated with the fixed script. First-layer failures on Overture PLA traced to slicer tilt of the rim, not the filament (see Print prep). 150% (closer to real skull size) is the current print target; plaster release and support release still untested.

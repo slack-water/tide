@@ -718,6 +718,47 @@ def shell_correct(mesh: trimesh.Trimesh, axis: int, base: str, pitch: float,
     return field_to_mesh(sdf, transform, level=0.0, pad_value=float(sdf.min()) - 1.0)
 
 
+def core_correct(mesh: trimesh.Trimesh, axis: int, base: str, pitch: float,
+                  inset: float, blur_sigma: float = 0.0) -> trimesh.Trimesh:
+    """
+    Solid inward offset: erode `mesh` by `inset` (true nearest-surface
+    distance) and keep ALL of what's left, still open/flush at the `base`
+    end of `axis`. Use case: a plug that presses a clay sheet of thickness
+    `inset` into a plaster mold cast from `mesh`'s outer surface.
+
+    Same base-face padding trick as shell_correct (pad the parting face
+    as solid so the distance transform doesn't treat it as a wall), so
+    the core stays full-height right down to the parting plane instead of
+    shrinking away from it. Features thinner than 2*inset (teeth tips,
+    thin ridges) vanish entirely -- expected for a clay-pressing plug.
+    """
+    print(f"Voxelizing at pitch={pitch:.4f} ...")
+    arr, transform = voxelize_solid(mesh, pitch)
+    print(f"Voxel grid shape: {arr.shape} ({arr.sum()} occupied voxels)")
+
+    pad = int(np.ceil(inset / pitch)) + 2
+    const_vals = [(False, False)] * 3
+    if base == "min":
+        const_vals[axis] = (True, False)
+    else:
+        const_vals[axis] = (False, True)
+    padded = np.pad(arr, [(pad, pad)] * 3, mode="constant",
+                     constant_values=const_vals)
+
+    print(f"Eroding by {inset:.2f}mm ...")
+    dist = ndimage.distance_transform_edt(padded) * pitch
+    core_mask = (padded & (dist >= inset))[
+        tuple(slice(pad, pad + s) for s in arr.shape)]
+    print(f"Kept {core_mask.sum()} of {arr.sum()} voxels "
+          f"({core_mask.sum() / max(arr.sum(), 1):.1%}).")
+
+    sdf = (ndimage.distance_transform_edt(core_mask)
+           - ndimage.distance_transform_edt(~core_mask)).astype(np.float32)
+    if blur_sigma > 0:
+        sdf = ndimage.gaussian_filter(sdf, sigma=blur_sigma)
+    return field_to_mesh(sdf, transform, level=0.0, pad_value=float(sdf.min()) - 1.0)
+
+
 def _add_shared_args(sp):
     """
     Args common to both 'draft' and 'shell' subcommands. Factored out so
@@ -863,6 +904,17 @@ def build_parser():
                           "feature is wrongly getting --teeth-blur's. "
                           "Default: 5.")
 
+    pc = sub.add_parser("core", help="Erode a solid inward by a fixed "
+                         "distance (a plug for pressing clay into a mold "
+                         "cast from the input's surface), flush at the "
+                         "parting-plane face.")
+    _add_shared_args(pc)
+    pc.add_argument("--inset", type=float, default=5.0,
+                     help="Inward offset in mm (= clay thickness). Default 5.")
+    pc.add_argument("--blur", type=float, default=0.0,
+                     help="Gaussian sigma (voxels) to round creases that "
+                          "erosion sharpens. 0 = off.")
+
     pm = sub.add_parser("mirror", help="Reflect a mesh across a plane -- "
                          "e.g. turn a finished left-side half into a "
                          "right-side counterpart.")
@@ -926,9 +978,12 @@ def main():
     if args.command == "draft":
         result = draft_correct(mesh, axis, args.base, args.pitch, args.draft,
                                 args.blur)
-    else:
+    elif args.command == "shell":
         result = shell_correct(mesh, axis, args.base, args.pitch, args.thickness,
                                 args.blur, args.teeth_blur, args.teeth_radius)
+    else:
+        result = core_correct(mesh, axis, args.base, args.pitch, args.inset,
+                               args.blur)
 
     smooth_mesh(result, args.smooth, args.smooth_method)
 
