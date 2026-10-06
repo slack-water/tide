@@ -23,7 +23,10 @@ same pull axis, just subtracted instead of shelled. A fourth command,
 `mirror`, is just a flat reflection across the parting plane -- handy for
 turning a finished half (e.g. the left side of a hemisected skull) into
 its opposite-side counterpart (a right side) without redoing any of the
-draft/shell/negative work.
+draft/shell/negative work. A fifth command, `brim`, fuses a rigid, ribbed,
+natch-holed mounting flange onto a `shell` output's open base rim, for
+pressing skull-side-up at the bottom of a cottleboard box during the
+actual plaster pour.
 
 Both commands work by voxelizing the mesh (turning it into a 3D grid of
 filled/empty cells), doing the geometric operation on that grid with array
@@ -206,17 +209,51 @@ inverted) as the input.
 Usage:
     python stl_add_draft.py mirror input.stl output.stl --axis x --plane 0.0
 
+--- brim command ---
+
+Takes a `shell` output (open at the base/parting-plane rim) and fuses a
+flat, ribbed, 4-holed flange onto that rim: a rigid plinth so the thin
+(~1.2mm) shell can be seated flat and stable at the bottom of a
+cottleboard box without warping mid-pour, sized so its outer edge becomes
+the resulting plaster mold's parting-face footprint, with 4 corner holes
+sized for natches that plaster captures as it cures around them.
+
+Unlike every other command here, this is exact mesh boolean CSG (box/
+cylinder primitives via trimesh.boolean), not voxel-CSG -- see
+brim_correct's docstring for why that's the right call here specifically
+(clean synthetic-primitive geometry, not a messy scan) and requires a
+boolean-capable trimesh backend (`pip install manifold3d`). The brim
+attaches only to the shell's own rim footprint (expanded by --margin) --
+it does NOT cap/span the shell's open interior cavity, so the interior
+stays accessible for frozen-isopropyl-alcohol packing exactly as before.
+
+Corner (not silhouette-fitted) placement for the natch holes is a
+deliberate simplification: a margin-padded bounding-box corner is clear
+of an oval/skull-shaped footprint by construction, no clearance-checking
+against the actual mesh needed. Holes are plain cylindrical through-holes
+-- how the natches themselves key/clip into them is a hardware choice,
+not something this script decides.
+
+Usage:
+    python stl_add_draft.py brim input.stl output.stl \
+        --pull-axis x --base min --thickness 6 --margin 35 \
+        --natch-diameter 12 --natch-margin 15
+
 Run `python stl_add_draft.py draft --help`, `... shell --help`,
-`... negative --help`, or `... mirror --help` for the full up-to-date
-list of flags with explanations (kept in sync with this docstring, but
-that's the authoritative source since argparse enforces it).
+`... negative --help`, `... mirror --help`, or `... brim --help` for the
+full up-to-date list of flags with explanations (kept in sync with this
+docstring, but that's the authoritative source since argparse enforces
+it).
 """
 
 import argparse
 import sys
 import numpy as np
 import trimesh
+import shapely.geometry
+import shapely.ops
 from scipy import ndimage
+import scipy.optimize
 from skimage import measure
 
 
@@ -871,6 +908,555 @@ def negative_correct(mesh: trimesh.Trimesh, axis: int, base: str, pitch: float,
     return field_to_mesh(sdf, transform, level=0.0, pad_value=float(sdf.min()) - 1.0)
 
 
+def brim_correct(mesh: trimesh.Trimesh, axis: int, base: str,
+                  thickness: float, margin: float,
+                  rib_count: int = 8, rib_width: float = 3.0,
+                  rib_height: float = 6.0,
+                  natch_diameter: float = 12.0, natch_margin: float = 15.0,
+                  overlap: float = 2.0,
+                  footprint: str = "rim",
+                  preserve_vent: bool = True) -> trimesh.Trimesh:
+    """
+    Attach a rigid, ribbed, natch-holed flange ("brim") to the open base
+    rim of a `shell_correct` output, for pressing skull-side-up at the
+    bottom of a cottleboard box. See the module docstring's "brim command"
+    section for the physical picture.
+
+    Unlike draft/shell/negative, this is EXACT mesh boolean CSG, not
+    voxel-CSG -- the brim itself is pure primitive geometry (flat plate,
+    box ribs, cylindrical holes), and voxelizing it would only introduce
+    staircasing into surfaces that should be perfectly flat/round. Exact
+    booleans are also much better-behaved here than they'd be on the raw
+    scan (the reason this script's other commands avoid them): the input
+    is `mesh`, an already-clean, already-watertight marching-cubes output,
+    not a messy 300k-vertex scan.
+
+    Args:
+      axis, base    same pull-axis/parting-face convention as draft/shell/
+                    negative. The brim is built flush against whichever
+                    end of `axis` `base` names, using `mesh`'s own bounds
+                    there -- it does NOT re-derive the parting plane from
+                    a separate --plane flag, since a shell_correct output
+                    is already flush by construction.
+      thickness     brim plate thickness (mm), measured outward from the
+                    parting plane, away from the body.
+      margin        how far the plate extends beyond `mesh`'s own
+                    transverse (non-pull-axis) bounding box, on every side
+                    (mm). This is the real "how much plaster margin do I
+                    want at the parting face" decision -- see the README.
+      rib_count     number of stiffening fins per transverse direction
+                    (a crosshatch/waffle grid, 0 disables ribs). Ribs are
+                    axis-aligned box fins, not radial spokes, specifically
+                    so this stays boolean-union-of-boxes rather than
+                    needing rotated primitives.
+      rib_width, rib_height
+                    fin cross-section (mm): thin dimension and how far
+                    fins project beyond the plate's outward face.
+      natch_diameter, natch_margin
+                    4 through-holes, sized `natch_diameter` across, for
+                    inserting/clipping natches so wet plaster captures
+                    them. Positioned at 4 evenly-arc-spaced points around
+                    the boundary of `plate_2d` eroded inward by
+                    `natch_margin` + radius -- i.e. the actual final ring
+                    shape (outer margin, minus the vent), shrunk by
+                    exactly the clearance a hole needs, so anywhere on
+                    what's left is guaranteed real, sufficiently-clear
+                    material. Two simpler placements were tried first and
+                    both broke on a real skull cross-section (not just the
+                    synthetic test shell -- see the "corners" comment
+                    where this is computed for the two failed attempts and
+                    what specifically went wrong with each).
+      overlap       how far (mm) the plate's INNER face penetrates past
+                    the parting plane, into `mesh`'s own body, before the
+                    boolean union runs. Required: a plate built exactly
+                    flush with the parting plane would only ever TOUCH
+                    `mesh` along a zero-volume coplanar face, which is close
+                    to the worst case for a boolean mesh engine (ambiguous
+                    intersection curve, not a real 3D overlap) -- forcing
+                    a few mm of genuine volumetric overlap instead sidesteps
+                    that degenerate case entirely. Also reused as the vent
+                    hole's inward safety shrink -- see below.
+      footprint     "rim" (default): the plate's outer boundary follows
+                    `mesh`'s own rim cross-section, buffered outward by
+                    `margin` -- the original behavior, margin measured from
+                    the actual (possibly irregular) shape. "circle": the
+                    outer boundary is instead a single circle, centered to
+                    minimize how much the cross-section's edge-to-center
+                    distance varies (not just the bounding-box midpoint,
+                    which one spike can pull off-true), radius = the
+                    cross-section's OWN MEAN distance from that center,
+                    plus `margin` as a target width rather than a
+                    worst-case-guaranteed minimum -- see the CIRCLE
+                    FOOTPRINT section below for why a minimum guarantee and
+                    a uniform target width need different formulas, and why
+                    the input no longer needs to be a shelled/vented mesh.
+      preserve_vent True (default): any interior loop found in the rim
+                    cross-section is treated as an intentional opening
+                    (e.g. a `shell_correct` output's cavity mouth) and cut
+                    out of the plate, as before. False: ALL interior loops
+                    are ignored and the plate is solid across the whole
+                    outer boundary -- for solid (unshelled) input, where a
+                    tiny loop showing up isn't a mold vent at all but real,
+                    incidental anatomy (e.g. a foramen/sinus opening
+                    crossing right at the slice depth), which there's no
+                    reason to also cut a hole in the brim for. See SOLID
+                    INPUT below.
+
+    Returns a single, watertight, boolean-unioned mesh: `mesh` with the
+    holed, ribbed brim fused onto its base rim.
+
+    THE PLATE'S FOOTPRINT COMES FROM `mesh`'s OWN OPEN-RIM CROSS-SECTION,
+    NOT A BOUNDING BOX -- this matters and was the actual hard part here.
+    An earlier version built the plate as a plain solid rectangle covering
+    `mesh`'s whole transverse bounding box. That's wrong: `shell_correct`'s
+    output is open/hollow right at the base face (that's the point -- see
+    the module docstring's "shell command" section), so a solid rectangle
+    there doesn't just attach to the rim, it PLUGS the mouth shut. Boolean-
+    unioning that plugged plate with `mesh` doesn't error and doesn't even
+    report the wrong volume (inclusion-exclusion still checks out exactly)
+    -- but it silently strands the shell's own inner-cavity wall as a
+    second, now-fully-enclosed body sealed inside the result (verified:
+    `body_count` goes 1 -> 2, `is_watertight` stays True throughout, so
+    that check alone doesn't catch it -- same lesson as shell_correct's own
+    "open mouth" bug, a different instance of the same failure mode).
+    Packing the cavity with frozen isopropyl alcohol afterward (see
+    README) would then be silently impossible.
+
+    The fix: slice `mesh` itself at a plane `overlap` mm inside the body
+    (`mesh.section`) to get its ACTUAL open-rim cross-section -- for a
+    synthetic test shell this comes back as one polygon with one hole; for
+    a real skull it can come back as that SAME main loop plus extra small
+    solid islands (teeth crossing near the parting plane, found on the
+    real 50%-scale file) -- only the largest loop by area is used, the
+    rest are deliberately ignored (see below). Build the plate from THAT
+    largest loop's shape: `margin`
+    buffered outward on the true outer boundary, `overlap` buffered INWARD
+    on the true hole boundary (so the plate's solid material fully
+    overlaps the wall thickness plus a small safety margin past its inner
+    edge, without ever crossing far enough to reach the cavity's far
+    interior) -- then extrude it. The vent stays exactly where `mesh`'s
+    own opening is, whatever shape that is, so the cavity stays reachable
+    for alcohol-packing exactly as before, and the plate only ever
+    attaches to real wall material.
+
+    `mesh.section`'s local-frame orientation (what its returned `to_3D`
+    transform maps local +Z onto) is NOT guaranteed to point `dir_out`
+    (outward, away from the body) -- empirically it can go either way
+    depending on the sliced polygon, not just on the plane_normal you
+    pass in. Getting this backwards would silently build the plate
+    growing INTO the body instead of outward (found by testing both
+    branches on the synthetic shell, not by reasoning about it in
+    advance). Checked at runtime via the sign of `to_3D`'s local-Z column
+    along `axis`; if it doesn't match `dir_out`, `mirror_mesh` (already
+    used by the `mirror` command) flips the built plate through the slice
+    plane -- reflecting only the pull axis, same as it always does, which
+    is exactly the fix here since the plate's one known-correct face is
+    the one sitting exactly on the slice plane.
+
+    `mesh` is reduced to its LARGEST connected component before anything
+    else runs. A real scanned/processed mesh can carry stray disconnected
+    junk that `is_watertight` doesn't flag (found on the real 50%-scale
+    file: `is_watertight` reported False overall, but the actual body was
+    fine on its own -- the false came from ~25 tiny degenerate slivers,
+    1-2 faces each, left over from upstream processing, plus one small
+    separate 3430-vertex blob far from the main shell). Boolean CSG on a
+    multi-body input is a much worse failure mode than voxelizing one
+    (manifold3d expects a single manifold solid) so this is dropped
+    up front, loudly, rather than discovered as a mysterious boolean
+    failure three steps in.
+
+    CIRCLE FOOTPRINT (`footprint="circle"`) AND SOLID (UNSHELLED) INPUT.
+    The original design assumed a `shell_correct` output: a plate shaped
+    like the rim itself, buffered outward by `margin`, wrapped around an
+    open vent it has to preserve. Two things relax here for a solid,
+    undrafted-hollow half (e.g. a plain `draft_correct` output -- just
+    split at the sagittal plane, never shelled) mounted on a circular
+    base instead: neither requires the other, but they're commonly used
+    together, since a solid piece has no interior to keep reachable and
+    so has no reason to keep the plate's outline shell-shaped either.
+
+    First, the vent is now optional, controlled by `preserve_vent`
+    (default True, unchanged behavior). If `rim_poly` has no interior loop
+    at all, there's nothing to preserve either way -- logged, `vents_2d`
+    stays empty, no more hard error demanding a shelled input. But a
+    SOLID cross-section is not guaranteed to have zero interior loops:
+    found on the real 60%-scale skull, two tiny (<3mm^2) interior loops
+    turned up in the draft-corrected (never shelled) base cross-section --
+    real anatomy (a foramen/sinus wall crossing right at the slice depth,
+    a normal feature of a skull that thin this close to its own surface),
+    not a mold vent, and nowhere near the size of a `shell_correct`
+    output's actual cavity mouth (that one's `--brim-overlap`-shrunk area
+    is comparable to the whole cross-section; these were ~0.01-0.1% of
+    it). With `preserve_vent=True`'s default auto-detection, that tiny
+    loop still reads as "an opening to preserve," and cutting it out of a
+    1mm-thin brim skin either fails outright (buffered by `-overlap` down
+    to nothing, same error a too-large `--brim-overlap` produces on a
+    real shell) or, if it happens to survive that buffer, punches an
+    undersized, structurally pointless hole in the plate for no reason --
+    there's no interior chamber behind it to keep reachable in a solid
+    piece. `preserve_vent=False` skips this distinction entirely rather
+    than trying to guess a size threshold: every interior loop, tiny or
+    not, is ignored and the plate seals solid across the full outer
+    boundary. Use it for solid input; leave it True for a real
+    `shell_correct` output, where the interior loop found IS the thing to
+    preserve.
+
+    Second, "circle" replaces the buffered-rim-shape outer boundary with a
+    single circle -- but sized as a TARGET width around the boundary, not
+    a worst-case-guaranteed minimum. An earlier version did the latter:
+    center on the cross-section's transverse bounding-box, radius = the
+    farthest cross-section point from that center, plus `margin`. That
+    guarantees `margin` clearance at the single farthest point (provably:
+    for a disk of radius R centered at C, any interior point P is
+    R - |P-C| from the disk's own edge, measured straight outward along
+    the C->P ray, so every cross-section point ends up >= margin from the
+    circle). The problem found on the real skull: a 45mm "guarantee" this
+    way measured more like 60mm almost everywhere else, because the
+    farthest point on an irregular cross-section can sit well beyond the
+    boundary's own MEAN radius (measured on the 60%-scale file: mean
+    31.5mm vs. max 44.6mm from the bbox center -- thirteen extra
+    millimeters of clearance at "most" points, just from anchoring the
+    radius to the one outlier). A strict minimum and a uniform target
+    width are different asks, and no choice of center reconciles them --
+    the gap is a property of how the shape's radius varies, not of where
+    it's centered (confirmed here too: re-centering to explicitly minimize
+    that variance barely moved it, less than 1mm of std, on this shape).
+
+    So this now targets the second one: center chosen to MINIMIZE the
+    standard deviation of distance from center to a dense, even-arc-length
+    sampling of the boundary (a small unconstrained 2D optimization,
+    `scipy.optimize.minimize` -- fast and well-behaved for this, no need
+    for anything fancier), then radius = that sampling's MEAN distance +
+    `margin`. The realized clearance -- printed as a min/mean/max range,
+    not just asserted -- will still vary somewhat around `margin` on an
+    irregular shape (some points closer, some farther, by construction),
+    but centers on it instead of guaranteeing it only at the worst point
+    and overshooting everywhere else.
+    """
+    comps = mesh.split(only_watertight=False)
+    if len(comps) > 1:
+        comps = sorted(comps, key=lambda c: len(c.faces), reverse=True)
+        mesh, dropped = comps[0], comps[1:]
+        print(f"Input had {len(comps)} disconnected pieces -- keeping the "
+              f"largest ({len(mesh.faces)} faces, watertight="
+              f"{mesh.is_watertight}), dropping {len(dropped)} smaller "
+              f"one(s) totaling {sum(len(c.faces) for c in dropped)} faces "
+              f"(bounds of the largest dropped piece: "
+              f"{max(dropped, key=lambda c: len(c.faces)).bounds.tolist()}) "
+              f"-- if that's not just scan/processing noise, stop and "
+              f"check it before trusting this output.")
+        if not mesh.is_watertight:
+            raise ValueError(
+                "Even the largest component isn't watertight on its own -- "
+                "this needs an STL repair pass before `brim` can run, not "
+                "just dropping the smaller pieces.")
+
+    transverse = [a for a in (0, 1, 2) if a != axis]
+    t0, t1 = transverse
+
+    b0, b1 = mesh.bounds
+    base_val = b0[axis] if base == "min" else b1[axis]
+    dir_out = -1.0 if base == "min" else 1.0
+
+    c0 = (b0[t0] + b1[t0]) / 2.0
+    c1 = (b0[t1] + b1[t1]) / 2.0
+    h0 = (b1[t0] - b0[t0]) / 2.0 + margin
+    h1 = (b1[t1] - b0[t1]) / 2.0 + margin
+
+    outer_val = base_val + dir_out * thickness
+    inner_val = base_val - dir_out * overlap
+    axial_lo, axial_hi = sorted((inner_val, outer_val))
+    plate_height = axial_hi - axial_lo
+
+    def make_box(lo, hi, center_t0, half_t0, center_t1, half_t1):
+        extents = np.empty(3)
+        extents[axis] = hi - lo
+        extents[t0] = 2.0 * half_t0
+        extents[t1] = 2.0 * half_t1
+        center = np.empty(3)
+        center[axis] = (lo + hi) / 2.0
+        center[t0] = center_t0
+        center[t1] = center_t1
+        return trimesh.creation.box(
+            extents=extents,
+            transform=trimesh.transformations.translation_matrix(center))
+
+    print(f"Slicing mesh's own rim cross-section {overlap:.1f}mm inside the "
+          f"body (at {['x','y','z'][axis]}={inner_val:.2f}) ...")
+    slice_origin = np.zeros(3)
+    slice_origin[axis] = inner_val
+    slice_normal = np.zeros(3)
+    slice_normal[axis] = 1.0
+    section = mesh.section(plane_origin=slice_origin, plane_normal=slice_normal)
+    if section is None:
+        raise ValueError(
+            f"mesh.section found nothing at {['x','y','z'][axis]}="
+            f"{inner_val:.2f} -- is --pull-axis/--base right for this "
+            f"mesh, and is `overlap` ({overlap:.1f}mm) small enough to "
+            f"still be inside the body?")
+    planar, to_3D = section.to_planar()
+    polys = planar.polygons_full
+    if len(polys) == 0:
+        raise ValueError(
+            f"mesh's rim cross-section has no closed loops at all -- is "
+            f"--pull-axis/--base right for this mesh?")
+    # The main rim ring is the LARGEST loop, by area, not necessarily the
+    # only one: a real skull's parting plane can cut through anatomy other
+    # than the rim itself (found on the real 50%-scale file -- 2 front
+    # teeth crossed the slice near the base as their own small solid
+    # islands, floating inside the rim's open interior). Those don't
+    # affect the plate at all (they're deep inside the vent, nowhere near
+    # the outward margin), so they're deliberately ignored here rather
+    # than erroring -- only the largest loop defines the plate's shape.
+    rim_poly = max(polys, key=lambda p: p.area)
+    if len(polys) > 1:
+        print(f"Note: {len(polys) - 1} smaller loop(s) also crossed this "
+              f"slice (e.g. teeth near the parting plane) -- ignored, only "
+              f"the largest ({rim_poly.area:.1f}mm^2) defines the brim.")
+    if len(rim_poly.interiors) == 0:
+        vents_2d = []
+        print("mesh's rim cross-section has no interior hole -- treating "
+              "as a solid (unshelled) input, brim will have no vent to "
+              "preserve.")
+    elif not preserve_vent:
+        vents_2d = []
+        print(f"--no-vent: ignoring {len(rim_poly.interiors)} interior "
+              f"loop(s) in the rim cross-section (areas "
+              f"{[round(shapely.geometry.Polygon(ip).area, 2) for ip in rim_poly.interiors]}"
+              f"mm^2) -- treated as incidental anatomy, not a mold vent; "
+              f"plate seals solid across the whole outer boundary.")
+    else:
+        vents_2d = [shapely.geometry.Polygon(ip).buffer(-overlap)
+                    for ip in rim_poly.interiors]
+        vents_2d = [v for v in vents_2d if not v.is_empty]
+        if not vents_2d:
+            raise ValueError(
+                f"--brim-overlap ({overlap:.1f}mm) shrinks the rim's own "
+                f"opening(s) down to nothing -- the wall/opening here is "
+                f"narrower than that, or this loop isn't a real vent at "
+                f"all (pass --no-vent if this is solid/unshelled input). "
+                f"Reduce --brim-overlap otherwise.")
+
+    if footprint == "circle":
+        # Sample the boundary at even ARC LENGTH, not its raw vertices --
+        # vertex density on a marching-cubes/voxel-derived polygon can vary
+        # a lot from one stretch of the boundary to another, which would
+        # bias a plain vertex average toward whichever region happens to
+        # be more finely tessellated.
+        boundary = rim_poly.exterior
+        n_samples = 720
+        sample_pts = np.array([boundary.interpolate(f * boundary.length).coords[0]
+                                for f in np.linspace(0.0, 1.0, n_samples, endpoint=False)])
+        # Center: minimize the STD of sample distances from the center --
+        # i.e. find the point the shape is most evenly spread around, not
+        # the bounding-box midpoint, which a single spike (a brow ridge,
+        # the back of the skull) can pull toward itself even while most of
+        # the boundary sits much closer in on every other side.
+        init_center = sample_pts.mean(axis=0)
+        fit = scipy.optimize.minimize(
+            lambda c: np.linalg.norm(sample_pts - c, axis=1).std(),
+            init_center, method="Nelder-Mead")
+        local_center = fit.x
+        dists = np.linalg.norm(sample_pts - local_center, axis=1)
+        # Radius from the MEAN distance, not the max: `margin` is a TARGET
+        # width around the boundary, not a worst-case-guaranteed minimum.
+        # The previous max-distance version guaranteed `margin` at the
+        # single farthest point but left most of the boundary far wider
+        # than that -- on the real skull, asking for a 45mm minimum this
+        # way measured more like 60mm almost everywhere else, because an
+        # irregular cross-section's farthest point sits well beyond its
+        # own mean radius (found here: mean 31.5mm vs. max 44.6mm on the
+        # 60%-scale file -- a ~13mm gap that no choice of center closes,
+        # since it's a property of the shape, not of where it's centered).
+        radius = float(dists.mean()) + margin
+        outer_2d = shapely.geometry.Point(local_center).buffer(radius, resolution=64)
+        clearance = radius - dists
+        print(f"Circular footprint: center fit to minimize edge-distance "
+              f"spread (std {dists.std():.1f}mm), radius={radius:.1f}mm "
+              f"(mean cross-section distance {dists.mean():.1f}mm + "
+              f"{margin:.1f}mm target width) -- realized clearance ranges "
+              f"{clearance.min():.1f}-{clearance.max():.1f}mm around the "
+              f"boundary, averaging {clearance.mean():.1f}mm.")
+        # Re-center the rib grid (c0/c1/h0/h1, originally sized off `mesh`'s
+        # own transverse bbox for the rim-shaped footprint) on this circle
+        # instead. The slice plane's normal is `axis`, so `to_3D` maps
+        # local (x, y) into the global t0/t1 plane via pure rotation +
+        # translation -- no interaction with `axis` at all -- which means
+        # a local circle of radius R stays an exact radius-R circle in
+        # global (t0, t1), so its bounding box really is [center-R,
+        # center+R] per axis, not just approximately.
+        global_center = to_3D @ np.array([local_center[0], local_center[1], 0.0, 1.0])
+        c0, c1 = global_center[t0], global_center[t1]
+        h0 = h1 = radius
+    elif footprint == "rim":
+        outer_2d = shapely.geometry.Polygon(rim_poly.exterior).buffer(margin)
+    else:
+        raise ValueError(f"Unknown footprint mode {footprint!r} -- "
+                          f"expected 'rim' or 'circle'.")
+
+    plate_2d = (outer_2d.difference(shapely.ops.unary_union(vents_2d))
+                if vents_2d else outer_2d)
+
+    plate = trimesh.creation.extrude_polygon(
+        plate_2d, height=plate_height, transform=to_3D)
+    # `to_3D`'s local-Z direction isn't guaranteed to point `dir_out` --
+    # see docstring. The face at local Z=0 is always exactly on the slice
+    # plane (inner_val) regardless, so mirroring through that same plane
+    # is the correct fix in either case, not just a sign flip.
+    local_z_sign = np.sign(to_3D[axis, 2])
+    if local_z_sign != 0 and local_z_sign != np.sign(dir_out):
+        plate = mirror_mesh(plate, axis, plane=inner_val)
+
+    minx, miny, maxx, maxy = plate_2d.bounds
+    print(f"Brim plate ({footprint} footprint): {maxx-minx:.1f} x "
+          f"{maxy-miny:.1f}mm outer extent, {thickness:.1f}mm thick "
+          f"(+{overlap:.1f}mm overlap into body), vented over mesh's own "
+          f"{len(vents_2d)}-hole opening.")
+    parts = [plate]
+
+    if rib_count > 0:
+        # Ribs must PENETRATE the plate a little, not just touch its outer
+        # face flush -- an exactly coplanar touch is the same degenerate
+        # case `overlap` exists to avoid for the plate/mesh union above,
+        # and fins built flush against the plate reproduced it exactly
+        # (found by checking body_count after adding ribs: 1 -> 3, not the
+        # expected 1, even though is_watertight stayed True throughout --
+        # same "watertight lies" failure mode as everywhere else in this
+        # file, just a new instance of it).
+        rib_overlap = min(overlap, rib_height / 2.0)
+        rib_lo, rib_hi = sorted((outer_val - dir_out * rib_overlap,
+                                  outer_val + dir_out * rib_height))
+        rib_boxes = []
+        # fins long in t0, spaced across t1 (excluding the very edges, where
+        # they'd just duplicate the plate's own outer wall)
+        for pos in np.linspace(c1 - h1 + rib_width, c1 + h1 - rib_width, rib_count):
+            rib_boxes.append(make_box(rib_lo, rib_hi, c0, h0, pos, rib_width / 2.0))
+        # fins long in t1, spaced across t0
+        for pos in np.linspace(c0 - h0 + rib_width, c0 + h0 - rib_width, rib_count):
+            rib_boxes.append(make_box(rib_lo, rib_hi, pos, rib_width / 2.0, c1, h1))
+        if footprint == "circle":
+            # A square crosshatch grid overshoots a circular plate at its
+            # corners (the grid's own bounding square extends past the
+            # circle's curve there) -- clip the whole rib grid against an
+            # extrusion of plate_2d itself, spanned generously past the
+            # ribs' own axial band, so no rib ever pokes out past the disc
+            # it's meant to be supporting.
+            clip_lo, clip_hi = sorted((inner_val, outer_val + dir_out * rib_height))
+            clip_solid = trimesh.creation.extrude_polygon(
+                plate_2d, height=clip_hi - clip_lo, transform=to_3D)
+            if local_z_sign != 0 and local_z_sign != np.sign(dir_out):
+                clip_solid = mirror_mesh(clip_solid, axis, plane=inner_val)
+            print("Clipping rib grid to the circular plate's own footprint ...")
+            ribs_solid = trimesh.boolean.union(rib_boxes)
+            ribs_solid = trimesh.boolean.intersection([ribs_solid, clip_solid])
+            parts.append(ribs_solid)
+        else:
+            parts.extend(rib_boxes)
+        print(f"Added {2*rib_count} crosshatch ribs, {rib_width:.1f}mm wide, "
+              f"projecting {rib_height:.1f}mm past the plate's outer face.")
+
+    print("Boolean-unioning plate + ribs ...")
+    solid = trimesh.boolean.union(parts)
+
+    # 4 natch hole positions. Two earlier approaches both broke on the
+    # real skull cross-section (a bbox corner, and separately a ray cast
+    # from the RIM's centroid at 4 fixed angles): a skull's rim is a RING
+    # (solid outer margin, hollow vent in the middle), and its own
+    # centroid sits inside the hollow part, not on solid material -- fine
+    # for the near-circular synthetic test shell (where any outward ray
+    # from the center crosses solid material once, by symmetry), wrong in
+    # general for an irregular ring. Confirmed on the real 50%-scale file:
+    # 2 of 4 corners landed in genuinely empty space (grid-scanned a
+    # neighborhood around each -- no material anywhere nearby, not just an
+    # unlucky exact edge case).
+    #
+    # Robust fix: erode `plate_2d` ITSELF (the true final ring shape,
+    # already correctly excluding the vent, not just the outer boundary
+    # treated as if solid) by the hole's full required clearance
+    # (`natch_margin` + radius). Any point on what's left is guaranteed to
+    # have real solid material all around it, regardless of how irregular
+    # the ring is. Then walk that shape's own boundary at 4 evenly-spaced
+    # arc-length points -- not literal "corners" for a non-rectangular
+    # shape, but spread out around the ring, which is what the natches
+    # actually need.
+    natch_clearance = natch_margin + natch_diameter / 2.0
+    safe_zone = plate_2d.buffer(-natch_clearance)
+    if safe_zone.is_empty:
+        raise ValueError(
+            f"No point on the brim is more than {natch_clearance:.1f}mm "
+            f"({natch_margin:.1f}mm clearance + {natch_diameter/2:.1f}mm "
+            f"radius) from an edge -- increase --brim-margin, or shrink "
+            f"--natch-diameter/--natch-margin.")
+    if safe_zone.geom_type == "MultiPolygon":
+        safe_zone = max(safe_zone.geoms, key=lambda g: g.area)
+    boundary = safe_zone.exterior
+    local_corners = [(p.x, p.y) for p in
+                      (boundary.interpolate(frac * boundary.length)
+                       for frac in (0.0, 0.25, 0.5, 0.75))]
+    # `plate_2d`/`rim_poly` coordinates are in `to_3D`'s own LOCAL 2D
+    # frame, which is NOT just an unrotated global (t0, t1) -- it can
+    # (and, on the real skull, does) carry its own translation, chosen by
+    # `section.to_planar()` for its own convenience, unrelated to
+    # `slice_origin`'s transverse components. Using local (x, y) directly
+    # as global (t0, t1) worked on the synthetic test sphere only by
+    # coincidence -- that mesh happened to be centered at transverse
+    # (0, 0), which is also what `slice_origin` used, so the (zero, as it
+    # turned out) local/global offset never showed up. On the real,
+    # off-center skull file this put natch holes ~19mm away from where
+    # they were designed to be, most obviously the one that landed
+    # entirely outside the plate's real footprint (ray-cast through the
+    # hole and its whole neighborhood found no material anywhere nearby --
+    # not a near-edge case, genuinely 20+mm from the nearest real geometry
+    # in every direction). Fix: push local points through `to_3D` for
+    # real, the same way `extrude_polygon`'s own `transform=to_3D` already
+    # does for the plate itself -- which is exactly why the plate was
+    # always positioned correctly while these derived points were not.
+    local_pts_h = np.array([[x, y, 0.0, 1.0] for x, y in local_corners])
+    global_pts = (to_3D @ local_pts_h.T).T
+    corners = [(gp[t0], gp[t1]) for gp in global_pts]
+
+    # A plain cylinder is rotationally symmetric about its own axis, so any
+    # rotation mapping local +z onto the global pull axis is fine -- no need
+    # to special-case sign/handedness the way an oriented feature would.
+    align = trimesh.geometry.align_vectors([0, 0, 1], np.eye(3)[axis])
+    rib_tip = outer_val + dir_out * rib_height if rib_count > 0 else outer_val
+    # Must span from the deepest inward point (`inner_val`, NOT `axial_lo`
+    # -- which of axial_lo/axial_hi is the inward one flips with dir_out's
+    # sign, so referencing `inner_val` directly is the only way this is
+    # right for both --base min and --base max) out past the rib tips, or
+    # holes only ever cut through the ribs and stop short of the plate
+    # itself (found by ray-casting through where a hole should be and
+    # getting solid material the whole way -- no crash, no watertightness
+    # complaint, just a hole that silently isn't one).
+    span_lo, span_hi = sorted((inner_val, rib_tip))
+    slack = 1.0  # extra length past both ends so the cut is clean, not tangent
+    hole_len = (span_hi - span_lo) + 2.0 * slack
+    hole_center_axis = (span_lo + span_hi) / 2.0
+
+    holes = []
+    print(f"Cutting {len(corners)} natch holes, {natch_diameter:.1f}mm dia.")
+    for pos0, pos1 in corners:
+        center = np.empty(3)
+        center[axis] = hole_center_axis
+        center[t0] = pos0
+        center[t1] = pos1
+        transform = trimesh.transformations.translation_matrix(center) @ align
+        holes.append(trimesh.creation.cylinder(
+            radius=natch_diameter / 2.0, height=hole_len, transform=transform))
+
+    print("Boolean-differencing natch holes ...")
+    solid = trimesh.boolean.difference([solid] + holes)
+
+    print("Boolean-unioning brim onto mesh's base rim ...")
+    result = trimesh.boolean.union([mesh, solid])
+    result.remove_unreferenced_vertices()
+    result.fix_normals()
+    print(f"Brim result: watertight={result.is_watertight}, "
+          f"volume={result.volume:.1f}mm^3 "
+          f"(mesh alone was {mesh.volume:.1f}mm^3).")
+    return result
+
+
 def _add_shared_args(sp):
     """
     Args common to both 'draft' and 'shell' subcommands. Factored out so
@@ -1043,6 +1629,99 @@ def build_parser():
                           "thicker margin than --shell's wall thickness. "
                           "Default: 8.0.")
 
+    pb = sub.add_parser("brim", help="Fuse a rigid, ribbed, natch-holed "
+                         "flange onto a mesh's own base rim, for pressing "
+                         "skull-side-up at the bottom of a cottleboard box.")
+    pb.add_argument("input", help="Path to the input mesh (e.g. an STL) -- "
+                     "either a shell_correct output (open at the base face, "
+                     "its vent is preserved) or a solid draft_correct/"
+                     "negative_correct one (no vent, e.g. a half-skull "
+                     "that's only been split at the sagittal plane, never "
+                     "shelled).")
+    pb.add_argument("output", help="Path to write the resulting mesh to "
+                     "(format inferred from the extension, e.g. .stl).")
+    pb.add_argument("--pull-axis", choices=["x", "y", "z"], default="z",
+                     help="Same pull axis as the draft/shell run that "
+                          "produced `input`. Default: z.")
+    pb.add_argument("--base", choices=["min", "max"], default="min",
+                     help="Same parting-face convention as draft/shell/"
+                          "negative -- the brim is built flush against "
+                          "this end of --pull-axis, using `input`'s own "
+                          "bounds there (not a separately-specified plane, "
+                          "since a shell_correct output is already flush "
+                          "by construction). Default: min.")
+    pb.add_argument("--footprint", choices=["rim", "circle"], default="rim",
+                     help="'rim' (default): the plate's outer boundary "
+                          "follows `input`'s own rim cross-section, "
+                          "buffered outward by --margin. 'circle': the "
+                          "outer boundary is a single circle instead, "
+                          "centered to minimize how much the cross-"
+                          "section's edge-to-center distance varies, sized "
+                          "so its MEAN distance to that edge plus --margin "
+                          "-- a target width around the boundary, not a "
+                          "worst-case minimum (which tends to overshoot "
+                          "everywhere except the one farthest point on an "
+                          "irregular shape -- see brim_correct's docstring). "
+                          "Works on solid (unshelled) input too.")
+    pb.add_argument("--no-vent", action="store_true",
+                     help="Ignore ANY interior loop found in `input`'s rim "
+                          "cross-section rather than treating it as a "
+                          "mold-cavity opening to preserve. Use this for "
+                          "solid (unshelled) input -- e.g. a plain "
+                          "draft_correct half -- where a small interior "
+                          "loop is more likely real anatomy (a foramen/"
+                          "sinus wall crossing right at the slice depth) "
+                          "than an intentional vent, and there's no "
+                          "interior chamber behind it worth keeping "
+                          "reachable anyway. Leave unset for a real "
+                          "shell_correct input, where the interior loop "
+                          "found IS the cavity mouth to preserve.")
+    pb.add_argument("--thickness", type=float, default=6.0,
+                     help="Brim plate thickness (mm), measured outward "
+                          "from the parting plane. For a thin skin backed "
+                          "by a stiffening grid (--rib-count > 0), set this "
+                          "small (e.g. 1.0) and rely on --rib-height for "
+                          "the structural depth instead. Default: 6.0.")
+    pb.add_argument("--margin", type=float, default=35.0,
+                     help="For --footprint rim: how far the plate extends "
+                          "beyond `input`'s own transverse bounding box on "
+                          "every side (mm). For --footprint circle: the "
+                          "TARGET clearance (mm) between the object's edge "
+                          "and the brim's edge, averaged around the circle "
+                          "-- not a strict per-point minimum, so an "
+                          "irregular cross-section will still show some "
+                          "spread above and below this (printed as a "
+                          "min/mean/max range when the command runs). "
+                          "Either way, this is roughly how much plaster "
+                          "margin the resulting mold will have around the "
+                          "model at the parting face, and hence the "
+                          "cottleboard box's interior footprint. Default: "
+                          "35.0 (typical hand-mixed plaster piece-mold "
+                          "margin; heavier/bigger casts want more).")
+    pb.add_argument("--rib-count", type=int, default=8,
+                     help="Number of crosshatch stiffening fins per "
+                          "transverse direction (0 disables ribs -- e.g. "
+                          "for a plain solid plate, set --thickness to the "
+                          "full desired depth instead). With --footprint "
+                          "circle, the grid is clipped to the circular "
+                          "plate's own shape, so it never overshoots the "
+                          "disc at the corners. Default: 8.")
+    pb.add_argument("--rib-width", type=float, default=3.0,
+                     help="Fin thickness (mm). Default: 3.0.")
+    pb.add_argument("--rib-height", type=float, default=6.0,
+                     help="How far the support grid projects beyond the "
+                          "plate's outward face (mm) -- e.g. a thin 1mm "
+                          "--thickness skin backed by a 3mm rib grid wants "
+                          "--rib-height 3. Default: 6.0.")
+    pb.add_argument("--natch-diameter", type=float, default=12.0,
+                     help="Diameter (mm) of the 4 corner through-holes for "
+                          "natches. Scale with the model -- smaller for a "
+                          "half-scale test print, larger at full size. "
+                          "Default: 12.0.")
+    pb.add_argument("--natch-margin", type=float, default=15.0,
+                     help="Clearance (mm) from the plate's outer edge to "
+                          "each natch hole's edge. Default: 15.0.")
+
     pm = sub.add_parser("mirror", help="Reflect a mesh across a plane -- "
                          "e.g. turn a finished left-side half into a "
                          "right-side counterpart.")
@@ -1091,6 +1770,17 @@ def main():
         print("WARNING: input mesh is not watertight -- this command may "
               "produce imperfect or garbage results. Consider running an "
               "STL repair pass first.", file=sys.stderr)
+
+    if args.command == "brim":
+        result = brim_correct(
+            mesh, AXES[args.pull_axis], args.base, args.thickness, args.margin,
+            args.rib_count, args.rib_width, args.rib_height,
+            args.natch_diameter, args.natch_margin,
+            footprint=args.footprint, preserve_vent=not args.no_vent)
+        result.export(args.output)
+        print(f"Wrote {args.output}  ({len(result.vertices)} verts, "
+              f"{len(result.faces)} faces)")
+        return
 
     if args.command == "draft" and args.scale != 1.0:
         mesh.apply_scale(args.scale)

@@ -1,7 +1,7 @@
 ---
 title: Skull Mold Draft & Shell Pipeline
 created: 2026-07-29
-updated: 2026-09-21
+updated: 2026-09-25
 folder: 40
 type: project
 status: active
@@ -34,8 +34,8 @@ Current final outputs (not checked into this vault — see Files below):
 
 ## Next action
 
-- [ ] Print both halves (0.2mm nozzle, per plan, to minimize layer lines)
-- [ ] Press into wet plaster to make the mother mold; test release
+- [ ] Generate brimmed STLs (`brim` command, see below — done for the 50% left test piece; still needed: right side, and the real 150% pair) and print both halves (0.2mm nozzle, per plan, to minimize layer lines)
+- [ ] Press brim-side-down into a cottleboard box, pour the plaster mother mold; test release
 - [ ] If release is tight, pack the shell interior with frozen isopropyl alcohol before pulling
 - [ ] (stretch) if plaster-direct loses too much tooth definition, try print → silicone → plaster instead for a higher-fidelity intermediate
 
@@ -147,6 +147,42 @@ python stl_add_draft.py mirror shell150.stl shell150R.stl --axis x --plane 0
 # then rotate to rim-down (see Print prep): left -90°, right +90° about Y, drop to z=0
 ```
 
+## Brim (mounting flange for the plaster pour) (added 2026-09-24)
+
+Not a slicer brim (the throwaway adhesion skirt) -- a physical part: a rigid, ribbed, 4-holed flange fused onto a `shell` output's own open base rim, so the printed positive can sit skull-side-up, brim-side-down, at the bottom of a cottleboard box while the plaster mother mold gets poured over it. Run it as the last step, after `shell` (and after `mirror`, if mirroring a `shell` output that already has a brim also works -- `mirror`'s reflect-and-fix-winding is agnostic to what shape it's given). On a `_PRINT` file the parting face has already been rotated onto the bed, so the pull axis there is `z`/`min`, not the `x`/`min` every earlier recipe on this page uses.
+
+```bash
+python stl_add_draft.py brim "Skull (Left)_50pct_shell1.2mm_blur3_teeth1_PRINT.stl" \
+    "Skull (Left)_50pct_brim.stl" \
+    --pull-axis z --base min --thickness 6 --margin 25 \
+    --natch-diameter 6 --natch-margin 5 --rib-count 8 --rib-height 6 --rib-width 3
+```
+
+- `--thickness 6`, ribbed underneath (`--rib-count`/`--rib-width`/`--rib-height`) rather than solid, for rigidity without much extra material/print time.
+- `--margin` is the real decision here: how far the flange extends past the shell's own footprint, i.e. roughly the cottleboard box's interior size and how much plaster the pour uses. 25–35mm is a typical hand-mixed plaster piece-mold margin -- go bigger for a heavier/rougher-handled mold, but note `--margin` also has to leave room for the natch holes' own clearance (see below) or the command refuses to run.
+- 4 through-holes (`--natch-diameter`/`--natch-margin`) for inserting natches, held with clips from below so the wet plaster casts around them, spaced evenly around the ring wherever it has `natch_margin + radius` clearance from BOTH the outer edge and the vent -- not literal "corners" for an irregular shape like a skull's. The script only cuts clean round holes -- how the natch itself keys/clips into that hole is a hardware choice, not something it decides. Size the diameter to the scale you're printing at (the original 8–16mm estimate is for 100%+ scale; a 50% test piece this small wants something more like 6mm, and needs `--margin` widened a few mm to give that clearance room on both sides).
+- Critically, the brim attaches only to the shell's actual rim material (sliced from the mesh itself, not assumed from its bounding box) -- it does **not** span/cap the open interior, so packing the cavity with frozen isopropyl alcohol (see Next action) still works exactly as before.
+- Left/right: since natch positions are derived from each half's own rim shape before mirroring, running `brim` before `mirror` (not after) means the two finished halves' natch holes land at matching mirrored positions automatically -- no separate symmetry step needed.
+- If the input isn't a single clean watertight body (real exported STLs often aren't, even when they print fine -- see below), `brim` keeps only the largest connected piece and says how much it dropped. Read that line; it's assuming the dropped material is processing noise, not checking that it actually is.
+
+**`--footprint circle` and solid (unshelled) input (added 2026-09-25).** Two independent additions to `brim`, usually used together:
+
+- `input` no longer has to be a `shell` output. A solid `draft_correct` half (just split at the sagittal midline, never hollowed) works too -- `brim` now detects whether the rim cross-section has a vent at all and only preserves/differences one if it exists, instead of hard-erroring on a solid mesh. Point of this: a heavier, solid-print master skips the whole shell/interior-alcohol-packing question entirely, at the cost of more plastic and print time. Solid input can also have real, incidental interior loops in its cross-section that AREN'T a vent (a foramen/sinus wall crossing right at the slice depth -- found on the real skull, see 2026-09-25 log below) -- pass `--no-vent` to seal over those instead of trying to preserve them.
+- `--footprint circle` replaces the rim-shaped plate outline with a single circle instead, centered to minimize how much the cross-section's edge-to-center distance varies, sized to the cross-section's own MEAN distance from that center plus `--margin` as a **target** width around the boundary -- not a worst-case minimum (an earlier version guaranteed `--margin` at the single farthest point, which measured more like +15mm over that everywhere else on the real, irregular skull cross-section -- see 2026-09-25 log). The realized min/mean/max clearance prints every run so the actual spread is visible, not just assumed. Combine with a thin `--thickness` (e.g. 1mm) and `--rib-height` as the real structural depth (e.g. 3mm) for a light skin-and-grid brim instead of a solid plate; the crosshatch grid is boolean-clipped to the circle's own shape so it can't overshoot at the corners the way a square grid naturally would against a round plate. `--footprint rim` (unchanged) stays the default.
+
+Verified on synthetic test meshes before touching a real file (same discipline as the ring-shaped rim version's own debugging log, above, which found 6 silent bugs this way): an off-center solid half-sphere (footprint circle, no vent) and an off-center hollow half-shell (footprint circle, vent preserved) both checked out as `body_count`=1, watertight, exact minimum clearance (recomputed independently, not just trusting the script's own printed number), zero rib/plate overshoot past the circle via 400-ray radial cast, ~99% vertical-ray coverage across the disc (the ~1% misses land in the natch holes, as they should), and the interior cavity still ray-casts open on the vented case.
+
+**Debugging note -- this took multiple rounds of silent failures, on both a synthetic test mesh AND the real file, each one a new instance of the same failure mode this project keeps running into: `is_watertight` and even the resulting volume can both look completely fine while the actual geometry is wrong (see "General takeaway" further up).** In order found:
+
+1. First version built the plate as a plain rectangle covering the shell's whole bounding box. For an open shell that doesn't just attach to the rim, it PLUGS the mouth shut -- `body_count` going 1 → 2 (the plugged cavity's own wall stranded as a second, now fully enclosed body) was the only thing that caught it. Fixed by slicing the mesh's own rim cross-section and building the plate from that true shape, not its bounding box.
+2. Crosshatch ribs touching the plate at an exactly coplanar face (rather than overlapping it) failed to fuse in the boolean union (`body_count` 1 → 3, watertight throughout).
+3. The natch holes' axial span referenced the wrong pre-sorted extreme, so they cut cleanly through the ribs but stopped short of the plate itself -- a hole that silently isn't one.
+4. Natch hole placement (a ray cast from the rim's centroid at 4 fixed angles) assumed the rim is roughly convex. A skull's rim is a RING -- its own centroid sits in the hollow middle, not on material -- and on the real 50%-scale file 2 of 4 holes landed in genuinely empty space, confirmed by grid-scanning a neighborhood around each (not just an unlucky exact edge). Fixed by eroding the plate's actual final shape (already correctly excluding the vent) by the hole's full required clearance and walking whatever's left by arc length instead.
+5. Even after that fix, natch positions were STILL wrong on the real file specifically -- `mesh.section()`'s returned 2D coordinates live in an arbitrary local frame with its own translation (chosen by trimesh for its own convenience, unrelated to the plane origin passed in), and natch placement had been using those coordinates directly as global ones. This happened to be harmless on the synthetic test sphere (which was centered at the same point the local frame's origin ended up at, purely by construction) and wrong by ~19mm on the real, off-center skull. Fixed by pushing the local points through the same `to_3D` transform `extrude_polygon` was already correctly using for the plate itself.
+6. Real exported STLs aren't guaranteed to be one clean watertight body just because they printed fine -- the `_PRINT` file's `is_watertight` came back False, caused not by a hole but by ~25 tiny (1-2 face) degenerate slivers plus one small 3430-vertex blob, all disconnected from the main 2.3M-vertex shell (a slicer silently ignores debris like this; `manifold3d`'s boolean engine does not). Fixed by keeping only the largest connected component and reporting what got dropped.
+
+All of the above were caught by `body_count`, ray-casting for genuine pass-through material (not just checking a single point -- checking its surroundings too, since a "hole" that's actually a whole empty region looks identical to a real one at just its center), and, for #6, running the actual `_PRINT` file rather than trusting the synthetic test alone. The synthetic hemisphere-shell test mesh caught #1-4 in seconds each; #5 and #6 only showed up on the real geometry, which is exactly why this got run against it before calling any of it settled.
+
 ## Log
 
 ### 2026-10-04
@@ -162,6 +198,27 @@ python stl_add_draft.py core draft150_p04.stl core150.stl --pull-axis x --base m
 ```
 
 Verified: watertight, 556 cm³, 132.4 × 175.6 × 53.7 mm printed; vertex distance to the drafted outer surface 4.3–5.3 mm (median 4.85, same half-voxel-thin bias as `shell`). Teeth and thin ridges vanish (narrower than 10 mm). Not yet printed.
+
+### 2026-09-25
+
+Updated `brim` per a design change: the brimmed piece is now meant to mount a solid, split-in-half (not shelled) skull half, with a circular flange instead of one shaped to the object's own rim. Added `--footprint circle` (see the Brim section above for the clearance-guarantee math and why a square rib grid needs boolean-clipping against a round plate) and made the vent-preserving logic optional so a solid `draft_correct` input no longer hard-errors. Also swapped `--thickness`/`--rib-height` semantics in practice, though not in the code (both already existed as separate flags) -- for a 1mm skin + 3mm structural grid, pass `--thickness 1 --rib-height 3` rather than the old solid-plate-style `--thickness 6`.
+
+Verified on synthetic meshes only so far (see Brim section) -- not yet run against the real draft-corrected skull half or printed. Still open: what `--margin`/clearance to actually use for the real piece (45mm was given as a requirement, not yet run), and whether `--rib-count`/`--rib-width` need retuning now that the grid sits under a much thinner 1mm skin than the original 6mm solid-plate design assumed.
+
+**Follow-up, same day: ran it for real, found two more issues.** Generated `Skull (Left)_draft60pct_blur6.stl` (60% scale, `--pitch 0.09 --draft 5 --blur 6`, matching the half-scale recipe's proportional pitch) and ran `brim --footprint circle` against it (natch sizing scaled down from the full-size 12mm/15mm to 8mm/10mm, in between the 50%-test-piece's 6mm and full size, since this is still an intermediate-scale test, not final hardware). Two problems, neither caught by the synthetic tests (both had been too clean/symmetric to surface either):
+
+1. **The solid cross-section had real interior loops that weren't a vent.** The draft-corrected base cross-section came back with 2 tiny (<3mm²) interior loops -- real anatomy (a foramen/sinus wall crossing right at the slice depth), not a mold-cavity mouth, but `brim`'s vent-detection couldn't tell the difference and either errors (buffered to nothing by `--brim-overlap`) or would've cut a pointless pinhole in a solid piece. Fixed by adding `preserve_vent`/`--no-vent`, an explicit opt-out rather than a guessed size threshold -- see Brim section above.
+2. **The "guaranteed minimum" circle overshot badly.** Asked for 45mm minimum clearance, measured closer to 60mm almost everywhere except the one farthest point that had set the circle's radius -- an irregular cross-section's max distance from center can sit well beyond its own mean (measured on this file: mean 31.5mm vs. max 44.6mm, a ~13mm gap). Re-centering the circle to minimize the edge-distance spread barely helped (<1mm of std) -- the gap is a property of the shape's radius distribution, not of where it's centered. Switched `--footprint circle` from a worst-case-guaranteed minimum to a target width: center fit by `scipy.optimize.minimize` to minimize distance-spread, radius = mean distance + `--margin`. Re-run with `--margin 30`: realized clearance now ranges 16.2-46.2mm, averaging exactly 30.0mm as targeted (full range printed by the command, not just the average).
+
+Verified: main body of both outputs is a single watertight component (2,212,060 of 2,212,064 faces on the left; the other 4 are single-triangle STL float32 export slivers, the same kind of debris the 2026-09-24 entry below found on the `_PRINT` file -- cosmetic, slicers auto-repair it). Left/right correspondence re-confirmed on the real files the same way as the synthetic check: 500 random left-mesh vertices, reflected across x=0, land at exactly 0.0mm from the right mesh's surface. Not yet printed.
+
+### 2026-09-24
+
+Added the `brim` command (see section above) for the actual plaster-pour step: a rigid, ribbed, natch-holed mounting flange fused onto a `shell` output's open rim. First verified on a synthetic hemisphere-shell test mesh (single fused watertight body, natch holes confirmed as genuine through-holes by grid-scanning for empty/pass-through points, interior cavity confirmed still open by ray-casting through the center, both `--base min` and `--base max` checked via a mirrored copy of the test mesh) — found and fixed 3 silent boolean-CSG bugs there, none caught by `is_watertight`.
+
+Then ran it for real against `Skull (Left)_50pct_shell1.2mm_blur3_teeth1_PRINT.stl` (the actual half-scale print file from 2026-09-19/20, `--pull-axis z --base min` since that file's parting face is already rotated onto the bed) and found 2 more bugs that the synthetic test's symmetry had been masking: natch placement assumed a roughly-convex rim (broke on a skull's actual ring-shaped, non-convex cross-section), and separately used `mesh.section()`'s local 2D coordinates as if they were global ones (harmless on a mesh centered at the same point the local frame happened to land on; ~19mm off on the real, off-center skull). Also handled real-world mesh mess along the way: the `_PRINT` file's `is_watertight` was False from ~25 tiny degenerate slivers plus one small disconnected blob (not from any real hole) — invisible to the slicer that already printed this file fine, fatal to `manifold3d`'s boolean engine. All 5 real-file bugs total (3 from the synthetic round + 2 new ones) are logged in the section above with what specifically broke and how it was caught. Final output: `Skull (Left)_50pct_shell1.2mm_blur3_teeth1_PRINT_brim.stl` in Downloads, `--margin 25 --natch-diameter 6 --natch-margin 5` — verified via the same body-count/ray-cast checks, all 4 holes confirmed as genuine clearances surrounded by real material at their corrected positions.
+
+Not yet run on the 150% file, not yet physically printed/poured, and the natch/clip hardware itself (how a natch physically keys and clips into the printed hole) is still an open, unscripted decision. The dropped small blob (bounds roughly x∈[0.6,1.5] y∈[-34.1,-33.4] z∈[0,7.9], a thin ~8mm-tall sliver) hasn't been visually confirmed as junk vs. a real disconnected anatomical fragment (e.g. from a thin tooth pinching off during shelling) — worth a look before trusting the dropped-material assumption on a print that matters.
 
 ### 2026-09-23
 
