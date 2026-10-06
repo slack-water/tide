@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>breath cue — surya namaskara a</title>
+<style>
+  :root {
+    --bg: #14181c;
+    --surface: #1c2227;
+    --text: #e8e6e1;
+    --muted: #8d979e;
+    --accent: #d9a86c;
+    --orb: #5f8f8b;
+    --warn: #e07a5f;
+    --line: #2b333a;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f6f3ee;
+      --surface: #ffffff;
+      --text: #24292d;
+      --muted: #6c757b;
+      --accent: #a8641c;
+      --orb: #6fa39e;
+      --warn: #c4472a;
+      --line: #e1dcd3;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 640px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 15px; font-weight: 500; letter-spacing: .08em; margin: 0; }
+  .sub { color: var(--muted); font-size: 13px; margin: 2px 0 0; }
+  h2 { font-size: 13px; font-weight: 500; letter-spacing: .08em; color: var(--muted); margin: 32px 0 8px; }
+
+  .stage { text-align: center; padding: 24px 0 8px; }
+  .ring {
+    position: relative; width: 240px; height: 240px; margin: 0 auto 20px;
+    border: 1px solid var(--line); border-radius: 50%;
+    display: grid; place-items: center;
+  }
+  .orb {
+    position: absolute; inset: 8px; border-radius: 50%;
+    background: var(--orb); opacity: .55;
+    transform: scale(.6);
+    transition-property: transform;
+    transition-timing-function: ease-in-out;
+    transition-duration: .8s;
+  }
+  .breathword { position: relative; font-size: 22px; letter-spacing: .12em; }
+  .pose { font-size: 28px; font-weight: 500; min-height: 1.3em; }
+  .pose-sub { color: var(--muted); min-height: 1.5em; }
+  .move { margin-top: 12px; font-size: 18px; color: var(--accent); min-height: 1.5em; }
+  .next, .progress { color: var(--muted); font-size: 13px; min-height: 1.5em; margin-top: 6px; }
+
+  .controls { display: flex; gap: 12px; justify-content: center; margin: 16px 0 8px; }
+  button {
+    font: inherit; padding: 10px 28px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--accent); background: var(--accent); color: var(--bg);
+  }
+  button.ghost { background: transparent; color: var(--text); border-color: var(--line); }
+  button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+  @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
+  label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+  label.inline { flex-direction: row; align-items: center; gap: 8px; }
+  select, input[type=range], textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px;
+  }
+  input[type=range] { padding: 0; accent-color: var(--accent); }
+  input:disabled, select:disabled { opacity: .45; }
+  .readout { color: var(--text); }
+
+  ol.steps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  ol.steps li {
+    display: grid; grid-template-columns: 2ch 8ch 1fr auto auto; gap: 8px; align-items: baseline;
+    padding: 8px 6px; border-bottom: 1px solid var(--line); font-size: 14px;
+  }
+  ol.steps li.active { background: var(--surface); box-shadow: inset 3px 0 0 var(--accent); }
+  .tag { color: var(--muted); font-size: 12px; }
+  .mvs { display: flex; gap: 4px; }
+  button.mv { padding: 0 8px; min-width: 32px; min-height: 32px; border-radius: 8px; background: transparent; color: var(--text); border: 1px solid var(--line); }
+  button.mv:disabled { opacity: .3; cursor: default; }
+  .fit { color: var(--muted); font-size: 12px; white-space: nowrap; }
+  .fit.over { color: var(--warn); }
+
+  details { margin-top: 24px; }
+  summary { cursor: pointer; color: var(--muted); font-size: 13px; letter-spacing: .08em; }
+  textarea { width: 100%; height: 260px; font: 12px/1.4 ui-monospace, Menlo, monospace; margin-top: 8px; }
+  .err { color: var(--warn); font-size: 13px; min-height: 1.5em; }
+  .note { color: var(--muted); font-size: 12px; margin-top: 16px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>surya namaskara a</h1>
+    <p class="sub">breath-paced cues · rehearsal</p>
+  </header>
+
+  <section class="stage" aria-live="off">
+    <div class="ring">
+      <div class="orb" id="orb"></div>
+      <div class="breathword" id="breathWord">ready</div>
+    </div>
+    <div class="pose" id="poseMain">&nbsp;</div>
+    <div class="pose-sub" id="poseSub">&nbsp;</div>
+    <div class="move" id="move">press start</div>
+    <div class="next" id="next"></div>
+    <div class="progress" id="progress"></div>
+  </section>
+
+  <div class="controls">
+    <button id="go">start</button>
+    <button id="stop" class="ghost">stop</button>
+  </div>
+
+  <h2>settings</h2>
+  <section class="grid">
+    <label>tempo — <span class="readout" id="tempoOut"></span>
+      <input type="range" id="bpm" min="6" max="20" step="0.5">
+    </label>
+    <label>rounds
+      <select id="rounds"></select>
+    </label>
+    <label>pose names
+      <select id="lang">
+        <option value="both">sanskrit, then english</option>
+        <option value="sa">sanskrit</option>
+        <option value="en">english</option>
+      </select>
+    </label>
+    <label>cue volume
+      <input type="range" id="cueVol" min="0" max="1" step="0.05">
+    </label>
+    <label>breath tone volume
+      <input type="range" id="toneVol" min="0" max="1" step="0.05">
+    </label>
+    <label class="inline"><input type="checkbox" id="speakOn"> spoken cues</label>
+    <label class="inline"><input type="checkbox" id="toneOn"> breath tone</label>
+  </section>
+
+  <h2>sequence</h2>
+  <ol class="steps" id="steps"></ol>
+  <p class="note">
+    "cue ~x of y s" is a text-length guess until you've run it, then it shows the measured time the voice actually took.
+    red means the cue overran its breath — shorten the words in the sequence.
+    "audio Xs" means a recorded AWS Polly clip exists for that exact text (see <code>generate_audio.py</code>); the breath
+    stretches to let it finish rather than cutting it off, so red doesn't apply there.
+  </p>
+
+  <details>
+    <summary>edit sequence (json)</summary>
+    <textarea id="seqJson" spellcheck="false"></textarea>
+    <div class="controls" style="justify-content:flex-start">
+      <button id="seqApply" class="ghost">apply</button>
+      <button id="seqReset" class="ghost">reset to default</button>
+    </div>
+    <div class="err" id="seqErr"></div>
+    <p class="note">
+      fields: <code>breath</code> in / out / hold · <code>breaths</code> (a hold of N full in+out breaths) ·
+      <code>seconds</code> (override tempo) · <code>say_sa</code> (how the voice should pronounce the sanskrit; the
+      displayed name stays <code>pose_sa</code>) · <code>first_round_only</code> / <code>last_round_only</code>.
+    </p>
+  </details>
+</main>
+
+<script type="application/json" id="defaultSeq">
+[
+  { "id": "settle", "breath": "hold", "seconds": 6, "first_round_only": true,
+    "move": "stand at the top of the mat, feet together",
+    "pose_sa": "Samasthitih", "ipa_sa": "sɐməˈst̪ʰɪt̪ɪh", "say_sa": "sama stitee", "pose_en": "mountain pose" },
+
+  { "id": "reach", "breath": "in",
+    "move": "sweep the arms up",
+    "pose_sa": "Urdhva Hastasana", "ipa_sa": "ˈuːrd̪ʱʋɐ ɦɐˈst̪aːsɐnɐ", "say_sa": "oordva hastasana", "pose_en": "upward salute" },
+
+  { "id": "fold", "breath": "out",
+    "move": "fold forward, hands to the floor",
+    "pose_sa": "Uttanasana", "ipa_sa": "ʊt̪ˈt̪aːnaːsɐnɐ", "say_sa": "oottanasana", "pose_en": "standing forward fold" },
+
+  { "id": "lift", "breath": "in",
+    "move": "lift the chest, lengthen the spine",
+    "pose_sa": "Ardha Uttanasana", "ipa_sa": "ˈɐrd̪ʱɐ ʊt̪ˈt̪aːnaːsɐnɐ", "say_sa": "ardha oottanasana", "pose_en": "half lift" },
+
+  { "id": "chaturanga", "breath": "out",
+    "move": "step back and lower",
+    "pose_sa": "Chaturanga Dandasana", "ipa_sa": "tʃɐt̪ʊˈrɐŋɡɐ d̪ɐɳˈɖaːsɐnɐ", "say_sa": "chaturanga dandasana", "pose_en": "four-limbed staff" },
+
+  { "id": "updog", "breath": "in",
+    "move": "roll over, open the chest",
+    "pose_sa": "Urdhva Mukha Svanasana", "ipa_sa": "ˈuːrd̪ʱʋɐ ˈmʊkʰɐ ˈʃʋaːnaːsɐnɐ", "say_sa": "oordva mookha shvanasana", "pose_en": "upward-facing dog" },
+
+  { "id": "downdog", "breath": "out",
+    "move": "lift the hips back",
+    "pose_sa": "Adho Mukha Svanasana", "ipa_sa": "ɐˈd̪ʱoː ˈmʊkʰɐ ˈʃʋaːnaːsɐnɐ", "say_sa": "adho mookha shvanasana", "pose_en": "downward-facing dog" },
+
+  { "id": "downdog-hold", "breaths": 5,
+    "move": "stay, breathing",
+    "quality": "Long, smooth breaths.",
+    "pose_sa": "Adho Mukha Svanasana", "ipa_sa": "ɐˈd̪ʱoː ˈmʊkʰɐ ˈʃʋaːnaːsɐnɐ", "say_sa": "adho mookha shvanasana", "pose_en": "downward-facing dog" },
+
+  { "id": "lift2", "breath": "in",
+    "move": "step forward, lengthen",
+    "pose_sa": "Ardha Uttanasana", "ipa_sa": "ˈɐrd̪ʱɐ ʊt̪ˈt̪aːnaːsɐnɐ", "say_sa": "ardha oottanasana", "pose_en": "half lift" },
+
+  { "id": "fold2", "breath": "out",
+    "move": "fold",
+    "pose_sa": "Uttanasana", "ipa_sa": "ʊt̪ˈt̪aːnaːsɐnɐ", "say_sa": "oottanasana", "pose_en": "standing forward fold" },
+
+  { "id": "rise", "breath": "in",
+    "move": "rise, arms overhead",
+    "pose_sa": "Urdhva Hastasana", "ipa_sa": "ˈuːrd̪ʱʋɐ ɦɐˈst̪aːsɐnɐ", "say_sa": "oordva hastasana", "pose_en": "upward salute" },
+
+  { "id": "home", "breath": "out",
+    "move": "hands to heart",
+    "pose_sa": "Samasthitih", "ipa_sa": "sɐməˈst̪ʰɪt̪ɪh", "say_sa": "sama stitee", "pose_en": "mountain pose" },
+
+  { "id": "close", "breath": "hold", "seconds": 6, "last_round_only": true,
+    "move": "stay. notice the breath.",
+    "pose_sa": "Samasthitih", "ipa_sa": "sɐməˈst̪ʰɪt̪ɪh", "say_sa": "sama stitee", "pose_en": "mountain pose" }
+]
+</script>
+
+<!-- filled in by generate_audio.py; text -> relative mp3 path. empty until you run it. -->
+<script type="application/json" id="audioManifest">
+{
+  "Exhale.": "audio/4d46dfad33.mp3",
+  "Exhale. fold forward, hands to the floor. oottanasana.": "audio/008b2da4d5.mp3",
+  "Exhale. fold. oottanasana.": "audio/ad66fa052b.mp3",
+  "Exhale. hands to heart. sama stitee.": "audio/72543efe14.mp3",
+  "Exhale. lift the hips back. adho mookha shvanasana.": "audio/5450596622.mp3",
+  "Exhale. step back and lower. chaturanga dandasana.": "audio/89d48843bc.mp3",
+  "Inhale. Breath 1 of 5. Long, smooth breaths.": "audio/b7b8e891ed.mp3",
+  "Inhale. Breath 2 of 5.": "audio/b0080e4aee.mp3",
+  "Inhale. Breath 3 of 5.": "audio/216a3e837f.mp3",
+  "Inhale. Breath 4 of 5.": "audio/7227cd69fa.mp3",
+  "Inhale. Breath 5 of 5.": "audio/d7e41f16d7.mp3",
+  "Inhale. lift the chest, lengthen the spine. ardha oottanasana.": "audio/4bf5a73300.mp3",
+  "Inhale. rise, arms overhead. oordva hastasana.": "audio/eaea4ec410.mp3",
+  "Inhale. roll over, open the chest. oordva mookha shvanasana.": "audio/709d3c87ad.mp3",
+  "Inhale. step forward, lengthen. ardha oottanasana.": "audio/d7180b1570.mp3",
+  "Inhale. sweep the arms up. oordva hastasana.": "audio/eaccd46855.mp3",
+  "stand at the top of the mat, feet together. sama stitee.": "audio/0948a01a51.mp3",
+  "stay. notice the breath. sama stitee.": "audio/5d4daa7d09.mp3"
+}
+</script>
+
+<script>
+// <logic> — pure functions, no DOM. tested in node by extracting this block.
+const CHARS_PER_SEC = 13;      // spoken text length -> seconds at rate 1. tune after measuring.
+const MAX_RATE = 1.5;
+const MIN_RATE = 0.85;
+
+function estSeconds(text) { return text.length / CHARS_PER_SEC; }
+
+function poseName(step, lang) {
+  const sa = step.say_sa || step.pose_sa || '';
+  const en = step.pose_en || '';
+  if (lang === 'sa') return sa;
+  if (lang === 'en') return en;
+  return [sa, en].filter(Boolean).join(', ');
+}
+
+// durLookup(text) -> known audio duration in seconds, or 0/undefined if none recorded.
+// a recorded duration is a floor, never a ceiling: the breath is only ever stretched
+// to let the cue finish, never cut short.
+const noAudio = () => 0;
+const AUDIO_PAD = 0.3;
+
+function withAudioFloor(dur, text, durLookup) {
+  const known = durLookup(text);
+  return known ? Math.max(dur, known + AUDIO_PAD) : dur;
+}
+
+function stepPhases(step, tempo, lang, durLookup = noAudio) {
+  const out = [];
+  const base = { stepId: step.id };
+  if (step.breaths) {
+    const n = step.breaths;
+    for (let i = 1; i <= n; i++) {
+      const q = i === 1 && step.quality ? ' ' + step.quality : '';
+      const inText = `Inhale. Breath ${i} of ${n}.${q}`, outText = 'Exhale.';
+      out.push({ ...base, breath: 'in', dur: withAudioFloor(tempo, inText, durLookup), text: inText, holdIdx: i, holdTotal: n });
+      out.push({ ...base, breath: 'out', dur: withAudioFloor(tempo, outText, durLookup), text: outText, holdIdx: i, holdTotal: n });
+    }
+  } else {
+    const word = step.breath === 'in' ? 'Inhale' : step.breath === 'out' ? 'Exhale' : '';
+    const text = [word, step.move, poseName(step, lang)].filter(Boolean).map(x => x.replace(/[.\s]+$/, '')).join('. ') + '.';
+    const dur = withAudioFloor(step.seconds || tempo, text, durLookup);
+    out.push({ ...base, breath: step.breath, dur, text });
+  }
+  return out;
+}
+
+function buildPhases(seq, rounds, tempo, lang, durLookup = noAudio) {
+  const phases = [];
+  for (let r = 0; r < rounds; r++) {
+    seq.forEach((step, si) => {
+      if (step.first_round_only && r > 0) return;
+      if (step.last_round_only && r < rounds - 1) return;
+      for (const p of stepPhases(step, tempo, lang, durLookup)) {
+        phases.push({ ...p, round: r + 1, rounds, stepNo: si + 1, stepCount: seq.length });
+      }
+    });
+  }
+  return phases;
+}
+
+function speechRate(text, dur) {
+  const need = estSeconds(text) / Math.max(dur - 0.4, 0.5);
+  return Math.min(MAX_RATE, Math.max(MIN_RATE, need));
+}
+
+// how much of its window the cue needs (1 = exactly fills it), at the fastest allowed rate
+function cueLoad(text, dur) {
+  return estSeconds(text) / MAX_RATE / Math.max(dur - 0.4, 0.5);
+}
+
+function validateSeq(seq) {
+  if (!Array.isArray(seq) || !seq.length) return 'sequence must be a non-empty array';
+  const ids = new Set();
+  for (const [i, s] of seq.entries()) {
+    const where = `step ${i + 1}`;
+    if (!s || typeof s !== 'object') return `${where}: not an object`;
+    if (!s.id || typeof s.id !== 'string') return `${where}: needs a string id`;
+    if (ids.has(s.id)) return `${where}: duplicate id "${s.id}"`;
+    ids.add(s.id);
+    if (!s.breaths && !['in', 'out', 'hold'].includes(s.breath)) return `${where}: breath must be in, out, or hold (or set breaths)`;
+    if (s.breaths && !(Number.isInteger(s.breaths) && s.breaths > 0)) return `${where}: breaths must be a positive integer`;
+    if (s.seconds != null && !(s.seconds > 0)) return `${where}: seconds must be positive`;
+  }
+  return '';
+}
+// </logic>
+
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('bc:' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('bc:' + k, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem('bc:' + k); } catch {} },
+};
+
+const DEFAULT_SEQ = JSON.parse($('defaultSeq').textContent);
+const AUDIO_MANIFEST = JSON.parse($('audioManifest').textContent || '{}');   // text -> "audio/xxx.mp3"
+const audioBuffers = new Map();   // text -> decoded AudioBuffer
+const audioDurations = new Map(); // text -> measured seconds (from the decoded buffer)
+const durLookup = text => audioDurations.get(text) || 0;
+
+// decoding only (never plays anything), so it needs no user gesture and can run at page load —
+// unlike `ctx`/`ensureAudio()` below, which stay gesture-gated for the breath tone's autoplay policy.
+const decodeCtx = (window.AudioContext || window.webkitAudioContext) && new (window.AudioContext || window.webkitAudioContext)();
+
+async function preloadAudio() {
+  if (!decodeCtx) return;
+  await Promise.all(Object.entries(AUDIO_MANIFEST).map(async ([text, path]) => {
+    try {
+      const buf = await fetch(path).then(r => r.arrayBuffer());
+      const decoded = await decodeCtx.decodeAudioData(buf);
+      audioBuffers.set(text, decoded);
+      audioDurations.set(text, decoded.duration);
+    } catch {
+      // missing/renamed/corrupt file: silently fall back to speech synthesis for this cue
+    }
+  }));
+}
+const state = {
+  seq: store.get('seq', null) || DEFAULT_SEQ,
+  phases: [], i: 0, running: false, token: 0,
+  bpm: store.get('bpm', 15), rounds: store.get('rounds', 1), lang: store.get('lang', 'sa'),
+  voiceURI: '', cueVol: store.get('cueVol', 1), toneVol: store.get('toneVol', 0.5),
+  speakOn: store.get('speakOn', true), toneOn: store.get('toneOn', true),
+  get tempo() { return 60 / this.bpm; },   // seconds per breath phase (1 beat = 1 inhale or 1 exhale)
+  measured: {},   // stepId -> longest measured cue seconds
+  voices: [],
+};
+if (validateSeq(state.seq)) state.seq = DEFAULT_SEQ;
+
+const stepById = id => state.seq.find(s => s.id === id);
+const idle = () => !state.running && state.i === 0;
+
+// ---------- audio: breath tone ----------
+let ctx, envGain, osc1, osc2, cueGain;
+function ensureAudio() {
+  if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  ctx = new AC();
+  osc1 = ctx.createOscillator(); osc2 = ctx.createOscillator();
+  const g2 = ctx.createGain(); g2.gain.value = 0.35;
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900;
+  envGain = ctx.createGain(); envGain.gain.value = 0.0001;
+  osc1.connect(lp); osc2.connect(g2); g2.connect(lp); lp.connect(envGain); envGain.connect(ctx.destination);
+  osc1.frequency.value = 196; osc2.frequency.value = 294;
+  osc1.start(); osc2.start();
+  cueGain = ctx.createGain(); cueGain.gain.value = state.cueVol; cueGain.connect(ctx.destination);
+}
+function tone(breath, dur) {
+  if (!ctx || !state.toneOn || breath === 'hold') return;
+  const t = ctx.currentTime, up = breath === 'in';
+  const f0 = up ? 196 : 262, f1 = up ? 262 : 196;
+  const peak = Math.max(0.0002, state.toneVol * 0.25);
+  for (const [o, m] of [[osc1, 1], [osc2, 1.5]]) {
+    o.frequency.cancelScheduledValues(t);
+    o.frequency.setValueAtTime(f0 * m, t);
+    o.frequency.linearRampToValueAtTime(f1 * m, t + dur * 0.95);
+  }
+  const g = envGain.gain;
+  g.cancelScheduledValues(t);
+  if (up) {
+    g.setValueAtTime(0.0001, t);
+    g.linearRampToValueAtTime(peak, t + dur * 0.85);
+    g.linearRampToValueAtTime(0.0001, t + dur * 0.99);
+  } else {
+    g.setValueAtTime(0.0001, t);
+    g.linearRampToValueAtTime(peak * 0.8, t + 0.2);
+    g.linearRampToValueAtTime(0.0001, t + dur * 0.97);
+  }
+}
+function silence() {
+  if (!ctx) return;
+  envGain.gain.cancelScheduledValues(ctx.currentTime);
+  envGain.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.05);
+}
+
+// ---------- audio: spoken cues ----------
+function speak(p) {
+  if (!state.speakOn) return;
+  const buffer = audioBuffers.get(p.text);
+  if (buffer && ctx && cueGain) {
+    const src = ctx.createBufferSource();
+    src.buffer = buffer; src.connect(cueGain);
+    src.start();
+    return;
+  }
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(p.text);
+  const v = state.voices.find(v => v.voiceURI === state.voiceURI);
+  if (v) { u.voice = v; u.lang = v.lang; }
+  u.volume = state.cueVol;
+  u.rate = speechRate(p.text, p.dur);
+  let t0 = 0;
+  u.onstart = () => { t0 = performance.now(); };
+  u.onend = () => {
+    if (!t0) return;
+    const secs = (performance.now() - t0) / 1000;
+    state.measured[p.stepId] = Math.max(state.measured[p.stepId] || 0, secs);
+    renderFit(p.stepId);
+  };
+  speechSynthesis.speak(u);
+}
+
+function loadVoices() {
+  if (!('speechSynthesis' in window)) return;
+  state.voices = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang));
+  if (!state.voices.length) return;
+  // no UI for this — auto-pick a decent fallback voice for cues without recorded audio
+  const pref = state.voices.find(v => /samantha|karen|daniel|serena/i.test(v.name)) || state.voices[0];
+  state.voiceURI = pref.voiceURI;
+}
+
+// ---------- rendering ----------
+function rebuild() {
+  state.phases = buildPhases(state.seq, state.rounds, state.tempo, state.lang, durLookup);
+  renderSteps();
+}
+
+function fitText(step) {
+  const rawPh = stepPhases(step, state.tempo, state.lang);          // durations before any audio floor
+  const worstRaw = rawPh.reduce((a, b) => cueLoad(b.text, b.dur) >= cueLoad(a.text, a.dur) ? b : a);
+  const recorded = audioDurations.get(worstRaw.text);
+  if (recorded != null) {
+    const stretches = recorded + AUDIO_PAD > worstRaw.dur;
+    return {
+      text: stretches ? `audio ${recorded.toFixed(1)}s → stretches breath` : `audio ${recorded.toFixed(1)}s`,
+      over: false,
+    };
+  }
+  const measured = state.measured[step.id];
+  const win = worstRaw.dur;
+  if (measured != null) {
+    return { text: `cue ${measured.toFixed(1)} of ${win}s`, over: measured > win * 0.95 };
+  }
+  return { text: `cue ~${estSeconds(worstRaw.text).toFixed(1)} of ${win}s`, over: cueLoad(worstRaw.text, worstRaw.dur) > 1 };
+}
+
+function renderFit(id) {
+  const li = document.querySelector(`#steps li[data-id="${CSS.escape(id)}"] .fit`);
+  const step = stepById(id);
+  if (!li || !step) return;
+  const f = fitText(step);
+  li.textContent = f.text; li.classList.toggle('over', f.over);
+}
+
+function renderSteps() {
+  const ol = $('steps');
+  ol.innerHTML = '';
+  state.seq.forEach((step, i) => {
+    const li = document.createElement('li');
+    li.dataset.id = step.id;
+    const tag = step.breaths ? `${step.breaths} breaths` : step.breath;
+    const name = state.lang === 'en' ? step.pose_en : step.pose_sa;
+    li.innerHTML = `<span class="tag">${i + 1}</span><span class="tag"></span><span></span><span class="fit"></span>
+      <span class="mvs"><button class="mv up" aria-label="move step up">↑</button><button class="mv down" aria-label="move step down">↓</button></span>`;
+    li.children[1].textContent = tag;
+    li.children[2].textContent = name || step.move || step.id;
+    const up = li.querySelector('.up'), down = li.querySelector('.down');
+    up.dataset.off = i === 0 ? '1' : '0'; down.dataset.off = i === state.seq.length - 1 ? '1' : '0';
+    up.addEventListener('click', () => moveStep(i, -1, 'up'));
+    down.addEventListener('click', () => moveStep(i, 1, 'down'));
+    ol.appendChild(li);
+    renderFit(step.id);
+  });
+  setControls();
+}
+
+function moveStep(i, d, which) {
+  const j = i + d;
+  if (!idle() || j < 0 || j >= state.seq.length) return;
+  const seq = state.seq.slice();
+  [seq[i], seq[j]] = [seq[j], seq[i]];
+  state.seq = seq; store.set('seq', seq);
+  $('seqJson').value = JSON.stringify(seq, null, 2);
+  rebuild();
+  const b = document.querySelector(`#steps li[data-id="${CSS.escape(seq[j].id)}"] .${which}`);
+  if (b && !b.disabled) b.focus(); else document.querySelector(`#steps li[data-id="${CSS.escape(seq[j].id)}"] .mv:not(:disabled)`)?.focus();
+}
+
+function showPhase(p) {
+  const step = stepById(p.stepId);
+  $('breathWord').textContent = p.breath === 'in' ? 'inhale' : p.breath === 'out' ? 'exhale' : 'settle';
+  $('poseMain').textContent = state.lang === 'en' ? step.pose_en : step.pose_sa;
+  $('poseSub').textContent = state.lang === 'both' ? step.pose_en : (state.lang === 'sa' ? step.pose_en : step.pose_sa);
+  $('move').textContent = p.holdIdx ? `breath ${p.holdIdx} of ${p.holdTotal}` : (step.move || '');
+  const later = state.phases.slice(state.i + 1).find(x => x.stepId !== p.stepId);
+  const ns = later && stepById(later.stepId);
+  $('next').textContent = ns ? `next: ${ns.pose_en}` : 'last movement';
+  $('progress').textContent = `round ${p.round}/${p.rounds} · step ${p.stepNo}/${p.stepCount}`;
+
+  const orb = $('orb');
+  orb.style.transitionDuration = (p.breath === 'hold' ? 0.8 : p.dur * 0.95) + 's';
+  orb.style.transform = `scale(${p.breath === 'in' ? 1 : p.breath === 'out' ? 0.5 : 0.75})`;
+
+  document.querySelectorAll('#steps li').forEach(li => li.classList.toggle('active', li.dataset.id === p.stepId));
+  const act = document.querySelector('#steps li.active');
+  if (act) act.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+function setControls() {
+  $('go').textContent = state.running ? 'pause' : (state.i > 0 ? 'resume' : 'start');
+  const lock = !idle();
+  for (const id of ['bpm', 'rounds', 'lang']) $(id).disabled = lock;
+  $('seqApply').disabled = lock; $('seqReset').disabled = lock;
+  document.querySelectorAll('#steps .mv').forEach(b => { b.disabled = lock || b.dataset.off === '1'; });
+}
+
+function resetStage() {
+  $('breathWord').textContent = 'ready';
+  $('poseMain').innerHTML = '&nbsp;'; $('poseSub').innerHTML = '&nbsp;';
+  $('move').textContent = 'press start'; $('next').textContent = ''; $('progress').textContent = '';
+  $('orb').style.transitionDuration = '.8s'; $('orb').style.transform = 'scale(.6)';
+  document.querySelectorAll('#steps li').forEach(li => li.classList.remove('active'));
+}
+
+// ---------- playback ----------
+let wakeLock = null;
+async function keepAwake(on) {
+  try {
+    if (on && 'wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+    else if (wakeLock) { await wakeLock.release(); wakeLock = null; }
+  } catch {}
+}
+const sleep = (ms, token) => new Promise(r => setTimeout(r, Math.max(0, ms)));
+
+async function play() {
+  if (state.running) return;
+  ensureAudio();
+  if (idle()) rebuild();
+  state.running = true; setControls(); keepAwake(true);
+  const token = ++state.token;
+  let target = performance.now();
+  while (state.i < state.phases.length && token === state.token) {
+    const p = state.phases[state.i];
+    showPhase(p); tone(p.breath, p.dur); speak(p);
+    target += p.dur * 1000;
+    await sleep(target - performance.now(), token);
+    if (token !== state.token) return;
+    state.i++;
+  }
+  if (token === state.token) finish();
+}
+
+function pause() {
+  state.token++; state.running = false;
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  silence(); keepAwake(false); setControls();
+}
+
+function stop() {
+  pause(); state.i = 0; resetStage(); setControls();
+}
+
+function finish() {
+  state.running = false; state.i = 0; keepAwake(false); silence(); setControls();
+  $('breathWord').textContent = 'done'; $('move').textContent = 'stay a moment'; $('next').textContent = '';
+  document.querySelectorAll('#steps li').forEach(li => li.classList.remove('active'));
+}
+
+// ---------- wiring ----------
+function bind(id, key, parse = v => v, after = () => {}) {
+  const el = $(id);
+  if (el.type === 'checkbox') el.checked = state[key]; else el.value = state[key];
+  el.addEventListener('input', () => {
+    state[key] = el.type === 'checkbox' ? el.checked : parse(el.value);
+    store.set(key, state[key]);
+    after();
+  });
+}
+
+for (let n = 1; n <= 5; n++) {
+  const o = document.createElement('option'); o.value = n; o.textContent = n; $('rounds').appendChild(o);
+}
+const tempoLabel = () => {
+  $('tempoOut').textContent = `${state.bpm} bpm · ${state.tempo.toFixed(1)}s per phase · ${(state.bpm / 2).toFixed(1)} full breaths/min`;
+};
+bind('bpm', 'bpm', Number, () => { tempoLabel(); rebuild(); });
+bind('rounds', 'rounds', Number, rebuild);
+bind('lang', 'lang', v => v, () => { state.measured = {}; rebuild(); });
+bind('cueVol', 'cueVol', Number, () => { if (cueGain) cueGain.gain.value = state.cueVol; });
+bind('toneVol', 'toneVol', Number);
+bind('speakOn', 'speakOn');
+bind('toneOn', 'toneOn');
+tempoLabel();
+
+$('go').addEventListener('click', () => state.running ? pause() : play());
+$('stop').addEventListener('click', stop);
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' && !/^(TEXTAREA|SELECT|INPUT)$/.test(e.target.tagName)) {
+    e.preventDefault(); state.running ? pause() : play();
+  }
+});
+
+$('seqJson').value = JSON.stringify(state.seq, null, 2);
+$('seqApply').addEventListener('click', () => {
+  let parsed;
+  try { parsed = JSON.parse($('seqJson').value); } catch (e) { $('seqErr').textContent = 'json error: ' + e.message; return; }
+  const err = validateSeq(parsed);
+  if (err) { $('seqErr').textContent = err; return; }
+  $('seqErr').textContent = '';
+  state.seq = parsed; state.measured = {}; store.set('seq', parsed); rebuild();
+});
+$('seqReset').addEventListener('click', () => {
+  store.del('seq'); state.seq = DEFAULT_SEQ; state.measured = {};
+  $('seqJson').value = JSON.stringify(DEFAULT_SEQ, null, 2); $('seqErr').textContent = ''; rebuild();
+});
+
+if ('speechSynthesis' in window) {
+  speechSynthesis.addEventListener('voiceschanged', loadVoices);
+  loadVoices();
+} else if (!Object.keys(AUDIO_MANIFEST).length) {
+  $('speakOn').checked = false; $('speakOn').disabled = true; state.speakOn = false;
+}
+
+preloadAudio().then(() => { rebuild(); setControls(); });
+</script>
+</body>
+</html>
