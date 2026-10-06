@@ -15,10 +15,15 @@ optionally with a draft *angle* (a slight taper) so the fit is generous
 rather than a knife-edge fit that binds. It can also hollow the result into
 a thin constant-thickness shell (`shell` command) so the print can later be
 packed with something like frozen isopropyl alcohol to help shrink it loose
-from the mold. A third command, `mirror`, is just a flat reflection across
-the parting plane -- handy for turning a finished half (e.g. the left side
-of a hemisected skull) into its opposite-side counterpart (a right side)
-without redoing any of the draft/shell work.
+from the mold. A third command, `negative`, goes the other direction: it
+carves the drafted solid OUT of a margin-padded block, producing a
+directly 3D-printable mold half (a rigid cavity you pour into) instead of
+a positive you press into plaster -- same draft/undercut requirement,
+same pull axis, just subtracted instead of shelled. A fourth command,
+`mirror`, is just a flat reflection across the parting plane -- handy for
+turning a finished half (e.g. the left side of a hemisected skull) into
+its opposite-side counterpart (a right side) without redoing any of the
+draft/shell/negative work.
 
 Both commands work by voxelizing the mesh (turning it into a 3D grid of
 filled/empty cells), doing the geometric operation on that grid with array
@@ -138,6 +143,43 @@ Usage:
     python stl_add_draft.py shell input.stl output.stl \
         --pull-axis x --base min --thickness 2.0 --pitch 0.2 --smooth 8
 
+--- negative command ---
+
+Takes the same kind of input as `shell` (an already draft-corrected,
+undercut-free solid -- NOT the shelled positive, and not the raw
+pre-draft scan) and produces the opposite kind of print: instead of a
+thin positive you press into wet plaster, this carves that solid directly
+out of a rectangular block, leaving a skull-shaped cavity -- a mold you
+can 3D-print and pour directly into, skipping the physical plaster-
+pressing step entirely.
+
+The undercut-free requirement is the same and for a symmetric reason: a
+positive with no undercuts along the pull axis can be pulled out of a
+mold along that axis; a cavity with no undercuts along that same axis
+lets the CAST piece be pulled back OUT of this mold along it afterward.
+So `negative` reuses whatever draft angle/blur was already baked into the
+input by `draft` -- it has no draft/blur options of its own.
+
+HOW: voxelize the drafted solid, then build a second, all-True "block"
+array around it -- padded by `--margin` on every side EXCEPT the base
+(parting-plane) end of the pull axis, which is left flush with the
+mesh's own base layer rather than padded. The cavity is simply
+`block & ~mesh` (every block voxel that isn't part of the solid). Unlike
+`shell`, this needs no special "treat the base face as already open"
+padding trick: because the block isn't padded past the base plane, and
+the mesh's own base layer is exactly the object's flat parting-plane
+footprint, `block & ~mesh` at that layer is ALREADY empty everywhere the
+object's footprint is -- so the cavity is a skull-shaped hole straight
+through the block's top face by construction, without needing to be
+told not to cap it there. Standard field_to_mesh boundary padding then
+correctly caps every other face of the block (the true solid exterior
+walls) while leaving that hole alone (empty bordered by more empty caps
+nothing).
+
+Usage:
+    python stl_add_draft.py negative input.stl output.stl \
+        --pull-axis x --base min --margin 8 --pitch 0.2 --smooth 8
+
 --- mirror command ---
 
 Reflects every vertex across a plane perpendicular to --axis at coordinate
@@ -164,10 +206,10 @@ inverted) as the input.
 Usage:
     python stl_add_draft.py mirror input.stl output.stl --axis x --plane 0.0
 
-Run `python stl_add_draft.py draft --help`, `... shell --help`, or
-`... mirror --help` for the full up-to-date list of flags with
-explanations (kept in sync with this docstring, but that's the
-authoritative source since argparse enforces it).
+Run `python stl_add_draft.py draft --help`, `... shell --help`,
+`... negative --help`, or `... mirror --help` for the full up-to-date
+list of flags with explanations (kept in sync with this docstring, but
+that's the authoritative source since argparse enforces it).
 """
 
 import argparse
@@ -759,6 +801,76 @@ def core_correct(mesh: trimesh.Trimesh, axis: int, base: str, pitch: float,
     return field_to_mesh(sdf, transform, level=0.0, pad_value=float(sdf.min()) - 1.0)
 
 
+def negative_correct(mesh: trimesh.Trimesh, axis: int, base: str, pitch: float,
+                      margin: float) -> trimesh.Trimesh:
+    """
+    Carve `mesh` (an already draft-corrected, undercut-free solid) OUT of a
+    rectangular block, producing a mold cavity instead of a positive -- see
+    the module docstring's "negative command" section for the full picture.
+
+    Args:
+      axis    0/1/2 for x/y/z -- same pull axis as the `draft` run that
+              produced `mesh`. Must match: this determines which block face
+              stays flush (the cavity's pour opening) vs. which get padded
+              (the mold's solid walls).
+      base    'min' or 'max' -- same as the `draft` run; identifies which
+              end of `axis` is the parting-plane face.
+      margin  wall thickness / clearance, in the mesh's own units, added
+              around the solid on every side of the block EXCEPT the base
+              face (which stays flush with the mesh's own parting plane --
+              see below for why).
+
+    Unlike shell_correct, there's no distance-transform offset here and no
+    special-cased "treat the base face as open" padding: the block is built
+    by padding `margin` worth of solid on every side of the mesh's voxel
+    grid EXCEPT the base end of `axis`, which is left at zero padding, flush
+    with the mesh's own base layer. Since the mesh's base layer is already
+    exactly the object's flat parting-plane footprint (solid where the
+    object is, empty where it isn't), `block & ~mesh` at that one layer is
+    empty precisely where the object's footprint is and solid everywhere
+    else in the block's cross-section there -- i.e. a skull-shaped hole
+    through the block's top face, open by construction, with no need to
+    tell the boundary-padding step in field_to_mesh not to cap it (empty
+    bordered by more empty during that padding caps nothing). Every other
+    face of the block -- the two transverse sides and the far (tip) end of
+    the pull axis -- IS padded with real margin, so those get capped into
+    genuine solid mold walls the normal way.
+    """
+    print(f"Voxelizing at pitch={pitch:.4f} ...")
+    arr, transform = voxelize_solid(mesh, pitch)
+    print(f"Voxel grid shape: {arr.shape} ({arr.sum()} occupied voxels)")
+
+    margin_vox = max(int(np.ceil(margin / pitch)), 1)
+    pad_width = [(margin_vox, margin_vox)] * 3
+    # Leave the base (parting-plane) end of the pull axis flush/unpadded --
+    # that's the mold's pour opening, not a wall -- while every other face
+    # gets `margin` worth of solid wall around the mesh.
+    if base == "min":
+        pad_width[axis] = (0, margin_vox)
+    else:
+        pad_width[axis] = (margin_vox, 0)
+
+    mesh_padded = np.pad(arr, pad_width, mode="constant", constant_values=False)
+    block = np.ones_like(mesh_padded)
+    negative = block & ~mesh_padded
+
+    for a in range(3):
+        if pad_width[a][0] > 0:
+            transform[:3, 3] -= pad_width[a][0] * transform[:3, a]
+
+    print(f"Block is {negative.size} voxels; carved out {mesh_padded.sum()} as "
+          f"the cavity, leaving {negative.sum()} solid "
+          f"({negative.sum() / negative.size:.1%}) as the mold body, "
+          f"{margin:.2f}mm wall margin, open at the {['x','y','z'][axis]} "
+          f"{base} face.")
+
+    print("Computing signed distance field for smooth re-surfacing ...")
+    sdf = (ndimage.distance_transform_edt(negative)
+           - ndimage.distance_transform_edt(~negative)).astype(np.float32)
+
+    return field_to_mesh(sdf, transform, level=0.0, pad_value=float(sdf.min()) - 1.0)
+
+
 def _add_shared_args(sp):
     """
     Args common to both 'draft' and 'shell' subcommands. Factored out so
@@ -915,6 +1027,22 @@ def build_parser():
                      help="Gaussian sigma (voxels) to round creases that "
                           "erosion sharpens. 0 = off.")
 
+    pn = sub.add_parser("negative", help="Carve a draft-corrected solid out "
+                         "of a block, producing a printable mold cavity "
+                         "instead of a positive.")
+    _add_shared_args(pn)
+    pn.add_argument("--margin", type=float, default=8.0,
+                     help="Wall thickness / clearance, in the mesh's own "
+                          "units (mm for a typical STL), added around the "
+                          "solid on every side of the block EXCEPT the base "
+                          "(parting-plane) face, which stays flush with the "
+                          "mesh's own base -- that face is the mold's pour "
+                          "opening, not a wall. This is a mold body meant "
+                          "to hold its shape under a plaster/resin pour, "
+                          "not a thin release shell, so it wants a much "
+                          "thicker margin than --shell's wall thickness. "
+                          "Default: 8.0.")
+
     pm = sub.add_parser("mirror", help="Reflect a mesh across a plane -- "
                          "e.g. turn a finished left-side half into a "
                          "right-side counterpart.")
@@ -956,12 +1084,13 @@ def main():
         return
 
     if not mesh.is_watertight:
-        # voxelize_solid's ray-parity fill requires a watertight mesh to
-        # correctly pair up entry/exit crossings -- a leaky mesh can
-        # produce missing chunks or extra solid material with no error.
-        print("WARNING: input mesh is not watertight -- voxelization may be "
-              "imperfect. Consider running an STL repair pass first.",
-              file=sys.stderr)
+        # voxelize_solid's ray-parity fill (draft/shell/negative) and the
+        # boolean mesh engine (brim) both require a watertight/manifold
+        # mesh -- a leaky mesh can produce missing chunks, extra solid
+        # material, or a failed/garbage boolean, with no error either way.
+        print("WARNING: input mesh is not watertight -- this command may "
+              "produce imperfect or garbage results. Consider running an "
+              "STL repair pass first.", file=sys.stderr)
 
     if args.command == "draft" and args.scale != 1.0:
         mesh.apply_scale(args.scale)
@@ -981,9 +1110,11 @@ def main():
     elif args.command == "shell":
         result = shell_correct(mesh, axis, args.base, args.pitch, args.thickness,
                                 args.blur, args.teeth_blur, args.teeth_radius)
-    else:
+    elif args.command == "core":
         result = core_correct(mesh, axis, args.base, args.pitch, args.inset,
                                args.blur)
+    else:
+        result = negative_correct(mesh, axis, args.base, args.pitch, args.margin)
 
     smooth_mesh(result, args.smooth, args.smooth_method)
 

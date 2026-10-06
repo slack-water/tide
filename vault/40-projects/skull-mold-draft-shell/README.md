@@ -20,8 +20,8 @@ Prepare a scanned half-skull STL (cut flush at the sagittal midline) so it can b
 
 ## Scope
 
-**In:** a reusable voxel-based Python script (`stl_add_draft.py`, copied into this folder) with three operations — `draft` (eliminate undercuts + optional draft angle), `shell` (hollow to a constant wall thickness, open at the parting plane), `mirror` (reflect a finished half across the centerline).
-**Out:** the actual plaster pour / print / release process; a silicone-intermediate route (print → silicone → plaster) if direct plaster release turns out to lose too much tooth detail — noted as a fallback, not pursued yet.
+**In:** a reusable voxel-based Python script (`stl_add_draft.py`, copied into this folder) with four operations — `draft` (eliminate undercuts + optional draft angle), `shell` (hollow to a constant wall thickness, open at the parting plane), `negative` (carve the drafted solid out of a block, for a directly-printable mold instead of a plaster-press positive), `mirror` (reflect a finished half across the centerline).
+**Out:** the actual plaster pour / print / release process; a silicone-intermediate route (print → silicone → plaster) if direct plaster release turns out to lose too much tooth detail — noted as a fallback, not pursued yet. The `negative` route (below) is a third, so-far-untested alternative to both of these.
 
 ## Done looks like
 
@@ -80,6 +80,8 @@ Voxelize the mesh (turn it into a 3D grid of filled/empty cells), do the geometr
 **draft**: fill each column along the pull axis solid from the parting plane up to its topmost occupied voxel (removes undercuts by definition — nothing above the highest point in a filled column can still be an undercut). Optionally cone-widen that fill as it sweeps from tip back to base (the draft angle), solved as one closed-form pass, not an iterative grow-loop.
 
 **shell**: full-3D Euclidean distance transform, keep only voxels within `--thickness` of the true surface. The parting-plane face is padded as already-solid (not empty) before the transform runs, so it's treated as an open mouth rather than a wall to offset from — this is what leaves the result open/bowl-shaped instead of a sealed cavity.
+
+**negative**: the inverse of `shell` — instead of hollowing the drafted solid into a thin positive, subtract it from a `--margin`-padded block, leaving a skull-shaped cavity. Takes the same draft-corrected (not shelled) input as `shell` and reuses whatever draft angle/blur was already baked in, since the same undercut-free requirement applies in both directions (a positive with no undercuts along the pull axis releases from a mold along it; a cavity with no undercuts along that axis releases the *cast piece* along it afterward). No special "leave the mouth open" padding trick needed here, unlike `shell`: the block is left unpadded at the base end of the pull axis, so `block AND NOT mesh` is already empty exactly at the mesh's own footprint there, by construction. Untested physically — this is a from-scratch alternative to the whole plaster-press step, not yet validated against a real print/pour.
 
 **mirror**: pure vertex reflection across a plane, with face winding reversed to undo the orientation flip a reflection otherwise causes (left uncorrected, the output would be geometrically right but "inside-out" from a solid-modeling point of view).
 
@@ -160,6 +162,26 @@ python stl_add_draft.py core draft150_p04.stl core150.stl --pull-axis x --base m
 ```
 
 Verified: watertight, 556 cm³, 132.4 × 175.6 × 53.7 mm printed; vertex distance to the drafted outer surface 4.3–5.3 mm (median 4.85, same half-voxel-thin bias as `shell`). Teeth and thin ridges vanish (narrower than 10 mm). Not yet printed.
+
+### 2026-09-23
+
+Ran the `negative` pipeline on the real skull scan for the first time (previously only tested on the synthetic mushroom mesh). 50% scale, 4mm margin, draft `--blur 3` (negative has no separate teeth-blur/teeth-radius — those are shell-only, since negative has no erosion step to re-sharpen creases against). Draft → negative → mirror, pitch 0.075, 5% draft, smooth 20 taubin throughout.
+
+```bash
+python stl_add_draft.py draft "Skull (Left).stl" "Skull (Left)_draft50pct_blur3.stl" \
+    --pull-axis x --base min --pitch 0.075 --draft 5 --blur 3 --scale 0.5 \
+    --smooth 20 --smooth-method taubin
+python stl_add_draft.py negative "Skull (Left)_draft50pct_blur3.stl" "Skull (Left)_negative_50pct_blur3_margin4mm.stl" \
+    --pull-axis x --base min --pitch 0.075 --margin 4 --smooth 20 --smooth-method taubin
+python stl_add_draft.py mirror "Skull (Left)_negative_50pct_blur3_margin4mm.stl" "Skull (Right)_negative_50pct_blur3_margin4mm.stl" \
+    --axis x --plane 0.0
+```
+
+Verified: both halves watertight, positive volume (67,020.5 mm³ each, matching between L/R as expected from mirroring), correct mirrored bounds. Open-mouth ray-cast (25 rays through the cavity's central footprint, cast toward the base) showed zero near-base crossings — genuinely open pour face, not a fabricated floor. Not yet printed or poured — direct-print mold cavity route is still otherwise untested per the 2026-09-22 entry below.
+
+### 2026-09-22
+
+Added a `negative` command: carves the draft-corrected solid out of a margin-padded block instead of shelling it, producing a mold cavity that could in principle be printed and poured into directly, skipping the plaster-press step entirely. Verified on a synthetic mushroom-overhang test mesh (draft → negative): watertight, positive volume (no inside-out orientation), and ray-cast-confirmed genuinely open at the pour face (rays pass through the mouth and first hit the cavity's far interior wall, not a fabricated floor) — same verification approach the shell command's log entry below describes, applied to the new command before touching the real skull scan. Not yet run on the actual skull file or tested physically; still an open question whether a rigid direct-print mold gets comparable tooth detail to the plaster-press route.
 
 ### 2026-09-19 to 2026-09-21
 
