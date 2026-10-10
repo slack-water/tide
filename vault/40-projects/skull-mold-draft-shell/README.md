@@ -1,10 +1,10 @@
 ---
 title: Skull Mold Draft & Shell Pipeline
 created: 2026-07-29
-updated: 2026-09-25
+updated: 2026-10-10
 folder: 40
 type: project
-status: active
+status: complete
 importance: 3
 goal: Turn a hemisected skull scan into a pair of draft-corrected, shelled, mold-ready STLs (left + mirrored right)
 scope: mesh-processing script + finished output files, not the physical casting process
@@ -34,11 +34,11 @@ Current final outputs (not checked into this vault — see Files below):
 
 ## Next action
 
-- [ ] Generate brimmed STLs (`brim` command, see below — done for the 50% left test piece; still needed: right side, and the real 150% pair) and print both halves (0.2mm nozzle, per plan, to minimize layer lines)
-- [ ] Press brim-side-down into a cottleboard box, pour the plaster mother mold; test release
-- [ ] If release is tight, pack the shell interior with frozen isopropyl alcohol before pulling
-- [ ] (stretch) if plaster-direct loses too much tooth definition, try print → silicone → plaster instead for a higher-fidelity intermediate
-
+- [x] Generate brimmed STLs and print both halves — done at 150% (half-skull press molds) and 60% (whole-skull two-piece mold)
+- [x] Press brim-side-down into a cottleboard box, pour the plaster mother mold; test release — release was clean apart from one breakage at the cavity above the jaw bone (see 2026-10-09 log)
+- [x] ~~If release is tight, pack the shell interior with frozen isopropyl alcohol before pulling~~ — not needed, release was clean
+- [x] ~~(stretch) print → silicone → plaster for higher fidelity~~ — not needed; plaster-direct detail is good enough for ceramic, and glaze will soften it further anyway
+- [x] decide: close or continue — closed as complete 2026-10-10; any skull-vessel work (designed rim, pour opening) goes in a new project
 ---
 
 ## Files
@@ -184,6 +184,18 @@ Verified on synthetic test meshes before touching a real file (same discipline a
 All of the above were caught by `body_count`, ray-casting for genuine pass-through material (not just checking a single point -- checking its surroundings too, since a "hole" that's actually a whole empty region looks identical to a real one at just its center), and, for #6, running the actual `_PRINT` file rather than trusting the synthetic test alone. The synthetic hemisphere-shell test mesh caught #1-4 in seconds each; #5 and #6 only showed up on the real geometry, which is exactly why this got run against it before calling any of it settled.
 
 ## Log
+
+### 2026-10-09
+
+Both physical loops done, all from plaster poured over the brimmed prints:
+
+- **150% half-skull dishes** — two clay half-skull dishes from the 150% press molds. One breakage in the 150% plaster mold, at the cavity above the jaw bone; minor, and the resulting flaw on the clay piece was easy to fettle. Otherwise release was clean.
+- **60% whole skull, drain-cast** — the 60% left and mirrored right molds closed together as a two-piece sagittal mold. No pour opening was designed in, so it was rotocast instead: filled the mold halfway with slip, closed it, rolled it continuously for even (enough) wall coverage, then demolded, cut a hole in the bottom, and drained it. The natches registered perfectly and the halves lined up.
+- **Detail** — lower than the scan (the single-axis X draft blocks out some of the orbit/nasal/arch detail), but plenty good enough for ceramic; glazing will lose more detail than the draft did. So a third mold piece along another pull axis isn't justified by these results.
+
+What this settles: the left + mirrored right molds already work as a two-piece mold for a whole hollow vessel, and natches placed with brim-before-mirror register correctly. Neither the frozen-alcohol packing nor the silicone intermediate was needed.
+
+Still open (only matters if this goes further): the jaw-bone cavity is the one weak spot in the plaster, probably a thin plaster fin where the X-draft leaves a narrow concave pocket — more draft blur there, or a slightly larger draft angle, would likely thicken it. A designed pour opening would replace the rotocast + cut-a-hole step if a clean, intentional rim matters.
 
 ### 2026-10-04
 
