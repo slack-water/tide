@@ -15,6 +15,14 @@ Flange edges at the top (Z max) and bottom (Z min) are flush with the funnel-sea
 boss ends: stand the pour-box walls on those edges and the pocket and socket come out open in the
 finished plaster.
 
+Slicer settings (STLs cannot carry them; set per object in Bambu Studio):
+  masters   layer height 0.12 mm (surface-critical), elephant-foot compensation ~0.15 mm so the
+            bed-contact parting face has no flared lip at the cavity edge, 2 walls, ~15% infill.
+            Import the _PRINT files as-is; do not rotate or "place on face" in the slicer.
+  plug cup, funnel   0.12 mm for the cup (its floor forms the foot dish), 0.2 mm is fine for the funnel.
+  If the flange bows on the first print, raise --thickness to 8 or add a brim.
+(Settings borrowed from the Glencairn 3-part mold study; see README.)
+
 Usage: .venv/bin/python make_half_masters.py [--margin 35] [--thickness 5] [--natch-diameter 12]
 """
 import argparse
@@ -99,6 +107,7 @@ def main():
 
     save_print("master_A", master_a)
     save_print("master_B", master_b)
+    print("slicer: masters 0.12 mm layers, elephant-foot comp ~0.15, no rotation; flange bows -> --thickness 8")
 
 
 if __name__ == "__main__":

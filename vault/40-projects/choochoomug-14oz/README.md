@@ -70,6 +70,31 @@ Setup: `python3 -m venv .venv && .venv/bin/pip install build123d trimesh`
 
 Flange edges at the top and bottom sit flush with the boss ends. Stand the pour-box walls on those edges and the funnel pocket and plug socket come out open in the plaster.
 
+## Print settings
+
+STLs cannot carry slicer settings, so set these per object in the slicer.
+
+| Part | Layer height | Notes |
+| --- | --- | --- |
+| Masters A and B | 0.12 mm | The surface is the mug's outer surface. Elephant-foot compensation about 0.15 mm, 2 walls, about 15% infill, no supports. Import `_PRINT` files as-is: no rotation, no "place on face" |
+| Plug cup | 0.12 mm | Its floor forms the foot dish |
+| Funnel | 0.2 mm | Foot down; the 45° flare needs no support |
+
+The parting face is the bed face, so a flared first layer would put a lip at the cavity edge, right where the halves seal. If the 217 × 141 mm flange bows on the first print, rerun `make_half_masters.py --thickness 8` or add a brim. Lying flat leaves layer terraces on the mug's outer ridge (at most the layer height tall, about 7 mm wide at 0.12 mm). Standing the master upright would avoid that but the handle loop would need support; print one flat and look before changing anything.
+
+## Lessons from the Glencairn 3-part mold
+
+Studied 2026-10-11: a MakerWorld 3-part (three identical sides plus a foot insert) Glencairn mold by Old Forge Creations, used widely by others. MakerWorld Exclusive License, so only the design ideas are taken here, no geometry.
+
+- **Same architecture.** The foot is a separate insert, and the maker revised it in V2 ("Changed Foot Insert"). The foot is the likeliest part of ours to need a second iteration, so print and cast the plug early.
+- **Surface layers differ from structure layers.** Masters and foot parts at 0.12 mm, cottle parts at 0.2 mm; 2 walls, 15% cubic infill, no supports; elephant-foot compensation 0.15 mm.
+- **Release and bubbles.** Mouldmaker's soap on the master's flat base surface. Pour plaster until it covers the surface but the cavity is not full, brush gently to free trapped air, then fill.
+- **Quantities.** About 375 mL of plaster per side piece and 50 mL for the insert on a roughly 9 cm glass; uniform scaling keeps everything fitting. His 9 cm cast fires to 8 cm, about 11% shrinkage, inside the 10 to 14% I assumed for the ×1.049 scale.
+- **Identical pieces need threefold symmetry.** A handle breaks that, which is why this project has mirrored masters A and B.
+- **Registration is built into his master** (round bosses and rectangular slots). I keep my own natch-insert system instead. This and the next point are my reading of the photos and geometry, not stated by the maker.
+- **His master prints standing on its edge** (glass axis vertical), which gives concentric rings on the cast surface. Ours lies flat because of the handle loop.
+- **A reservoir cap in plaster.** His master has a half-disc cap on the rim that looks like a plaster reservoir. My printed funnel is a different, untested approach.
+
 ## Pour and assembly (planned, not yet run)
 
 1. Print both masters, the plug cup and the funnel.
@@ -89,10 +114,10 @@ Flange edges at the top and bottom sit flush with the boss ends. Stand the pour-
 
 ## Next action
 
-- [ ] Print master A and the plug cup first; check the natch holes against the clip and insert before printing the rest
+- [ ] Print master A and the plug cup first, at 0.12 mm; check the natch holes against the clip and insert and the flange flatness before printing the rest
 
 ## Log
 
 ### 2026-10-11
 
-Scaled the Fusion STEP to ×1.049 for 14 oz. Chose a foot plug over a belly split after measuring that the dish is the only real undercut. Built the halves positive, plug cup and funnel, then split on the sagittal plane and fused each half to a natch flange. Two masters because the halves are mirror images. Nothing printed or cast yet. Overlaps with [mug-recessed-foot](../mug-recessed-foot/README.md); that project's base-piece plan is superseded by the plug here.
+Scaled the Fusion STEP to ×1.049 for 14 oz. Chose a foot plug over a belly split after measuring that the dish is the only real undercut. Built the halves positive, plug cup and funnel, then split on the sagittal plane and fused each half to a natch flange. Two masters because the halves are mirror images. Nothing printed or cast yet. Studied a Glencairn 3-part mold file and took print settings and process notes from it (see Lessons). Overlaps with [mug-recessed-foot](../mug-recessed-foot/README.md); that project's base-piece plan is superseded by the plug here.
