@@ -1,0 +1,21 @@
+flowchart LR
+  n0["K. Pattabhi Jois<br>1915–2009"]
+  n1["Ashtanga Vinyasa"]
+  n2["Tirumalai Krishnamacharya<br>1888–1989"]
+  n3["Beryl Bender Birch"]
+  n4{{"Indra Devi in Hollywood; Jois's institute in Mysore<br>1947–1948"}}
+  n5{{"Institutions consolidate (Himalayan Institute, Pune, Yoga Journal)<br>1971–1975"}}
+  n0 -->|school| n1
+  n2 -->|taught| n0
+  n0 -->|taught| n3
+  n4 -->|involved| n0
+  n5 -->|involved| n0
+  classDef founder fill:#fdf3e1,stroke:#c98a12,color:#1f2430
+  classDef lineage fill:#e8ecf7,stroke:#2f3f7a,color:#1f2430
+  classDef event fill:#f2f2ee,stroke:#7a6a50,color:#1f2430
+  classDef teacher fill:#eee,stroke:#999,color:#555
+  classDef focus stroke-width:4px
+  class n0,n2,n3 founder
+  class n1 lineage
+  class n4,n5 event
+  class n0 focus

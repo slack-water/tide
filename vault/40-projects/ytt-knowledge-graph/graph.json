@@ -1,0 +1,2265 @@
+{
+ "nodes": [
+  {
+   "id": "F001",
+   "kind": "founder",
+   "label": "Lahiri Mahasaya",
+   "name": "Lahiri Mahasaya (Shyama Charan Lahiri)",
+   "role": "teacher",
+   "born": "1828",
+   "died": "1895",
+   "region": "India (Bengal)",
+   "year": "1861",
+   "lineages": [
+    "L008"
+   ],
+   "known_for": "Householder teacher who revived Kriya Yoga",
+   "works": "",
+   "notes": "Initiation story is traditional and hagiographic",
+   "confidence": "medium"
+  },
+  {
+   "id": "F002",
+   "kind": "founder",
+   "label": "Swami Vivekananda",
+   "name": "Swami Vivekananda",
+   "role": "teacher; reformer",
+   "born": "1863",
+   "died": "1902",
+   "region": "India",
+   "year": "1893",
+   "lineages": [
+    "L007"
+   ],
+   "known_for": "Brought Vedānta and Rāja Yoga to the West",
+   "works": "Rāja Yoga (1896)",
+   "notes": "Reframed Patañjali; downplayed haṭha",
+   "confidence": "high"
+  },
+  {
+   "id": "F003",
+   "kind": "founder",
+   "label": "Sri Aurobindo",
+   "name": "Sri Aurobindo",
+   "role": "philosopher; teacher",
+   "born": "1872",
+   "died": "1950",
+   "region": "India",
+   "year": "1926",
+   "lineages": [
+    "L009"
+   ],
+   "known_for": "Integral Yoga; evolutionary spirituality",
+   "works": "The Synthesis of Yoga; The Life Divine",
+   "notes": "Ashram founded with Mirra Alfassa (The Mother)",
+   "confidence": "high"
+  },
+  {
+   "id": "F004",
+   "kind": "founder",
+   "label": "Sri Yukteswar Giri",
+   "name": "Sri Yukteswar Giri",
+   "role": "teacher",
+   "born": "1855",
+   "died": "1936",
+   "region": "India",
+   "year": "1894",
+   "lineages": [
+    "L008"
+   ],
+   "known_for": "Guru of Yogananda; wrote on the unity of yoga and scripture",
+   "works": "The Holy Science (1894)",
+   "notes": "",
+   "confidence": "high"
+  },
+  {
+   "id": "F005",
+   "kind": "founder",
+   "label": "Paramahansa Yogananda",
+   "name": "Paramahansa Yogananda",
+   "role": "teacher",
+   "born": "1893",
+   "died": "1952",
+   "region": "India; USA",
+   "year": "1920",
+   "lineages": [
+    "L008"
+   ],
+   "known_for": "Introduced Kriya Yoga to the West",
+   "works": "Autobiography of a Yogi (1946)",
+   "notes": "Founded Self-Realization Fellowship (1920)",
+   "confidence": "high"
+  },
+  {
+   "id": "F006",
+   "kind": "founder",
+   "label": "Swami Kuvalayananda",
+   "name": "Swami Kuvalayananda",
+   "role": "teacher; researcher",
+   "born": "1883",
+   "died": "1966",
+   "region": "India",
+   "year": "1924",
+   "lineages": [
+    "L010"
+   ],
+   "known_for": "Scientific research on yoga; Kaivalyadhama",
+   "works": "Yoga Mīmāṃsā (journal)",
+   "notes": "",
+   "confidence": "high"
+  },
+  {
+   "id": "F007",
+   "kind": "founder",
+   "label": "Shri Yogendra",
+   "name": "Shri Yogendra",
+   "role": "teacher; founder",
+   "born": "1897",
+   "died": "1989",
+   "region": "India",
+   "year": "1918",
+   "lineages": [
+    "L010"
+   ],
+   "known_for": "Founded The Yoga Institute; promoted householder yoga",
+   "works": "",
+   "notes": "",
+   "confidence": "high"
+  },
+  {
+   "id": "F008",
+   "kind": "founder",
+   "label": "Swami Sivananda",
+   "name": "Swami Sivananda",
+   "role": "teacher; physician",
+   "born": "1887",
+   "died": "1963",
+   "region": "India",
+   "year": "1936",
+   "lineages": [
+    "L017"
+   ],
+   "known_for": "Founded the Divine Life Society; prolific author",
+   "works": "",
+   "notes": "Practiced medicine in Malaya before renunciation",
+   "confidence": "high"
+  },
+  {
+   "id": "F009",
+   "kind": "founder",
+   "label": "Tirumalai Krishnamacharya",
+   "name": "Tirumalai Krishnamacharya",
+   "role": "teacher; scholar; healer",
+   "born": "1888",
+   "died": "1989",
+   "region": "India",
+   "year": "1933",
+   "lineages": [
+    "L011"
+   ],
+   "known_for": "Teacher of Pattabhi Jois; Iyengar; Desikachar; Indra Devi",
+   "works": "Yoga Makaranda (1934); Yogāsanagaḷu (1941)",
+   "notes": "Often called the 'father of modern yoga' in popular accounts; claim is contested",
+   "confidence": "high"
+  },
+  {
+   "id": "F010",
+   "kind": "founder",
+   "label": "K. Pattabhi Jois",
+   "name": "K. Pattabhi Jois",
+   "role": "teacher",
+   "born": "1915",
+   "died": "2009",
+   "region": "India",
+   "year": "1948",
+   "lineages": [
+    "L012"
+   ],
+   "known_for": "Ashtanga Vinyasa; Mysore",
+   "works": "Yoga Mala (1962)",
+   "notes": "Documented allegations of misconduct (physical adjustments); verify before citing",
+   "confidence": "medium"
+  },
+  {
+   "id": "F011",
+   "kind": "founder",
+   "label": "B.K.S. Iyengar",
+   "name": "B.K.S. Iyengar",
+   "role": "teacher",
+   "born": "1918",
+   "died": "2014",
+   "region": "India",
+   "year": "1952",
+   "lineages": [
+    "L013"
+   ],
+   "known_for": "Iyengar Yoga; alignment and props",
+   "works": "Light on Yoga (1966); Light on Pranayama (1981); Light on the Yoga Sutras of Patanjali (1993)",
+   "notes": "",
+   "confidence": "high"
+  },
+  {
+   "id": "F012",
+   "kind": "founder",
+   "label": "Indra Devi",
+   "name": "Indra Devi",
+   "role": "teacher",
+   "born": "1899",
+   "died": "2002",
+   "region": "Latvia; India; USA; Argentina",
+   "year": "1947",
+   "lineages": [
+    "L015"
+   ],
+   "known_for": "First Western woman student of Krishnamacharya; Hollywood studio",
+   "works": "Forever Young; Forever Healthy (1953)",
+   "notes": "Born Eugenie Peterson",
+   "confidence": "high"
+  },
+  {
+   "id": "F013",
+   "kind": "founder",
+   "label": "T.K.V. Desikachar",
+   "name": "T.K.V. Desikachar",
+   "role": "teacher",
+   "born": "1938",
+   "died": "2016",
+   "region": "India",
+   "year": "1976",
+   "lineages": [
+    "L014"
+   ],
+   "known_for": "Viniyoga; individualized therapy",
+   "works": "The Heart of Yoga (1995)",
+   "notes": "",
+   "confidence": "high"
+  },
+  {
+   "id": "F014",
+   "kind": "founder",
+   "label": "Swami Vishnudevananda",
+   "name": "Swami Vishnudevananda",
+   "role": "teacher",
+   "born": "1927",
+   "died": "1993",
+   "region": "India; Canada",
+   "year": "1959",
+   "lineages": [
+    "L018"
+   ],
+   "known_for": "Sivananda Yoga Vedanta Centres",
+   "works": "The Complete Illustrated Book of Yoga (1960)",
+   "notes": "",
+   "confidence": "high"
+  },
+  {
+   "id": "F015",
+   "kind": "founder",
+   "label": "Swami Satchidananda",
+   "name": "Swami Satchidananda",
+   "role": "teacher",
+   "born": "1914",
+   "died": "2002",
+   "region": "India; USA",
+   "year": "1966",
+   "lineages": [
+    "L019"
+   ],
+   "known_for": "Integral Yoga; Yogaville",
+   "works": "Integral Hatha Yoga (1970)",
+   "notes": "",
+   "confidence": "high"
+  },
+  {
+   "id": "F016",
+   "kind": "founder",
+   "label": "Swami Satyananda Saraswati",
+   "name": "Swami Satyananda Saraswati",
+   "role": "teacher",
+   "born": "1923",
+   "died": "2009",
+   "region": "India",
+   "year": "1964",
+   "lineages": [
+    "L020"
+   ],
+   "known_for": "Bihar School of Yoga; yoga nidrā",
+   "works": "Asana Pranayama Mudra Bandha (1969)",
+   "notes": "",
+   "confidence": "high"
+  },
+  {
+   "id": "F017",
+   "kind": "founder",
+   "label": "Swami Rama",
+   "name": "Swami Rama",
+   "role": "teacher",
+   "born": "1925",
+   "died": "1996",
+   "region": "India; USA",
+   "year": "1971",
+   "lineages": [
+    "L022"
+   ],
+   "known_for": "Himalayan Institute; research on voluntary control of body states",
+   "works": "Living with the Himalayan Masters (1978)",
+   "notes": "Documented misconduct allegations; verify before citing",
+   "confidence": "medium"
+  },
+  {
+   "id": "F018",
+   "kind": "founder",
+   "label": "Maharishi Mahesh Yogi",
+   "name": "Maharishi Mahesh Yogi",
+   "role": "teacher",
+   "born": "1918",
+   "died": "2008",
+   "region": "India",
+   "year": "1958",
+   "lineages": [
+    "L026"
+   ],
+   "known_for": "Transcendental Meditation",
+   "works": "",
+   "notes": "Birth year given as 1917 or 1918 in sources",
+   "confidence": "medium"
+  },
+  {
+   "id": "F019",
+   "kind": "founder",
+   "label": "Yogi Bhajan",
+   "name": "Yogi Bhajan (Harbhajan Singh Khalsa)",
+   "role": "teacher",
+   "born": "1929",
+   "died": "2004",
+   "region": "India; USA",
+   "year": "1969",
+   "lineages": [
+    "L023"
+   ],
+   "known_for": "Kundalini Yoga as taught by Yogi Bhajan; 3HO",
+   "works": "",
+   "notes": "Documented misconduct allegations; verify before citing",
+   "confidence": "medium"
+  },
+  {
+   "id": "F020",
+   "kind": "founder",
+   "label": "Bishnu Charan Ghosh",
+   "name": "Bishnu Charan Ghosh",
+   "role": "teacher",
+   "born": "1903",
+   "died": "1970",
+   "region": "India",
+   "year": "1923",
+   "lineages": [
+    "L025"
+   ],
+   "known_for": "Physical culture teacher; younger brother of Yogananda; mentor of Bikram Choudhury",
+   "works": "",
+   "notes": "",
+   "confidence": "medium"
+  },
+  {
+   "id": "F021",
+   "kind": "founder",
+   "label": "Bikram Choudhury",
+   "name": "Bikram Choudhury",
+   "role": "teacher; founder",
+   "born": "1944",
+   "died": "",
+   "region": "India; USA",
+   "year": "1973",
+   "lineages": [
+    "L025"
+   ],
+   "known_for": "Bikram Yoga heated 26-posture series",
+   "works": "",
+   "notes": "Birth year reported as 1944 or 1946; subject of civil judgments for harassment and discrimination; verify",
+   "confidence": "medium"
+  },
+  {
+   "id": "F022",
+   "kind": "founder",
+   "label": "Swami Muktananda",
+   "name": "Swami Muktananda",
+   "role": "teacher",
+   "born": "1908",
+   "died": "1982",
+   "region": "India; USA",
+   "year": "1970",
+   "lineages": [
+    "L021"
+   ],
+   "known_for": "Siddha Yoga; śaktipāt",
+   "works": "Play of Consciousness (1971)",
+   "notes": "Misconduct allegations documented after his death; verify",
+   "confidence": "medium"
+  },
+  {
+   "id": "F023",
+   "kind": "founder",
+   "label": "Swami Kripalvananda",
+   "name": "Swami Kripalvananda",
+   "role": "teacher",
+   "born": "1913",
+   "died": "1981",
+   "region": "India",
+   "year": "1970",
+   "lineages": [
+    "L024"
+   ],
+   "known_for": "Kripalu lineage; Kripalu Center named for him",
+   "works": "",
+   "notes": "",
+   "confidence": "medium"
+  },
+  {
+   "id": "F024",
+   "kind": "founder",
+   "label": "Amrit Desai",
+   "name": "Amrit Desai",
+   "role": "teacher",
+   "born": "1932",
+   "died": "",
+   "region": "India; USA",
+   "year": "1970",
+   "lineages": [
+    "L024"
+   ],
+   "known_for": "Systematized Kripalu Yoga in the US",
+   "works": "",
+   "notes": "Resigned from Kripalu in 1994 amid misconduct revelations",
+   "confidence": "medium"
+  },
+  {
+   "id": "F025",
+   "kind": "founder",
+   "label": "Richard Hittleman",
+   "name": "Richard Hittleman",
+   "role": "teacher; TV presenter",
+   "born": "1927",
+   "died": "1991",
+   "region": "USA",
+   "year": "1961",
+   "lineages": [
+    "L027"
+   ],
+   "known_for": "Yoga for Health TV series; early mass-market yoga",
+   "works": "Yoga: 28 Day Exercise Plan (1969)",
+   "notes": "",
+   "confidence": "medium"
+  },
+  {
+   "id": "F026",
+   "kind": "founder",
+   "label": "Sharon Gannon and David Life",
+   "name": "Sharon Gannon and David Life",
+   "role": "teachers (pair)",
+   "born": "",
+   "died": "",
+   "region": "USA",
+   "year": "1984",
+   "lineages": [
+    "L028"
+   ],
+   "known_for": "Co-founded Jivamukti Yoga (New York 1984)",
+   "works": "Jivamukti Yoga (2002)",
+   "notes": "Birth years omitted; verify",
+   "confidence": "medium"
+  },
+  {
+   "id": "F027",
+   "kind": "founder",
+   "label": "John Friend",
+   "name": "John Friend",
+   "role": "teacher",
+   "born": "",
+   "died": "",
+   "region": "USA",
+   "year": "1997",
+   "lineages": [
+    "L029"
+   ],
+   "known_for": "Founded Anusara Yoga (1997)",
+   "works": "",
+   "notes": "Stepped back in 2012 amid scandal",
+   "confidence": "medium"
+  },
+  {
+   "id": "F028",
+   "kind": "founder",
+   "label": "Beryl Bender Birch",
+   "name": "Beryl Bender Birch",
+   "role": "teacher",
+   "born": "",
+   "died": "",
+   "region": "USA",
+   "year": "1995",
+   "lineages": [
+    "L016"
+   ],
+   "known_for": "Power Yoga (1995 book)",
+   "works": "Power Yoga (1995)",
+   "notes": "",
+   "confidence": "medium"
+  },
+  {
+   "id": "F029",
+   "kind": "founder",
+   "label": "Baron Baptiste",
+   "name": "Baron Baptiste",
+   "role": "teacher",
+   "born": "",
+   "died": "",
+   "region": "USA",
+   "year": "",
+   "lineages": [
+    "L016"
+   ],
+   "known_for": "Baptiste Yoga; power vinyasa",
+   "works": "",
+   "notes": "",
+   "confidence": "medium"
+  },
+  {
+   "id": "F030",
+   "kind": "founder",
+   "label": "Ana Forrest",
+   "name": "Ana Forrest",
+   "role": "teacher",
+   "born": "",
+   "died": "",
+   "region": "USA",
+   "year": "",
+   "lineages": [
+    "L032"
+   ],
+   "known_for": "Forrest Yoga",
+   "works": "",
+   "notes": "",
+   "confidence": "medium"
+  },
+  {
+   "id": "F031",
+   "kind": "founder",
+   "label": "Paul Grilley",
+   "name": "Paul Grilley",
+   "role": "teacher",
+   "born": "",
+   "died": "",
+   "region": "USA",
+   "year": "",
+   "lineages": [
+    "L030"
+   ],
+   "known_for": "Yin Yoga with an anatomy-based approach",
+   "works": "Yin Yoga: Principles and Practice (2002)",
+   "notes": "",
+   "confidence": "medium"
+  },
+  {
+   "id": "F032",
+   "kind": "founder",
+   "label": "Paulie Zink",
+   "name": "Paulie Zink",
+   "role": "teacher",
+   "born": "",
+   "died": "",
+   "region": "USA",
+   "year": "",
+   "lineages": [
+    "L030"
+   ],
+   "known_for": "Taoist yoga and martial arts blend; early source of Yin Yoga",
+   "works": "",
+   "notes": "",
+   "confidence": "medium"
+  },
+  {
+   "id": "F033",
+   "kind": "founder",
+   "label": "Mark Singleton",
+   "name": "Mark Singleton",
+   "role": "scholar",
+   "born": "",
+   "died": "",
+   "region": "UK; USA",
+   "year": "2010",
+   "lineages": [
+    "L006"
+   ],
+   "known_for": "Modern postural yoga as a hybrid",
+   "works": "Yoga Body: The Origins of Modern Posture Practice (2010)",
+   "notes": "Scholar",
+   "confidence": "high"
+  },
+  {
+   "id": "F034",
+   "kind": "founder",
+   "label": "Elizabeth De Michelis",
+   "name": "Elizabeth De Michelis",
+   "role": "scholar",
+   "born": "",
+   "died": "",
+   "region": "UK",
+   "year": "2004",
+   "lineages": [
+    "L006"
+   ],
+   "known_for": "Typology of modern yoga",
+   "works": "A History of Modern Yoga (2004)",
+   "notes": "Scholar",
+   "confidence": "high"
+  },
+  {
+   "id": "F035",
+   "kind": "founder",
+   "label": "Joseph Alter",
+   "name": "Joseph Alter",
+   "role": "scholar",
+   "born": "",
+   "died": "",
+   "region": "USA",
+   "year": "2004",
+   "lineages": [
+    "L006"
+   ],
+   "known_for": "Anthropology of yoga and the body in India",
+   "works": "Yoga in Modern India (2004)",
+   "notes": "Scholar",
+   "confidence": "high"
+  },
+  {
+   "id": "F036",
+   "kind": "founder",
+   "label": "James Mallinson",
+   "name": "James Mallinson",
+   "role": "scholar",
+   "born": "",
+   "died": "",
+   "region": "UK",
+   "year": "2004",
+   "lineages": [
+    "L005"
+   ],
+   "known_for": "Premodern haṭha texts and translations",
+   "works": "The Gheranda Samhita (2004); Roots of Yoga (2017 with Singleton)",
+   "notes": "Scholar",
+   "confidence": "high"
+  },
+  {
+   "id": "F037",
+   "kind": "founder",
+   "label": "Georg Feuerstein",
+   "name": "Georg Feuerstein",
+   "role": "scholar",
+   "born": "1947",
+   "died": "2012",
+   "region": "Germany; USA",
+   "year": "1998",
+   "lineages": [
+    "L006"
+   ],
+   "known_for": "Popular scholarly syntheses of yoga history",
+   "works": "The Yoga Tradition (1998)",
+   "notes": "Scholar; some claims since contested",
+   "confidence": "medium"
+  },
+  {
+   "id": "L001",
+   "kind": "lineage",
+   "type": "root",
+   "label": "Yoga",
+   "name": "Yoga (all traditions)",
+   "year": "",
+   "emphasis": "",
+   "notes": "Root node for the tree"
+  },
+  {
+   "id": "L002",
+   "kind": "lineage",
+   "type": "era",
+   "label": "Pre-classical",
+   "name": "Pre-classical (Vedic; Upaniṣadic; Gītā)",
+   "year": "-1500",
+   "emphasis": "Tapas; breath; meditation; yoga as discipline and path",
+   "notes": "Ṛgveda through Bhagavad Gītā"
+  },
+  {
+   "id": "L003",
+   "kind": "lineage",
+   "type": "era",
+   "label": "Classical",
+   "name": "Classical (Sāṃkhya-Yoga / Patañjala)",
+   "year": "-200",
+   "emphasis": "Eight limbs; puruṣa-prakṛti dualism; citta-vṛtti-nirodha",
+   "notes": "Yoga Sūtras and Vyāsa's Bhāṣya"
+  },
+  {
+   "id": "L004",
+   "kind": "lineage",
+   "type": "era",
+   "label": "Tantric yoga",
+   "name": "Tantric yoga",
+   "year": "500",
+   "emphasis": "Kuṇḍalinī; cakras; mantra; subtle body",
+   "notes": "Śaiva and Śākta traditions"
+  },
+  {
+   "id": "L005",
+   "kind": "lineage",
+   "type": "era",
+   "label": "Haṭha yoga",
+   "name": "Haṭha yoga (premodern)",
+   "year": "1000",
+   "emphasis": "Bandha; mudrā; prāṇāyāma; later āsana",
+   "notes": "Nāth Siddha origins; Haṭha Yoga Pradīpikā (c. 15th c.)"
+  },
+  {
+   "id": "L006",
+   "kind": "lineage",
+   "type": "era",
+   "label": "Modern yoga",
+   "name": "Modern yoga (c. 1890–present)",
+   "year": "1893",
+   "emphasis": "Global; institutional; physical plus philosophical",
+   "notes": "Modern postural yoga is largely a 20th-century hybrid (Singleton; De Michelis)"
+  },
+  {
+   "id": "L007",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Vedānta societies",
+   "name": "Vedānta societies (Vivekananda)",
+   "year": "1893",
+   "emphasis": "Rāja Yoga as meditation; Advaita Vedānta; service",
+   "notes": "Ramakrishna Mission lineage; little āsana"
+  },
+  {
+   "id": "L008",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Kriya Yoga / Self-Realization",
+   "name": "Kriya Yoga / Self-Realization",
+   "year": "1861",
+   "emphasis": "Kriya technique; devotion; meditation",
+   "notes": "Lahiri Mahasaya to Sri Yukteswar to Yogananda; SRF founded 1920"
+  },
+  {
+   "id": "L009",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Integral Yoga",
+   "name": "Integral Yoga (Aurobindo)",
+   "year": "1926",
+   "emphasis": "Psychological transformation; evolutionary spirituality",
+   "notes": "Sri Aurobindo Ashram in Pondicherry; NOT the same as Satchidananda's Integral Yoga"
+  },
+  {
+   "id": "L010",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Scientific and institutional yoga",
+   "name": "Scientific and institutional yoga",
+   "year": "1918",
+   "emphasis": "Physiology research; therapy; moderate āsana",
+   "notes": "Kaivalyadhama; The Yoga Institute"
+  },
+  {
+   "id": "L011",
+   "kind": "lineage",
+   "type": "lineage",
+   "label": "Krishnamacharya lineage",
+   "name": "Krishnamacharya lineage (Mysore)",
+   "year": "1933",
+   "emphasis": "Vinyāsa; breath; adaptation to the individual",
+   "notes": "Source of the most influential postural schools"
+  },
+  {
+   "id": "L012",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Ashtanga Vinyasa",
+   "name": "Ashtanga Vinyasa",
+   "year": "1948",
+   "emphasis": "Fixed series; ujjāyī breath; bandhas; dṛṣṭi; Mysore-style teaching",
+   "notes": "Primary; Intermediate; Advanced series"
+  },
+  {
+   "id": "L013",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Iyengar Yoga",
+   "name": "Iyengar Yoga",
+   "year": "1966",
+   "emphasis": "Precise alignment; props; held postures; sequencing",
+   "notes": "Light on Yoga (1966); Pune institute (1975)"
+  },
+  {
+   "id": "L014",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Viniyoga",
+   "name": "Viniyoga",
+   "year": "1976",
+   "emphasis": "Individualized practice; breath-led movement; therapy",
+   "notes": "Krishnamacharya Yoga Mandiram; Gary Kraftsow's Viniyoga America"
+  },
+  {
+   "id": "L015",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Indra Devi style",
+   "name": "Indra Devi style",
+   "year": "1947",
+   "emphasis": "Gentle accessible hatha for general students",
+   "notes": "First Western woman student of Krishnamacharya"
+  },
+  {
+   "id": "L016",
+   "kind": "lineage",
+   "type": "style",
+   "label": "Power Yoga and Vinyasa Flow",
+   "name": "Power Yoga and Vinyasa Flow",
+   "year": "1995",
+   "emphasis": "Dynamic Western flow derived from Ashtanga",
+   "notes": "Birch's Power Yoga (1995); Baptiste; many studio flow styles"
+  },
+  {
+   "id": "L017",
+   "kind": "lineage",
+   "type": "lineage",
+   "label": "Sivananda lineage",
+   "name": "Sivananda lineage",
+   "year": "1936",
+   "emphasis": "Integrated yoga: service; devotion; knowledge; meditation",
+   "notes": "Divine Life Society in Rishikesh"
+  },
+  {
+   "id": "L018",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Sivananda Yoga",
+   "name": "Sivananda Yoga (Vishnudevananda)",
+   "year": "1959",
+   "emphasis": "Five points: exercise; breathing; relaxation; diet; positive thinking and meditation; 12 basic postures",
+   "notes": "Sivananda Yoga Vedanta Centres"
+  },
+  {
+   "id": "L019",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Integral Yoga",
+   "name": "Integral Yoga (Satchidananda)",
+   "year": "1966",
+   "emphasis": "Easy gentle hatha with raja; karma; bhakti; jñāna; japa",
+   "notes": "Different from Aurobindo's Integral Yoga; Yogaville"
+  },
+  {
+   "id": "L020",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Bihar School of Yoga",
+   "name": "Bihar School of Yoga (Satyananda)",
+   "year": "1964",
+   "emphasis": "Yoga nidrā; kriyā; systematic training",
+   "notes": "Based in Munger; Bihar"
+  },
+  {
+   "id": "L021",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Siddha Yoga",
+   "name": "Siddha Yoga (Muktananda)",
+   "year": "1970",
+   "emphasis": "Śaktipāt; kuṇḍalinī awakening; Kashmir Śaivism flavor",
+   "notes": "Nityananda lineage (not Sivananda)"
+  },
+  {
+   "id": "L022",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Himalayan Institute",
+   "name": "Himalayan Institute (Swami Rama)",
+   "year": "1971",
+   "emphasis": "Rāja and tantra; meditation; research on voluntary control",
+   "notes": "Swami Rama took part in Menninger Foundation research in the early 1970s"
+  },
+  {
+   "id": "L023",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Kundalini Yoga",
+   "name": "Kundalini Yoga (Yogi Bhajan)",
+   "year": "1969",
+   "emphasis": "Kriyās; breath of fire; mantra; 3HO",
+   "notes": "Widely taught; founder is the subject of documented misconduct allegations"
+  },
+  {
+   "id": "L024",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Kripalu Yoga",
+   "name": "Kripalu Yoga",
+   "year": "1970",
+   "emphasis": "Postures as meditation; yoga of consciousness; surrender",
+   "notes": "Kripalu Center (Massachusetts); Amrit Desai resigned in 1994 amid misconduct revelations"
+  },
+  {
+   "id": "L025",
+   "kind": "lineage",
+   "type": "lineage",
+   "label": "Ghosh lineage and Hot Yoga",
+   "name": "Ghosh lineage and Hot Yoga (Bikram)",
+   "year": "1923",
+   "emphasis": "Physical culture; fixed 26-posture heated sequence",
+   "notes": "Ghosh's college in Calcutta (1923); Bikram Yoga branded in the 1970s; founder lost civil judgments"
+  },
+  {
+   "id": "L026",
+   "kind": "lineage",
+   "type": "school",
+   "label": "Transcendental Meditation",
+   "name": "Transcendental Meditation",
+   "year": "1958",
+   "emphasis": "Mantra meditation; no āsana; global organization",
+   "notes": "Maharishi; Beatles visit 1968"
+  },
+  {
+   "id": "L027",
+   "kind": "lineage",
+   "type": "umbrella",
+   "label": "Western hybrid and therapeutic styles",
+   "name": "Western hybrid and therapeutic styles",
+   "year": "1970",
+   "emphasis": "Blends of the above with Western fitness and psychology",
+   "notes": "Studio-era styles"
+  },
+  {
+   "id": "L028",
+   "kind": "lineage",
+   "type": "style",
+   "label": "Jivamukti",
+   "name": "Jivamukti",
+   "year": "1984",
+   "emphasis": "Vinyāsa; chanting; activism; scripture",
+   "notes": "Ashtanga and Sivananda influences; New York"
+  },
+  {
+   "id": "L029",
+   "kind": "lineage",
+   "type": "style",
+   "label": "Anusara",
+   "name": "Anusara",
+   "year": "1997",
+   "emphasis": "Alignment principles plus tantric non-dual philosophy",
+   "notes": "Founder stepped back in 2012 amid scandal"
+  },
+  {
+   "id": "L030",
+   "kind": "lineage",
+   "type": "style",
+   "label": "Yin Yoga",
+   "name": "Yin Yoga",
+   "year": "",
+   "emphasis": "Long passive holds; connective tissue focus; Taoist influences",
+   "notes": "Zink (Taoist yoga); Grilley (anatomy); Sarah Powers"
+  },
+  {
+   "id": "L031",
+   "kind": "lineage",
+   "type": "style",
+   "label": "Restorative Yoga",
+   "name": "Restorative Yoga",
+   "year": "1995",
+   "emphasis": "Props; long supported holds; nervous system rest",
+   "notes": "Iyengar-derived; Judith Hanson Lasater (Relax and Renew; 1995)"
+  },
+  {
+   "id": "L032",
+   "kind": "lineage",
+   "type": "style",
+   "label": "Forrest Yoga",
+   "name": "Forrest Yoga",
+   "year": "",
+   "emphasis": "Intense core work; breath; emotional release",
+   "notes": "Ana Forrest"
+  },
+  {
+   "id": "X_Mahavatar_Babaji",
+   "kind": "teacher",
+   "label": "Mahavatar Babaji",
+   "name": "Mahavatar Babaji",
+   "notes": "teacher outside this dataset (traditional account)"
+  },
+  {
+   "id": "X_Ramakrishna_Paramahamsa",
+   "kind": "teacher",
+   "label": "Ramakrishna Paramahamsa",
+   "name": "Ramakrishna Paramahamsa",
+   "notes": "teacher outside this dataset"
+  },
+  {
+   "id": "X_Paramahamsa_Madhavdasji",
+   "kind": "teacher",
+   "label": "Paramahamsa Madhavdasji",
+   "name": "Paramahamsa Madhavdasji",
+   "notes": "teacher outside this dataset"
+  },
+  {
+   "id": "X_Rāmamohana_Brahmacāri",
+   "kind": "teacher",
+   "label": "Rāmamohana Brahmacāri",
+   "name": "Rāmamohana Brahmacāri",
+   "notes": "teacher outside this dataset (traditional account)"
+  },
+  {
+   "id": "X_Bengali_Baba",
+   "kind": "teacher",
+   "label": "Bengali Baba",
+   "name": "Bengali Baba",
+   "notes": "teacher outside this dataset (traditional account)"
+  },
+  {
+   "id": "X_Swami_Brahmananda_Saraswati",
+   "kind": "teacher",
+   "label": "Swami Brahmananda Saraswati",
+   "name": "Swami Brahmananda Saraswati",
+   "notes": "teacher outside this dataset"
+  },
+  {
+   "id": "X_Bhagawan_Nityananda",
+   "kind": "teacher",
+   "label": "Bhagawan Nityananda",
+   "name": "Bhagawan Nityananda",
+   "notes": "teacher outside this dataset"
+  },
+  {
+   "id": "T001",
+   "kind": "event",
+   "label": "c. 2600–1900 BCE",
+   "title": "Indus Valley civilization",
+   "name": "Indus Valley civilization; seals showing seated figures (e.g. the 'Pashupati' seal) are speculatively read as proto-yoga",
+   "era": "Proto-historic",
+   "category": "context",
+   "year": "-2600",
+   "end": "-1900",
+   "texts": "",
+   "notes": "Evidence is contested; most scholars treat any yoga link as unproven",
+   "confidence": "low"
+  },
+  {
+   "id": "T002",
+   "kind": "event",
+   "label": "c. 1500–1000 BCE",
+   "title": "Ṛgveda composed",
+   "name": "Composition of the Ṛgveda; √yuj appears in the sense of yoking (chariots; later the mind) alongside ecstatic seer figures (kesin; muni)",
+   "era": "Vedic",
+   "category": "text",
+   "year": "-1500",
+   "end": "-1000",
+   "texts": "Ṛgveda",
+   "notes": "Earliest vocabulary layer of the tradition; no systematic yoga yet",
+   "confidence": "medium"
+  },
+  {
+   "id": "T003",
+   "kind": "event",
+   "label": "c. 1200–900 BCE",
+   "title": "Atharvaveda compiled",
+   "name": "Atharvaveda compiled; hymns on prāṇa (vital breath) and the ritual ascetic vrātyas",
+   "era": "Vedic",
+   "category": "text",
+   "year": "-1200",
+   "end": "-900",
+   "texts": "Atharvaveda",
+   "notes": "Early breath and asceticism ideas that later feed prāṇāyāma and tapas",
+   "confidence": "medium"
+  },
+  {
+   "id": "T004",
+   "kind": "event",
+   "label": "c. 900–600 BCE",
+   "title": "Brāhmaṇas and Āraṇyakas interiorize ritual",
+   "name": "Brāhmaṇas and Āraṇyakas interiorize ritual; tapas (heat; austerity) and breath control become central practices",
+   "era": "Brahmana-Aranyaka",
+   "category": "text",
+   "year": "-900",
+   "end": "-600",
+   "texts": "Brāhmaṇas; Āraṇyakas",
+   "notes": "Shift from external sacrifice to internal discipline",
+   "confidence": "medium"
+  },
+  {
+   "id": "T005",
+   "kind": "event",
+   "label": "c. 800–500 BCE",
+   "title": "Early prose Upaniṣads: ātman-brahman and inner sacrifice",
+   "name": "Early prose Upaniṣads teach ātman-brahman identity and meditation as inner sacrifice",
+   "era": "Upanishadic",
+   "category": "text",
+   "year": "-800",
+   "end": "-500",
+   "texts": "Bṛhadāraṇyaka Upaniṣad; Chāndogya Upaniṣad",
+   "notes": "Philosophical ground for later yoga goals (liberation through knowledge)",
+   "confidence": "medium"
+  },
+  {
+   "id": "T006",
+   "kind": "event",
+   "label": "c. 5th–3rd c. BCE",
+   "title": "Kaṭha Upaniṣad defines yoga (chariot metaphor)",
+   "name": "Kaṭha Upaniṣad gives an early definition of yoga as firm holding of the senses (chariot metaphor)",
+   "era": "Upanishadic",
+   "category": "text",
+   "year": "-500",
+   "end": "-300",
+   "texts": "Kaṭha Upaniṣad (esp. 2.3.11 / chariot 1.3)",
+   "notes": "First strong use of 'yoga' as a discipline of mind and senses",
+   "confidence": "medium"
+  },
+  {
+   "id": "T007",
+   "kind": "event",
+   "label": "c. 4th–2nd c. BCE",
+   "title": "Śvetāśvatara Upaniṣad: posture and breath",
+   "name": "Śvetāśvatara Upaniṣad gives early instructions on posture and breath within a devotional (Rudra-Śiva) frame",
+   "era": "Upanishadic",
+   "category": "text",
+   "year": "-400",
+   "end": "-200",
+   "texts": "Śvetāśvatara Upaniṣad (esp. ch. 2)",
+   "notes": "Early mention of body alignment and breath in meditation",
+   "confidence": "low"
+  },
+  {
+   "id": "T008",
+   "kind": "event",
+   "label": "c. 3rd c. BCE–1st c. CE",
+   "title": "Maitrī Upaniṣad: six-limbed yoga",
+   "name": "Maitrī Upaniṣad describes a six-limbed (ṣaḍaṅga) yoga",
+   "era": "Upanishadic",
+   "category": "text",
+   "year": "-300",
+   "end": "100",
+   "texts": "Maitrī Upaniṣad (6.18)",
+   "notes": "Precursor to Patañjali's eight limbs",
+   "confidence": "low"
+  },
+  {
+   "id": "T009",
+   "kind": "event",
+   "label": "c. 6th–4th c. BCE",
+   "title": "Śramaṇa movements: the Buddha and Mahāvīra",
+   "name": "Śramaṇa movements: the Buddha and Mahāvīra teach meditation (dhyāna) and ascetic discipline outside Vedic orthodoxy",
+   "era": "Sramana",
+   "category": "movement",
+   "year": "-600",
+   "end": "-400",
+   "texts": "Pāli Canon; Jain Āgamas",
+   "notes": "Parallel meditation systems; mutual influence with Patañjali is debated",
+   "confidence": "medium"
+  },
+  {
+   "id": "T010",
+   "kind": "event",
+   "label": "c. 200 BCE–200 CE",
+   "title": "Mahābhārata and the Bhagavad Gītā",
+   "name": "Mahābhārata includes the Bhagavad Gītā (karma- jñāna- and bhakti-yoga; yoga as equanimity) and Sāṃkhya-Yoga material in the Mokṣadharma",
+   "era": "Epic",
+   "category": "text",
+   "year": "-200",
+   "end": "200",
+   "texts": "Mahābhārata; Bhagavad Gītā",
+   "notes": "Yoga becomes a broad path concept beyond meditation (Gītā 2.48 samatvaṃ yoga ucyate)",
+   "confidence": "medium"
+  },
+  {
+   "id": "T011",
+   "kind": "event",
+   "label": "c. 2nd c. BCE–4th c. CE (debated)",
+   "title": "Patañjali's Yoga Sūtras compiled",
+   "name": "Patañjali's Yoga Sūtras compiled (~195 sūtras in four pādas); eight-limbed (aṣṭāṅga) path; Sāṃkhya metaphysics",
+   "era": "Classical",
+   "category": "text",
+   "year": "-200",
+   "end": "400",
+   "texts": "Yoga Sūtras",
+   "notes": "Foundational classical yoga text; teaches a steady seat for meditation rather than a posture repertoire (YS 2.46)",
+   "confidence": "low"
+  },
+  {
+   "id": "T012",
+   "kind": "event",
+   "label": "c. 4th–5th c. CE",
+   "title": "Sāṃkhyakārikā: 25 tattvas and three guṇas",
+   "name": "Īśvarakṛṣṇa's Sāṃkhyakārikā systematizes the 25 tattvas and the three guṇas",
+   "era": "Classical",
+   "category": "text",
+   "year": "350",
+   "end": "450",
+   "texts": "Sāṃkhyakārikā",
+   "notes": "Standard source for the puruṣa-prakṛti-guṇa framework",
+   "confidence": "medium"
+  },
+  {
+   "id": "T013",
+   "kind": "event",
+   "label": "c. 5th c. CE",
+   "title": "Vyāsa's Yoga Bhāṣya",
+   "name": "Vyāsa's Yoga Bhāṣya becomes the standard commentary on the Yoga Sūtras",
+   "era": "Classical",
+   "category": "text",
+   "year": "400",
+   "end": "500",
+   "texts": "Yogabhāṣya (Pātañjalayogaśāstra)",
+   "notes": "Earliest extant commentary; Sūtras and Bhāṣya may have circulated as one work",
+   "confidence": "medium"
+  },
+  {
+   "id": "T014",
+   "kind": "event",
+   "label": "c. 10th c. CE",
+   "title": "Vācaspati Miśra's Tattvavaiśāradī",
+   "name": "Vācaspati Miśra writes the Tattvavaiśāradī sub-commentary on the Yoga Bhāṣya",
+   "era": "Classical",
+   "category": "text",
+   "year": "900",
+   "end": "1000",
+   "texts": "Tattvavaiśāradī",
+   "notes": "Major interpretive layer for later Yoga-Sāṃkhya scholarship",
+   "confidence": "medium"
+  },
+  {
+   "id": "T015",
+   "kind": "event",
+   "label": "c. 6th–10th c. CE",
+   "title": "Tantric traditions: mantra, cakras, kuṇḍalinī",
+   "name": "Tantric traditions elaborate mantra; mudrā; cakras; nāḍīs and kuṇḍalinī; Kashmir Śaivism develops",
+   "era": "Tantric",
+   "category": "movement",
+   "year": "500",
+   "end": "1000",
+   "texts": "Śaiva and Śākta Tantras",
+   "notes": "Subtle-body models later absorbed into haṭha yoga",
+   "confidence": "medium"
+  },
+  {
+   "id": "T016",
+   "kind": "event",
+   "label": "c. 11th–13th c. CE",
+   "title": "Nāth Siddhas develop haṭha techniques",
+   "name": "Nāth Siddha ascetics develop haṭha yoga techniques (bandhas; mudrās; breath retention) aimed at stabilizing bindu and breath; very few āsanas taught",
+   "era": "Early Hatha",
+   "category": "movement",
+   "year": "1000",
+   "end": "1300",
+   "texts": "Amṛtasiddhi; Dattātreyayogaśāstra; Gorakṣaśataka",
+   "notes": "Origin of haṭha practice; posture is a minor limb",
+   "confidence": "medium"
+  },
+  {
+   "id": "T017",
+   "kind": "event",
+   "label": "c. 15th c. CE",
+   "title": "Haṭha Yoga Pradīpikā compiled",
+   "name": "Svātmārāma compiles the Haṭha Yoga Pradīpikā; teaches 15 āsanas plus ṣaṭkarma; prāṇāyāma; mudrā; samādhi",
+   "era": "Hatha",
+   "category": "text",
+   "year": "1400",
+   "end": "1500",
+   "texts": "Haṭha Yoga Pradīpikā",
+   "notes": "Most influential premodern haṭha manual",
+   "confidence": "medium"
+  },
+  {
+   "id": "T018",
+   "kind": "event",
+   "label": "c. 17th–18th c. CE",
+   "title": "Later haṭha compendia expand posture lists",
+   "name": "Later haṭha compendia expand posture lists: Gheraṇḍa Saṃhitā (32 āsanas); Śiva Saṃhitā; Haṭharatnāvalī; Jogapradīpyakā (1737; 84 āsanas)",
+   "era": "Hatha",
+   "category": "text",
+   "year": "1600",
+   "end": "1800",
+   "texts": "Gheraṇḍa Saṃhitā; Śiva Saṃhitā; Haṭharatnāvalī; Jogapradīpyakā",
+   "notes": "Posture repertoire grows but stays mostly seated and floor-based",
+   "confidence": "medium"
+  },
+  {
+   "id": "T019",
+   "kind": "event",
+   "label": "1875–1900",
+   "title": "Theosophy and Orientalism recast yoga",
+   "name": "Theosophical Society founded (1875); Orientalist translations and Western esotericism recast yoga; haṭha yogis often dismissed as 'fakirs' by reformers",
+   "era": "Colonial",
+   "category": "event",
+   "year": "1875",
+   "end": "1900",
+   "texts": "",
+   "notes": "Sets conditions for the modern reframing of yoga",
+   "confidence": "medium"
+  },
+  {
+   "id": "T020",
+   "kind": "event",
+   "label": "1893–1896",
+   "title": "Vivekananda in Chicago; Rāja Yoga",
+   "name": "Swami Vivekananda at the Parliament of the World's Religions (Chicago 1893); Rāja Yoga published 1896 reframes Patañjali for a Western audience",
+   "era": "Modern",
+   "category": "event",
+   "year": "1893",
+   "end": "1896",
+   "texts": "Rāja Yoga (1896)",
+   "notes": "Starts modern transnational yoga; emphasizes meditation over postures",
+   "confidence": "high"
+  },
+  {
+   "id": "T021",
+   "kind": "event",
+   "label": "c. 1900–1930",
+   "title": "Physical culture meets yoga; modern postural yoga forms",
+   "name": "Indian physical culture merges with European gymnastics and YMCA-style fitness; modern postural yoga takes shape",
+   "era": "Modern",
+   "category": "movement",
+   "year": "1900",
+   "end": "1930",
+   "texts": "",
+   "notes": "Scholars (Singleton; Alter) describe modern posture practice as a hybrid",
+   "confidence": "medium"
+  },
+  {
+   "id": "T022",
+   "kind": "event",
+   "label": "1918",
+   "title": "The Yoga Institute founded (Bombay)",
+   "name": "Shri Yogendra founds The Yoga Institute in Bombay (Santa Cruz); visits the US in 1919",
+   "era": "Modern",
+   "category": "institution",
+   "year": "1918",
+   "end": "1918",
+   "texts": "",
+   "notes": "Begins institutional householder yoga in India",
+   "confidence": "high"
+  },
+  {
+   "id": "T023",
+   "kind": "event",
+   "label": "1920",
+   "title": "Yogananda arrives in the US; SRF founded",
+   "name": "Paramahansa Yogananda arrives in the US and founds Self-Realization Fellowship; Kriya Yoga reaches the West",
+   "era": "Modern",
+   "category": "institution",
+   "year": "1920",
+   "end": "1920",
+   "texts": "Autobiography of a Yogi (1946)",
+   "notes": "Early large-scale Indian yoga teaching in America",
+   "confidence": "high"
+  },
+  {
+   "id": "T024",
+   "kind": "event",
+   "label": "1924",
+   "title": "Kaivalyadhama founded; yoga research begins",
+   "name": "Swami Kuvalayananda founds Kaivalyadhama (Lonavla) and the journal Yoga Mīmāṃsā; laboratory research on yoga",
+   "era": "Modern",
+   "category": "institution",
+   "year": "1924",
+   "end": "1924",
+   "texts": "Yoga Mīmāṃsā",
+   "notes": "Start of scientific yoga research",
+   "confidence": "high"
+  },
+  {
+   "id": "T025",
+   "kind": "event",
+   "label": "1933–1934",
+   "title": "Krishnamacharya at the Mysore Palace",
+   "name": "Krishnamacharya teaches in the Mysore Palace yogaśālā under the Maharaja; publishes Yoga Makaranda (1934); dynamic vinyāsa sequences emerge",
+   "era": "Modern",
+   "category": "event",
+   "year": "1933",
+   "end": "1934",
+   "texts": "Yoga Makaranda",
+   "notes": "Root of the Ashtanga; Iyengar and Viniyoga lines",
+   "confidence": "medium"
+  },
+  {
+   "id": "T026",
+   "kind": "event",
+   "label": "1936",
+   "title": "Divine Life Society founded (Rishikesh)",
+   "name": "Swami Sivananda founds the Divine Life Society in Rishikesh",
+   "era": "Modern",
+   "category": "institution",
+   "year": "1936",
+   "end": "1936",
+   "texts": "",
+   "notes": "Source of the Sivananda lineage (Vishnudevananda; Satchidananda; Satyananda)",
+   "confidence": "high"
+  },
+  {
+   "id": "T027",
+   "kind": "event",
+   "label": "1946",
+   "title": "Autobiography of a Yogi published",
+   "name": "Autobiography of a Yogi published",
+   "era": "Modern",
+   "category": "text",
+   "year": "1946",
+   "end": "1946",
+   "texts": "Autobiography of a Yogi",
+   "notes": "Brings yoga and Kriya to a mass Western readership",
+   "confidence": "high"
+  },
+  {
+   "id": "T028",
+   "kind": "event",
+   "label": "1947–1948",
+   "title": "Indra Devi in Hollywood; Jois's institute in Mysore",
+   "name": "Indra Devi opens a yoga studio in Hollywood (1947); K. Pattabhi Jois founds the Ashtanga Yoga Research Institute in Mysore (1948)",
+   "era": "Modern",
+   "category": "event",
+   "year": "1947",
+   "end": "1948",
+   "texts": "",
+   "notes": "Yoga reaches celebrity circles; Ashtanga formally institutionalized",
+   "confidence": "medium"
+  },
+  {
+   "id": "T029",
+   "kind": "event",
+   "label": "1952–1954",
+   "title": "Menuhin brings Iyengar to the West",
+   "name": "Yehudi Menuhin meets B.K.S. Iyengar (1952) and brings him to the West (1954)",
+   "era": "Modern",
+   "category": "event",
+   "year": "1952",
+   "end": "1954",
+   "texts": "",
+   "notes": "Iyengar's international teaching begins",
+   "confidence": "medium"
+  },
+  {
+   "id": "T030",
+   "kind": "event",
+   "label": "1959",
+   "title": "First Sivananda Yoga Vedanta Centre (Montréal)",
+   "name": "Swami Vishnudevananda opens the first Sivananda Yoga Vedanta Centre (Montréal)",
+   "era": "Modern",
+   "category": "institution",
+   "year": "1959",
+   "end": "1959",
+   "texts": "",
+   "notes": "Spreads Sivananda Yoga across North America",
+   "confidence": "medium"
+  },
+  {
+   "id": "T031",
+   "kind": "event",
+   "label": "1961–c. 1970",
+   "title": "Television yoga (Hittleman; Lilias)",
+   "name": "Television yoga: Richard Hittleman's Yoga for Health (from 1961) and Lilias Folan's Lilias; Yoga and You (from c. 1970)",
+   "era": "Modern",
+   "category": "media",
+   "year": "1961",
+   "end": "1970",
+   "texts": "",
+   "notes": "Mass-market home yoga in the US",
+   "confidence": "medium"
+  },
+  {
+   "id": "T032",
+   "kind": "event",
+   "label": "1966",
+   "title": "Light on Yoga published; Integral Yoga Institute NYC",
+   "name": "B.K.S. Iyengar's Light on Yoga published; Swami Satchidananda opens the Integral Yoga Institute in New York",
+   "era": "Modern",
+   "category": "text",
+   "year": "1966",
+   "end": "1966",
+   "texts": "Light on Yoga",
+   "notes": "Defining reference for modern āsana practice",
+   "confidence": "high"
+  },
+  {
+   "id": "T033",
+   "kind": "event",
+   "label": "1967–1969",
+   "title": "Counterculture: Beatles, Woodstock, 3HO",
+   "name": "Counterculture era: Beatles visit Maharishi in Rishikesh (1968); Satchidananda opens Woodstock (1969); Yogi Bhajan founds 3HO (1969)",
+   "era": "Modern",
+   "category": "movement",
+   "year": "1967",
+   "end": "1969",
+   "texts": "",
+   "notes": "Yoga becomes a mainstream Western spiritual and wellness movement",
+   "confidence": "medium"
+  },
+  {
+   "id": "T034",
+   "kind": "event",
+   "label": "1971–1975",
+   "title": "Institutions consolidate (Himalayan Institute, Pune, Yoga Journal)",
+   "name": "Himalayan Institute founded (1971); Iyengar institute in Pune opens (1975); Pattabhi Jois first teaches in the US (1975); Yoga Journal founded (1975)",
+   "era": "Modern",
+   "category": "institution",
+   "year": "1971",
+   "end": "1975",
+   "texts": "",
+   "notes": "Institutions and publishing consolidate the Western scene",
+   "confidence": "medium"
+  },
+  {
+   "id": "T035",
+   "kind": "event",
+   "label": "c. 1973",
+   "title": "Bikram's Beverly Hills studio (hot yoga)",
+   "name": "Bikram Choudhury opens a studio in Beverly Hills (heated 26-posture sequence)",
+   "era": "Modern",
+   "category": "institution",
+   "year": "1973",
+   "end": "1973",
+   "texts": "",
+   "notes": "Origin of branded hot yoga",
+   "confidence": "medium"
+  },
+  {
+   "id": "T036",
+   "kind": "event",
+   "label": "1976",
+   "title": "Krishnamacharya Yoga Mandiram founded (Chennai)",
+   "name": "T.K.V. Desikachar founds Krishnamacharya Yoga Mandiram in Chennai",
+   "era": "Modern",
+   "category": "institution",
+   "year": "1976",
+   "end": "1976",
+   "texts": "",
+   "notes": "Individualized therapeutic Viniyoga lineage",
+   "confidence": "high"
+  },
+  {
+   "id": "T037",
+   "kind": "event",
+   "label": "1984–1999",
+   "title": "Studio-yoga boom (Jivamukti, Power Yoga, Anusara)",
+   "name": "Studio-yoga boom: Jivamukti (1984); Power Yoga (1995); Anusara (1997); Yoga Alliance (1999)",
+   "era": "Modern",
+   "category": "movement",
+   "year": "1984",
+   "end": "1999",
+   "texts": "",
+   "notes": "Vinyasa and hybrid styles go mainstream in the US",
+   "confidence": "medium"
+  },
+  {
+   "id": "T038",
+   "kind": "event",
+   "label": "2004–2010",
+   "title": "Critical histories of modern yoga",
+   "name": "Critical history of modern yoga: De Michelis's A History of Modern Yoga (2004); Alter's Yoga in Modern India (2004); Singleton's Yoga Body (2010)",
+   "era": "Scholarship",
+   "category": "scholarship",
+   "year": "2004",
+   "end": "2010",
+   "texts": "A History of Modern Yoga; Yoga in Modern India; Yoga Body",
+   "notes": "Reframes modern postural yoga as a twentieth-century hybrid",
+   "confidence": "high"
+  },
+  {
+   "id": "T039",
+   "kind": "event",
+   "label": "2014–2015",
+   "title": "International Day of Yoga proclaimed",
+   "name": "United Nations proclaims 21 June International Day of Yoga (Dec 2014); first observed 2015",
+   "era": "Modern",
+   "category": "event",
+   "year": "2014",
+   "end": "2015",
+   "texts": "",
+   "notes": "Global institutional recognition",
+   "confidence": "high"
+  },
+  {
+   "id": "T040",
+   "kind": "event",
+   "label": "2010s–present",
+   "title": "Misconduct reckonings and ethics debates",
+   "name": "Teacher-misconduct reckonings (e.g. Bikram; Anusara; Ashtanga; 3HO); decolonization and appropriation debates; trauma-informed yoga and yoga therapy grow",
+   "era": "Modern",
+   "category": "movement",
+   "year": "2010",
+   "end": "2026",
+   "texts": "",
+   "notes": "Ethics and inclusion now part of many trainings; verify specifics before citing",
+   "confidence": "medium"
+  }
+ ],
+ "edges": [
+  {
+   "s": "F001",
+   "t": "L008",
+   "kind": "lineage"
+  },
+  {
+   "s": "F002",
+   "t": "L007",
+   "kind": "lineage"
+  },
+  {
+   "s": "F003",
+   "t": "L009",
+   "kind": "lineage"
+  },
+  {
+   "s": "F004",
+   "t": "L008",
+   "kind": "lineage"
+  },
+  {
+   "s": "F005",
+   "t": "L008",
+   "kind": "lineage"
+  },
+  {
+   "s": "F006",
+   "t": "L010",
+   "kind": "lineage"
+  },
+  {
+   "s": "F007",
+   "t": "L010",
+   "kind": "lineage"
+  },
+  {
+   "s": "F008",
+   "t": "L017",
+   "kind": "lineage"
+  },
+  {
+   "s": "F009",
+   "t": "L011",
+   "kind": "lineage"
+  },
+  {
+   "s": "F010",
+   "t": "L012",
+   "kind": "lineage"
+  },
+  {
+   "s": "F011",
+   "t": "L013",
+   "kind": "lineage"
+  },
+  {
+   "s": "F012",
+   "t": "L015",
+   "kind": "lineage"
+  },
+  {
+   "s": "F013",
+   "t": "L014",
+   "kind": "lineage"
+  },
+  {
+   "s": "F014",
+   "t": "L018",
+   "kind": "lineage"
+  },
+  {
+   "s": "F015",
+   "t": "L019",
+   "kind": "lineage"
+  },
+  {
+   "s": "F016",
+   "t": "L020",
+   "kind": "lineage"
+  },
+  {
+   "s": "F017",
+   "t": "L022",
+   "kind": "lineage"
+  },
+  {
+   "s": "F018",
+   "t": "L026",
+   "kind": "lineage"
+  },
+  {
+   "s": "F019",
+   "t": "L023",
+   "kind": "lineage"
+  },
+  {
+   "s": "F020",
+   "t": "L025",
+   "kind": "lineage"
+  },
+  {
+   "s": "F021",
+   "t": "L025",
+   "kind": "lineage"
+  },
+  {
+   "s": "F022",
+   "t": "L021",
+   "kind": "lineage"
+  },
+  {
+   "s": "F023",
+   "t": "L024",
+   "kind": "lineage"
+  },
+  {
+   "s": "F024",
+   "t": "L024",
+   "kind": "lineage"
+  },
+  {
+   "s": "F025",
+   "t": "L027",
+   "kind": "lineage"
+  },
+  {
+   "s": "F026",
+   "t": "L028",
+   "kind": "lineage"
+  },
+  {
+   "s": "F027",
+   "t": "L029",
+   "kind": "lineage"
+  },
+  {
+   "s": "F028",
+   "t": "L016",
+   "kind": "lineage"
+  },
+  {
+   "s": "F029",
+   "t": "L016",
+   "kind": "lineage"
+  },
+  {
+   "s": "F030",
+   "t": "L032",
+   "kind": "lineage"
+  },
+  {
+   "s": "F031",
+   "t": "L030",
+   "kind": "lineage"
+  },
+  {
+   "s": "F032",
+   "t": "L030",
+   "kind": "lineage"
+  },
+  {
+   "s": "F033",
+   "t": "L006",
+   "kind": "lineage"
+  },
+  {
+   "s": "F034",
+   "t": "L006",
+   "kind": "lineage"
+  },
+  {
+   "s": "F035",
+   "t": "L006",
+   "kind": "lineage"
+  },
+  {
+   "s": "F036",
+   "t": "L005",
+   "kind": "lineage"
+  },
+  {
+   "s": "F037",
+   "t": "L006",
+   "kind": "lineage"
+  },
+  {
+   "s": "L001",
+   "t": "L002",
+   "kind": "branch"
+  },
+  {
+   "s": "L001",
+   "t": "L003",
+   "kind": "branch"
+  },
+  {
+   "s": "L001",
+   "t": "L004",
+   "kind": "branch"
+  },
+  {
+   "s": "L004",
+   "t": "L005",
+   "kind": "branch"
+  },
+  {
+   "s": "L001",
+   "t": "L006",
+   "kind": "branch"
+  },
+  {
+   "s": "L005",
+   "t": "L006",
+   "kind": "influence"
+  },
+  {
+   "s": "L006",
+   "t": "L007",
+   "kind": "branch"
+  },
+  {
+   "s": "L006",
+   "t": "L008",
+   "kind": "branch"
+  },
+  {
+   "s": "L006",
+   "t": "L009",
+   "kind": "branch"
+  },
+  {
+   "s": "L006",
+   "t": "L010",
+   "kind": "branch"
+  },
+  {
+   "s": "L006",
+   "t": "L011",
+   "kind": "branch"
+  },
+  {
+   "s": "L011",
+   "t": "L012",
+   "kind": "branch"
+  },
+  {
+   "s": "L011",
+   "t": "L013",
+   "kind": "branch"
+  },
+  {
+   "s": "L011",
+   "t": "L014",
+   "kind": "branch"
+  },
+  {
+   "s": "L011",
+   "t": "L015",
+   "kind": "branch"
+  },
+  {
+   "s": "L012",
+   "t": "L016",
+   "kind": "branch"
+  },
+  {
+   "s": "L006",
+   "t": "L017",
+   "kind": "branch"
+  },
+  {
+   "s": "L017",
+   "t": "L018",
+   "kind": "branch"
+  },
+  {
+   "s": "L017",
+   "t": "L019",
+   "kind": "branch"
+  },
+  {
+   "s": "L017",
+   "t": "L020",
+   "kind": "branch"
+  },
+  {
+   "s": "L006",
+   "t": "L021",
+   "kind": "branch"
+  },
+  {
+   "s": "L006",
+   "t": "L022",
+   "kind": "branch"
+  },
+  {
+   "s": "L006",
+   "t": "L023",
+   "kind": "branch"
+  },
+  {
+   "s": "L006",
+   "t": "L024",
+   "kind": "branch"
+  },
+  {
+   "s": "L006",
+   "t": "L025",
+   "kind": "branch"
+  },
+  {
+   "s": "L006",
+   "t": "L026",
+   "kind": "branch"
+  },
+  {
+   "s": "L006",
+   "t": "L027",
+   "kind": "branch"
+  },
+  {
+   "s": "L027",
+   "t": "L028",
+   "kind": "branch"
+  },
+  {
+   "s": "L012",
+   "t": "L028",
+   "kind": "influence"
+  },
+  {
+   "s": "L017",
+   "t": "L028",
+   "kind": "influence"
+  },
+  {
+   "s": "L027",
+   "t": "L029",
+   "kind": "branch"
+  },
+  {
+   "s": "L013",
+   "t": "L029",
+   "kind": "influence"
+  },
+  {
+   "s": "L027",
+   "t": "L030",
+   "kind": "branch"
+  },
+  {
+   "s": "L027",
+   "t": "L031",
+   "kind": "branch"
+  },
+  {
+   "s": "L013",
+   "t": "L031",
+   "kind": "influence"
+  },
+  {
+   "s": "L027",
+   "t": "L032",
+   "kind": "branch"
+  },
+  {
+   "s": "X_Mahavatar_Babaji",
+   "t": "F001",
+   "kind": "teacher",
+   "traditional": true
+  },
+  {
+   "s": "X_Ramakrishna_Paramahamsa",
+   "t": "F002",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "F001",
+   "t": "F004",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "F004",
+   "t": "F005",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "X_Paramahamsa_Madhavdasji",
+   "t": "F006",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "X_Paramahamsa_Madhavdasji",
+   "t": "F007",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "X_Rāmamohana_Brahmacāri",
+   "t": "F009",
+   "kind": "teacher",
+   "traditional": true
+  },
+  {
+   "s": "F009",
+   "t": "F010",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "F009",
+   "t": "F011",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "F009",
+   "t": "F012",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "F009",
+   "t": "F013",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "F008",
+   "t": "F014",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "F008",
+   "t": "F015",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "F008",
+   "t": "F016",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "X_Bengali_Baba",
+   "t": "F017",
+   "kind": "teacher",
+   "traditional": true
+  },
+  {
+   "s": "X_Swami_Brahmananda_Saraswati",
+   "t": "F018",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "F020",
+   "t": "F021",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "X_Bhagawan_Nityananda",
+   "t": "F022",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "F023",
+   "t": "F024",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "F010",
+   "t": "F028",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "F032",
+   "t": "F031",
+   "kind": "teacher",
+   "traditional": false
+  },
+  {
+   "s": "F020",
+   "t": "F005",
+   "kind": "sibling",
+   "notes": "Bishnu Charan Ghosh was Yogananda's younger brother"
+  },
+  {
+   "s": "F009",
+   "t": "F013",
+   "kind": "parent",
+   "notes": "Desikachar was Krishnamacharya's son (also his student)"
+  },
+  {
+   "s": "F036",
+   "t": "F033",
+   "kind": "co-author",
+   "notes": "Roots of Yoga (2017)"
+  },
+  {
+   "s": "T020",
+   "t": "F002",
+   "kind": "event"
+  },
+  {
+   "s": "T021",
+   "t": "F020",
+   "kind": "event"
+  },
+  {
+   "s": "T021",
+   "t": "F007",
+   "kind": "event"
+  },
+  {
+   "s": "T021",
+   "t": "F006",
+   "kind": "event"
+  },
+  {
+   "s": "T022",
+   "t": "F007",
+   "kind": "event"
+  },
+  {
+   "s": "T023",
+   "t": "F005",
+   "kind": "event"
+  },
+  {
+   "s": "T024",
+   "t": "F006",
+   "kind": "event"
+  },
+  {
+   "s": "T025",
+   "t": "F009",
+   "kind": "event"
+  },
+  {
+   "s": "T026",
+   "t": "F008",
+   "kind": "event"
+  },
+  {
+   "s": "T027",
+   "t": "F005",
+   "kind": "event"
+  },
+  {
+   "s": "T028",
+   "t": "F012",
+   "kind": "event"
+  },
+  {
+   "s": "T028",
+   "t": "F010",
+   "kind": "event"
+  },
+  {
+   "s": "T029",
+   "t": "F011",
+   "kind": "event"
+  },
+  {
+   "s": "T030",
+   "t": "F014",
+   "kind": "event"
+  },
+  {
+   "s": "T031",
+   "t": "F025",
+   "kind": "event"
+  },
+  {
+   "s": "T032",
+   "t": "F011",
+   "kind": "event"
+  },
+  {
+   "s": "T032",
+   "t": "F015",
+   "kind": "event"
+  },
+  {
+   "s": "T033",
+   "t": "F018",
+   "kind": "event"
+  },
+  {
+   "s": "T033",
+   "t": "F015",
+   "kind": "event"
+  },
+  {
+   "s": "T033",
+   "t": "F019",
+   "kind": "event"
+  },
+  {
+   "s": "T034",
+   "t": "F017",
+   "kind": "event"
+  },
+  {
+   "s": "T034",
+   "t": "F011",
+   "kind": "event"
+  },
+  {
+   "s": "T034",
+   "t": "F010",
+   "kind": "event"
+  },
+  {
+   "s": "T035",
+   "t": "F021",
+   "kind": "event"
+  },
+  {
+   "s": "T036",
+   "t": "F013",
+   "kind": "event"
+  },
+  {
+   "s": "T037",
+   "t": "F026",
+   "kind": "event"
+  },
+  {
+   "s": "T037",
+   "t": "F028",
+   "kind": "event"
+  },
+  {
+   "s": "T037",
+   "t": "F027",
+   "kind": "event"
+  },
+  {
+   "s": "T038",
+   "t": "F034",
+   "kind": "event"
+  },
+  {
+   "s": "T038",
+   "t": "F035",
+   "kind": "event"
+  },
+  {
+   "s": "T038",
+   "t": "F033",
+   "kind": "event"
+  }
+ ]
+}

@@ -1,0 +1,4 @@
+id,category,context,style_tags,script_text,pose_ref,vocab_refs,duration_sec,status,notes
+S001,opening,Start of class; seated centering,calm; plain-language,"Come to a comfortable seat. Let the breath settle without trying to change it. Notice the contact of your sitting bones with the floor. (Placeholder: replace with your own words.)",A033,V008,45,placeholder,Replace with your own voice
+S002,cueing,Entering mountain pose,clear; anatomical,"Stand with feet hip-width apart. Press evenly through all four corners of each foot. Lengthen up through the crown of the head. Stay steady and easeful. (Placeholder.)",A004;A003,V072;V073,30,placeholder,Sthira-sukha theme
+S003,closing,Final rest,soft; slow,"Let the body become heavy and supported. Release effort in the breath. There is nothing to do and nowhere to be. Rest here. (Placeholder.)",A034,,60,placeholder,Replace with your own voice

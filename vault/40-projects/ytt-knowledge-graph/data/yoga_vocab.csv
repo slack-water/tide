@@ -1,0 +1,88 @@
+id,term_iast,plain_spelling,pronunciation_hint,root_or_components,meaning,category,source_or_context,related_ids,notes
+V001,yoga,yoga,YO-gah,√yuj (to yoke; to join),union; discipline; method,concept,YS 1.2; BG 2.48,A002,YS 1.2: yogaś citta-vṛtti-nirodhaḥ
+V002,sūtra,sutra,SOO-trah,√sīv (to sew),thread; aphorism,text,,,Terse verse meant to be memorized with a commentary
+V003,bhāṣya,bhashya,BHAH-shyah,√bhāṣ (to speak),commentary,text,,,Vyāsa's Yoga Bhāṣya comments on the Yoga Sūtras
+V004,Patañjali,Patanjali,pa-TAHN-ja-lee,personal name,compiler of the Yoga Sūtras,person,,,Identity and date debated
+V005,aṣṭāṅga,ashtanga,ash-TAHN-gah,aṣṭa (eight) + aṅga (limb),eight-limbed,concept,YS 2.29,,Yama; niyama; āsana; prāṇāyāma; pratyāhāra; dhāraṇā; dhyāna; samādhi
+V006,yama,yama,YAH-mah,√yam (to restrain),restraints; ethical abstentions,ethics,YS 2.30,,Ahiṃsā; satya; asteya; brahmacarya; aparigraha
+V007,niyama,niyama,nee-YAH-mah,ni + √yam,observances,ethics,YS 2.32,,Śauca; santoṣa; tapas; svādhyāya; īśvara-praṇidhāna
+V008,āsana,asana,AH-sah-nah,√ās (to sit),posture; seat,practice,YS 2.46,A001,Sthira-sukham āsanam: steady and easeful seat
+V009,prāṇāyāma,pranayama,prah-nah-YAH-mah,prāṇa + āyāma,breath regulation or extension,practice,YS 2.49,A056,
+V010,pratyāhāra,pratyahara,prat-yah-HAH-rah,prati + ā + √hṛ (to draw back),withdrawal of the senses,practice,YS 2.54,,
+V011,dhāraṇā,dharana,dhah-RAH-nah,√dhṛ (to hold),concentration,practice,YS 3.1,,
+V012,dhyāna,dhyana,DHYAH-nah,√dhyai (to contemplate),meditation,practice,YS 3.2,,
+V013,samādhi,samadhi,sah-MAH-dhee,sam + ā + √dhā (to put together),absorption,practice,YS 3.3,,
+V014,ahiṃsā,ahimsa,ah-HIM-sah,a + √hiṃs (to harm),non-harming,ethics,YS 2.35,,First yama
+V015,satya,satya,SAHT-yah,sat (being),truthfulness,ethics,YS 2.36,,
+V016,asteya,asteya,ah-STAY-yah,a + steya (theft),non-stealing,ethics,YS 2.37,,
+V017,brahmacarya,brahmacharya,brah-ma-CHAR-yah,brahman + √car (to move; conduct),conduct aimed at the absolute; moderation of sexual energy,ethics,YS 2.38,,Interpretations vary by tradition
+V018,aparigraha,aparigraha,ah-pa-ri-GRAH-hah,a + pari + √grah (to grasp),non-grasping; non-possessiveness,ethics,YS 2.39,,
+V019,śauca,saucha,SHOW-chah,śuci (pure),purity; cleanliness,ethics,YS 2.40,,First niyama
+V020,santoṣa,santosha,san-TOH-shah,sam + √tuṣ (to be satisfied),contentment,ethics,YS 2.42,,
+V021,tapas,tapas,TAH-pas,√tap (to burn),heat; austerity; discipline,ethics,YS 2.43,,
+V022,svādhyāya,svadhyaya,svah-DHYAH-yah,sva (self) + adhyāya (study),self-study; study of texts,ethics,YS 2.44,,
+V023,īśvara-praṇidhāna,ishvara pranidhana,ee-SHVAH-rah pra-nee-DHAH-nah,īśvara + pra + ni + √dhā,surrender to the Lord,ethics,YS 2.45,P030,
+V024,citta,chitta,CHIT-tah,√cit (to perceive),mind-stuff; field of consciousness,mind,YS 1.2,P031,
+V025,vṛtti,vritti,VRIT-tee,√vṛt (to turn),fluctuation; modification,mind,YS 1.2 and 1.5,,
+V026,nirodha,nirodha,nee-RO-dhah,ni + √rudh (to obstruct),cessation; restriction,mind,YS 1.2,,
+V027,abhyāsa,abhyasa,ab-HYAH-sah,abhi + √as (to apply; repeat),sustained practice,practice,YS 1.12,,Paired with vairāgya
+V028,vairāgya,vairagya,vai-RAH-gyah,vi + rāga,dispassion,mind,YS 1.12,,
+V029,kleśa,klesha,KLAY-shah,√kliś (to afflict),affliction,mind,YS 2.3,,Five: avidyā; asmitā; rāga; dveṣa; abhiniveśa
+V030,avidyā,avidya,ah-VID-yah,a + vidyā (√vid to know),ignorance; misperception,mind,YS 2.4–5,,
+V031,asmitā,asmita,as-MEE-tah,asmi (I am),I-am-ness; ego-identification,mind,YS 2.6,,
+V032,rāga,raga,RAH-gah,√rañj (to color),attachment,mind,YS 2.7,,
+V033,dveṣa,dvesha,DVAY-shah,√dviṣ (to hate),aversion,mind,YS 2.8,,
+V034,abhiniveśa,abhinivesha,ab-hee-nee-VAY-shah,abhi + ni + √viś,clinging to life; fear of death,mind,YS 2.9,,
+V035,kaivalya,kaivalya,KY-vahl-yah,kevala (alone),isolation; liberation,goal,YS 4.34,P033,
+V036,puruṣa,purusha,POO-roo-shah,puruṣa (person),pure consciousness; the seer,philosophy,Sāṃkhyakārikā; YS 1.3,P001,
+V037,prakṛti,prakriti,PRAH-kri-tee,pra + √kṛ (to make forth),primal nature,philosophy,Sāṃkhyakārikā,P002,
+V038,guṇa,guna,GOO-nah,guṇa (strand; quality),strand of nature; quality,philosophy,Sāṃkhyakārikā 12–13,,
+V039,sattva,sattva,SAHT-twah,sat (being),lucidity; purity,philosophy,YS 2.18,G001,
+V040,rajas,rajas,RAH-jas,√rañj (to color),activity; passion,philosophy,YS 2.18,G002,
+V041,tamas,tamas,TAH-mas,tamas (darkness),inertia; obscuration,philosophy,YS 2.18,G003,
+V042,ātman,atman,AHT-mahn,ātman (self),the Self,philosophy,Upaniṣads,,
+V043,brahman,brahman,BRAH-mahn,√bṛh (to expand),the absolute,philosophy,Upaniṣads,,Distinct from Brahmā and brāhmaṇa
+V044,mokṣa,moksha,MOHK-shah,√muc (to release),liberation,goal,,,
+V045,karma,karma,KAR-mah,√kṛ (to do),action; its consequences,philosophy,BG 3,,
+V046,jñāna,jnana,GYAH-nah,√jñā (to know),knowledge,path,BG 4,,Jñāna yoga
+V047,bhakti,bhakti,BHAHK-tee,√bhaj (to share; worship),devotion,path,BG 12,,Bhakti yoga
+V048,rāja yoga,raja yoga,RAH-jah YO-gah,rāja (king) + yoga,royal yoga,path,Vivekananda (1896),,Popular label for Patañjali's system
+V049,haṭha,hatha,HAH-tah,haṭha (force),force; the haṭha path,path,Haṭha Yoga Pradīpikā,,Later texts gloss ha as sun and ṭha as moon
+V050,kuṇḍalinī,kundalini,koon-dah-LEE-nee,kuṇḍala (coil) + -inī,coiled energy,subtle body,Tantric texts,,
+V051,cakra,chakra,CHUK-rah,cakra (wheel),wheel; energy center,subtle body,Tantric texts,,
+V052,nāḍī,nadi,NAH-dee,nāḍī (tube; channel),subtle channel,subtle body,Haṭha Yoga Pradīpikā,,
+V053,iḍā; piṅgalā; suṣumṇā,ida; pingala; sushumna,EE-dah; PIN-gah-lah; soo-SHOOM-nah,names of nāḍīs,the three principal channels (left; right; central),subtle body,Haṭha Yoga Pradīpikā,,
+V054,prāṇa,prana,PRAH-nah,pra + √an (to breathe),breath; vital force,subtle body,Upaniṣads,,
+V055,apāna,apana,AH-pah-nah,apa + √an,downward vital air,subtle body,,,
+V056,bandha,bandha,BAHN-dhah,√bandh (to bind),lock; bind,practice,Haṭha Yoga Pradīpikā ch.3,A057,
+V057,mūla bandha,mula bandha,MOO-lah BAHN-dhah,mūla (root) + bandha,root lock,practice,,,
+V058,uḍḍīyāna bandha,uddiyana bandha,ood-dee-YAH-nah BAHN-dhah,ud + √ḍī (to fly) + bandha,upward-flying lock (abdominal),practice,,,
+V059,jālandhara bandha,jalandhara bandha,jah-lahn-DHAH-rah BAHN-dhah,jālandhara + bandha,throat lock,practice,,,
+V060,mudrā,mudra,MOO-drah,mudrā (seal),seal; gesture,practice,,,
+V061,vinyāsa,vinyasa,vin-YAH-sah,vi + ni + √as (to place),placing in a special way; breath-linked sequencing,practice,,,Modern meaning differs from older textual use
+V062,ujjāyī,ujjayi,oo-JAH-yee,ud + √ji (to conquer),victorious breath,practice,Haṭha Yoga Pradīpikā,,
+V063,dṛṣṭi,drishti,DRISH-tee,√dṛś (to see),gaze point,practice,,,
+V064,sādhanā,sadhana,SAH-dhah-nah,√sādh (to accomplish),spiritual practice,practice,,,
+V065,guru,guru,GOO-roo,guru (heavy; weighty),teacher,role,,,Folk etymology: gu (darkness) + ru (remover)
+V066,śiṣya,shishya,SHISH-yah,√śās (to instruct),student,role,,,
+V067,saṃskāra,samskara,sahm-SKAH-rah,sam + √kṛ,mental impression,mind,YS 1.50,,
+V068,vāsanā,vasana,VAH-sah-nah,√vas (to dwell),latent tendency,mind,YS 4.24,,
+V069,mantra,mantra,MAHN-trah,√man (to think) + -tra (instrument),instrument of thought; sacred utterance,practice,,,
+V070,oṃ,om,OHM,praṇava,sacred syllable,practice,YS 1.27,,
+V071,namaste,namaste,nah-mah-STAY,namas + te,I bow to you,greeting,,,
+V072,sthira,sthira,STHEE-rah,√sthā (to stand),steady,quality,YS 2.46,,Paired with sukha
+V073,sukha,sukha,SOO-kah,sukha,ease; comfort,quality,YS 2.46,,
+V074,sāṃkhya,samkhya,SAHN-kyah,saṃkhyā (number),enumeration; the 25-tattva dualist system,philosophy,Sāṃkhyakārikā,P002,
+V075,tattva,tattva,TAHT-twah,tat + -tva (thatness),principle; category of reality,philosophy,,,
+V076,Vedānta,vedanta,vay-DAHN-tah,veda + anta (end),end of the Vedas; Upaniṣadic philosophy,philosophy,,,
+V077,tantra,tantra,TAHN-trah,√tan (to extend) + -tra,loom; system; technique,tradition,,,
+V078,ṣaṭkarma,shatkarma,shat-KAR-mah,ṣaṭ (six) + karma,six cleansing practices,practice,Haṭha Yoga Pradīpikā 2.22,,Dhauti; basti; neti; trāṭaka; nauli; kapālabhāti
+V079,samatva,samatva,sah-MAH-twah,sama + -tva,equanimity,quality,BG 2.48,,
+V080,Īśvara,Ishvara,ee-SHVAH-rah,√īś (to rule),the Lord; special puruṣa,philosophy,YS 1.24,P030,
+V081,ṛṣi,rishi,RISH-ee,√ṛṣ (to see),seer,role,,,
+V082,pañca kośa,pancha kosha,PAHN-chah KOH-shah,pañca (five) + kośa (sheath),five sheaths,philosophy,Taittirīya Upaniṣad 2,,Anna; prāṇa; manas; vijñāna; ānanda
+V083,ahaṅkāra,ahamkara,ah-hahn-KAH-rah,aham (I) + kāra (maker),ego-sense,philosophy,Sāṃkhyakārikā 24,P004,
+V084,buddhi,buddhi,BOOD-dhee,√budh (to awaken),intellect; discernment,philosophy,Sāṃkhyakārikā 23,P003,
+V085,manas,manas,MAH-nahs,√man (to think),sense-mind,philosophy,Sāṃkhyakārikā 27,P005,
+V086,saṃyoga,samyoga,sahm-YO-gah,sam + √yuj,conjunction of seer and seen,philosophy,YS 2.17,P032,
+V087,pratiprasava,pratiprasava,prah-tee-PRAH-sah-vah,prati + pra + √su,reabsorption of the guṇas,philosophy,YS 4.34,P033,

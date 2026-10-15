@@ -1,0 +1,21 @@
+flowchart LR
+  n0["B.K.S. Iyengar<br>1918–2014"]
+  n1["Iyengar Yoga"]
+  n2["Tirumalai Krishnamacharya<br>1888–1989"]
+  n3{{"Menuhin brings Iyengar to the West<br>1952–1954"}}
+  n4{{"Light on Yoga published; Integral Yoga Institute NYC<br>1966"}}
+  n5{{"Institutions consolidate (Himalayan Institute, Pune, Yoga Journal)<br>1971–1975"}}
+  n0 -->|school| n1
+  n2 -->|taught| n0
+  n3 -->|involved| n0
+  n4 -->|involved| n0
+  n5 -->|involved| n0
+  classDef founder fill:#fdf3e1,stroke:#c98a12,color:#1f2430
+  classDef lineage fill:#e8ecf7,stroke:#2f3f7a,color:#1f2430
+  classDef event fill:#f2f2ee,stroke:#7a6a50,color:#1f2430
+  classDef teacher fill:#eee,stroke:#999,color:#555
+  classDef focus stroke-width:4px
+  class n0,n2 founder
+  class n1 lineage
+  class n3,n4,n5 event
+  class n0 focus
