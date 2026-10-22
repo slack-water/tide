@@ -11,12 +11,14 @@ takes --margin / --thickness from make_half_masters.py so the flange matches. Pa
   - top and bottom walls (z): flush with the flange edge, which is flush with the funnel-seat and plug-socket
     boss ends, so those pockets come out open in the plaster. Flat, parallel to the pull, no draft; the closed
     mold stands on the socket end. The cavity is exact here; only the sleeve takes the fit.
-  - side walls (x): lean in toward the rim by the steepest angle that keeps --plaster mm of plaster beside the
-    half at every height (measured on the half, handle included). That is the draft, and it narrows the plaster.
+  - side walls (x): lean in toward the rim, each side by its own angle. The handle side (+X) takes the steepest
+    angle that keeps --plaster mm of plaster beside the half (capped at --max-lean); the cup side (-X) has far
+    less room, so it leans only --cup-draft degrees, which leaves it a thick wall of plaster. The lean is the
+    draft, and it narrows the plaster.
   - rim: top of the half + --over mm. Pour to the rim. Print rim down, flange end up, no support.
 
 Usage: .venv/bin/python make_cottle.py [--wall 0.8] [--over 20] [--plaster 15] [--margin 35] [--thickness 5]
-           [--fit 0.15] [--draft DEG] [--out-dir .]
+           [--fit 0.15] [--draft DEG] [--cup-draft DEG] [--out-dir .]
 """
 import argparse
 from math import atan, degrees, radians, tan
@@ -55,7 +57,9 @@ def main():
     ap.add_argument("--thickness", type=float, default=5.0, help="flange thickness, as make_half_masters.py")
     ap.add_argument("--fit", type=float, default=0.15, help="sleeve clearance on the flange edge, mm per side")
     ap.add_argument("--draft", type=float, default=None,
-                    help="degrees the X walls lean; default: the measured limit, capped at --max-lean")
+                    help="degrees the handle-side (+X) wall leans; default: the measured limit, capped at --max-lean")
+    ap.add_argument("--cup-draft", type=float, default=20.0,
+                    help="degrees the cup-side (-X) wall leans; less than the handle side for more plaster against the cup")
     ap.add_argument("--max-lean", type=float, default=40.0, help="printing rim down, a steeper wall is a near-45 deg overhang")
     ap.add_argument("--out-dir", default=str(HERE))
     a = ap.parse_args()
@@ -74,16 +78,19 @@ def main():
     print(f"half {hb.size.X:.1f} x {hb.max.Y:.1f} x {hb.size.Z:.1f} mm; flange {x1 - x0:.1f} x {z1 - z0:.1f}; rim y = {top:.1f}")
 
     lim = lean_limit(half, (x0 - f, x1 + f), a.plaster, hb.max.Y)
-    limit_deg = degrees(atan(min(lim)))
-    deg = a.draft if a.draft is not None else float(int(min(limit_deg, a.max_lean) * 10) / 10)
-    k = tan(radians(deg))
-    assert k <= min(lim) + 1e-9, f"lean {deg} deg leaves under {a.plaster} mm of plaster (limit {limit_deg:.1f})"
-    print(f"side walls lean {deg:.1f} deg (limit for {a.plaster:g} mm of plaster beside the half: {limit_deg:.1f})")
+    limit_deg = [degrees(atan(m)) for m in lim]
+    deg_cup = a.cup_draft
+    deg = a.draft if a.draft is not None else float(int(min(limit_deg[1], a.max_lean) * 10) / 10)
+    k_cup, k = tan(radians(deg_cup)), tan(radians(deg))
+    assert k_cup <= lim[0] + 1e-9, f"cup lean {deg_cup} deg leaves under {a.plaster} mm of plaster (limit {limit_deg[0]:.1f})"
+    assert k <= lim[1] + 1e-9, f"handle lean {deg} deg leaves under {a.plaster} mm of plaster (limit {limit_deg[1]:.1f})"
+    print(f"side walls lean {deg_cup:.1f} deg on the cup side (-X) and {deg:.1f} deg on the handle side (+X); "
+          f"limits for {a.plaster:g} mm of plaster beside the half: {limit_deg[0]:.1f} / {limit_deg[1]:.1f}")
 
     def prism(ox, oz0, oz1):
         """Cavity or outer wall: trapezoid in x-y (wide at the seat), extruded along z."""
-        d = top * k
-        sk = Polygon((x0 - f - ox, 0), (x1 + f + ox, 0), (x1 + f + ox - d, top), (x0 - f - ox + d, top), align=None)
+        sk = Polygon((x0 - f - ox, 0), (x1 + f + ox, 0), (x1 + f + ox - top * k, top), (x0 - f - ox + top * k_cup, top),
+                     align=None)
         return Pos(0, 0, oz0) * extrude(sk, oz1 - oz0, dir=(0, 0, 1))       # dir explicit: the face normal may point -Z
 
     cavity = prism(0, z0, z1)
@@ -97,7 +104,7 @@ def main():
 
     plaster = cavity.volume / 1000 - half.volume / 1000
     box = (x1 - x0) * (z1 - z0) * 80 / 1000 - half.volume / 1000
-    print(f"cavity {x1 - x0 + 2 * f:.0f} x {z1 - z0:.0f} mm at the flange, narrowing to {x1 - x0 + 2 * f - 2 * top * k:.0f} mm at the rim")
+    print(f"cavity {x1 - x0 + 2 * f:.0f} x {z1 - z0:.0f} mm at the flange, narrowing to {x1 - x0 + 2 * f - top * (k + k_cup):.0f} mm at the rim")
     print(f"plaster per half ~{plaster / 1000:.2f} L (flange-sized box 80 mm tall, README: ~{box / 1000:.2f} L)")
     print(f"top/bottom walls z = {z1:.1f} / {z0:.1f}, flush with the flange edge and boss ends; cottle {cottle.volume / 1000:.0f} cm3")
     assert cottle.is_valid and len(cottle.solids()) == 1
