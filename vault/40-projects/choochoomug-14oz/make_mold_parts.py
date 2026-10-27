@@ -1,53 +1,64 @@
 #!/usr/bin/env python3
-"""Mold-making parts for the 14 oz choochoomug (run scale_mug.py first).
+"""Split the 14 oz choochoomug into a handleless body and a separate handle, and build the
+positives the plaster molds are cast around (run scale_mug.py first).
 
-Axis = Z, base ring at Z=0, handle plane = Y=0 (the parting plane of the two halves).
-Writes STEP + STL for three printed parts:
+Axis = Z, foot ring at Z=0, handle on +X, handle mid-plane = Y=0.
 
-  halves_positive  mug + dish filled + tapered socket boss below the foot + funnel-seat boss
-                   on the rim. Cast the two plaster side halves around this.
-  plug_cup         shallow printed cup; plaster poured in makes the foot plug (dish bump).
-                   The plug sits in the halves' socket and is captured between them.
-  funnel           printed pour reservoir. Foot seats in the pocket the seat boss leaves in
-                   the plaster top; bore equals the rim so the cast ends at the plaster edge.
+  body             the mug without its handle: the +Y profile revolved (the +Y side has no handle
+                   and no Fusion split strip). Reference only.
+  body_positive    body + filled dish + grooved socket boss below the foot + reservoir collar on
+                   the rim. Both plaster side halves are cast around this (make_masters.py).
+  handle_positive  the handle cut at the body surface, with both roots extended along -X into
+                   sprues. The handle's own 2-part plaster mold is cast around this.
+  plug_floor       printed disc with the dish pit; the plug is cast dish-down on it.
+  plug_ring        half of the split ring that walls the plug; print two. Its V ridge forms the
+                   plug's groove, which is why the ring has to split.
 
-Setup:  .venv/bin/pip install build123d trimesh
+Setup:  python3 -m venv .venv && .venv/bin/pip install build123d trimesh
 Usage:  .venv/bin/python make_mold_parts.py
 """
 import math
 from pathlib import Path
 
 import trimesh
-from build123d import (Align, Axis, BuildLine, BuildPart, BuildSketch, Cone, Cylinder,
-                       Plane, Polyline, Pos, Rot, Solid, export_step, export_stl,
-                       import_step, make_face, revolve)
+from build123d import (Align, Axis, Box, BuildLine, BuildPart, BuildSketch, Cylinder, Plane,
+                       Polyline, Pos, Rot, Solid, export_step, export_stl, extrude, import_step,
+                       make_face, revolve, scale, section)
 
 HERE = Path(__file__).parent
 OZ = 29573.5
+MIN = (Align.CENTER, Align.CENTER, Align.MIN)
 
 # --- measured from choochoomug-14oz.step ---
 R_RING = 41.96     # dish edge / foot ring radius at Z=0
+DISH_H = 4.2       # dish rise at the centre
 Z_RIM = 108.047    # flat top = pour opening
-R_RIM = 45.85      # rim radius (pour opening)
+R_RIM = 45.66      # rim radius at the top face
+R_MAX = 52.39      # belly radius (Z=9.5)
 
 # --- design parameters (mm) ---
 SOCKET_DEPTH = 25.0   # plug body below the foot ring
-SOCKET_TAPER = 2.0    # deg; plug WIDER toward its flat bottom so it can leave its casting cup
-CLEAR = 0.3           # printed-funnel-to-pocket radial clearance
-SEAT_R = 50.0         # funnel pocket radius in the plaster top
-SEAT_DEPTH = 8.0      # funnel foot height / pocket depth
-COLLAR_H = 35.0       # straight bore above the plaster top (reservoir ~ 230 mL)
-FLARE_H = 25.0        # flare height
-FLARE_R = 58.0        # bore radius at the mouth
-WALL = 3.0            # funnel wall above the foot
-CUP_WALL = 4.0
-CUP_FLOOR = 3.0
+GROOVE_Z = -12.5      # V-groove centre on the socket boss; locks the plug between the halves
+GROOVE_DEPTH = 3.0    # 45 degree flanks, so 6 mm tall at the boss surface
+COLLAR_STEP = 4.0     # reservoir steps out this far from the rim, on a 45 degree chamfer
+COLLAR_H = 30.0       # reservoir height above the rim (~200 mL against 150-200 mL slip loss)
+SPRUE_X = 52.6        # handle section taken here (just past the belly) and extruded toward -X
+SPRUE_END = 37.0      # sprues end here; this is the handle mold's pour face
+RING_WALL = 4.0
+RING_CLEAR = 0.3
+LIP = 3.0             # floor lip that locates the ring halves
+FLOOR = 3.0           # plug floor under the dish pit
 
 
-def cone_down(r_top, depth, taper_deg):
-    """Solid of revolution, top face at Z=0 radius r_top, widening downward to Z=-depth."""
-    r_bot = r_top + depth * math.tan(math.radians(taper_deg))
-    return Pos(0, 0, -depth) * Cone(r_bot, r_top, depth, align=(Align.CENTER, Align.CENTER, Align.MIN))
+def revolved(pts):
+    """Revolve a closed (r, z) polyline about Z."""
+    with BuildPart() as b:
+        with BuildSketch(Plane.XZ):
+            with BuildLine():
+                Polyline(*pts, close=True)
+            make_face()
+        revolve(axis=Axis.Z)
+    return b.part
 
 
 def save(name, solid):
@@ -70,62 +81,74 @@ def main():
     mug = import_step(HERE / "choochoomug-14oz.step")
     assert isinstance(mug, Solid)
 
-    # ---- foot: dish fill + socket boss; the plug is the part of that below the dish ----
-    fill = Cylinder(R_RING, 4.6, align=(Align.CENTER, Align.CENTER, Align.MIN))
-    boss = cone_down(R_RING, SOCKET_DEPTH, SOCKET_TAPER)
-    plug = (boss + fill) - mug              # top face = the mug's own dish surface
+    # ---- body: revolve the +Y half of the YZ section ----
+    sec = max(section(mug, Plane.YZ).faces(), key=lambda f: f.area)
+    half_sec = sec & Box(1, 400, 400, align=(Align.CENTER, Align.MIN, Align.CENTER))
+    body = revolve(half_sec, Axis.Z)
 
-    # ---- funnel seat boss on the rim ----
-    seat = Pos(0, 0, Z_RIM) * Cylinder(SEAT_R, SEAT_DEPTH, align=(Align.CENTER, Align.CENTER, Align.MIN))
+    # ---- handle: whatever of the mug lies outside a 0.5 mm oversize body ----
+    # (the oversize drops the 0.04 mm Fusion split strip that runs the full height at +-X)
+    oversize = scale(body, by=((R_MAX + 0.5) / R_MAX, (R_MAX + 0.5) / R_MAX, 1))
+    handle = max((mug - oversize).solids(), key=lambda s: s.volume)
+    root_secs = section(handle, Plane.YZ.offset(SPRUE_X)).faces()
+    assert len(root_secs) == 2, f"expected two handle roots at x={SPRUE_X}, got {len(root_secs)}"
+    sprues = [extrude(f, amount=SPRUE_X - SPRUE_END, dir=(-1, 0, 0)) for f in root_secs]
+    # a plain fuse here is flaky (sometimes returns a lone sprue or nothing); the fuzzy one is stable
+    handle_pos = handle.fuse(*sprues, tol=0.01)
+    added = handle_pos.volume - handle.volume
+    assert len(handle_pos.solids()) == 1 and added > 0.75 * sum(s.volume for s in sprues), \
+        f"handle + sprues fuse failed: {len(handle_pos.solids())} solids, {added:.0f} mm3 added"
 
-    halves_pos = mug + boss + fill + seat
-    halves_pos = halves_pos.clean()
+    # ---- foot: dish fill + grooved socket boss; the plug is the part of that below the dish ----
+    fill = Cylinder(R_RING, DISH_H + 0.4, align=MIN)
+    g0, g1 = GROOVE_Z - GROOVE_DEPTH, GROOVE_Z + GROOVE_DEPTH
+    boss = revolved([(0, -SOCKET_DEPTH), (R_RING, -SOCKET_DEPTH), (R_RING, g0),
+                     (R_RING - GROOVE_DEPTH, GROOVE_Z), (R_RING, g1), (R_RING, 0), (0, 0)])
+    plug = (boss + fill) - body              # top face = the mug's own dish surface
 
-    # ---- plug cup: plug flipped dish-down inside a printed cup ----
-    plug_flip = Rot(180, 0, 0) * plug       # dish now faces down
-    plug_bb = plug_flip.bounding_box()
-    outer_r = plug_bb.max.X + CUP_WALL
-    # flipped plug spans Z in [-top, +SOCKET_DEPTH]; put the dish pit's lowest point CUP_FLOOR above the bed
-    z_shift = CUP_FLOOR - plug_bb.min.Z
-    cup_h = plug_bb.size.Z + CUP_FLOOR
-    cup_body = Cylinder(outer_r, cup_h, align=(Align.CENTER, Align.CENTER, Align.MIN))
-    cup = cup_body - (Pos(0, 0, z_shift) * plug_flip)
-    # extend the cavity through the open top so it's a cup, not a sealed void
-    cup = cup - Pos(0, 0, z_shift + plug_bb.max.Z - 0.01) * Cylinder(
-        plug_bb.max.X + 0.2, 5, align=(Align.CENTER, Align.CENTER, Align.MIN))
+    # ---- reservoir collar: 45 degree step out from the rim, then straight up ----
+    rc = R_RIM + COLLAR_STEP
+    collar = revolved([(0, Z_RIM), (R_RIM, Z_RIM), (rc, Z_RIM + COLLAR_STEP),
+                       (rc, Z_RIM + COLLAR_H), (0, Z_RIM + COLLAR_H)])
 
-    # ---- funnel (revolved profile, foot down) ----
-    r_foot = SEAT_R - CLEAR
-    h0, h1, h2 = SEAT_DEPTH, SEAT_DEPTH + COLLAR_H, SEAT_DEPTH + COLLAR_H + FLARE_H
-    # inner bore = rim radius up to h1, then flares; foot (r_foot) seats in the plaster pocket,
-    # then the outer steps in to a WALL-thick collar that follows the bore
-    pts = [(R_RIM, 0), (r_foot, 0), (r_foot, h0), (R_RIM + WALL, h0),
-           (R_RIM + WALL, h1), (FLARE_R + WALL, h2), (FLARE_R, h2), (R_RIM, h1)]
-    with BuildPart() as fb:
-        with BuildSketch(Plane.XZ):
-            with BuildLine():
-                Polyline(*pts, close=True)
-            make_face()
-        revolve(axis=Axis.Z)
-    funnel = fb.part
+    body_pos = (body + boss + fill + collar).clean()
+
+    # ---- plug mold: plug flipped dish-down on a floor with the dish pit, walled by a split ring ----
+    plug_flip = Rot(180, 0, 0) * plug                  # spans Z in [-DISH_H, SOCKET_DEPTH]
+    z_ring = FLOOR + DISH_H                             # foot-ring plane after the shift
+    plug_up = Pos(0, 0, z_ring) * plug_flip
+    top = z_ring + SOCKET_DEPTH
+    r_in, r_out = R_RING, R_RING + RING_WALL
+    floor = Cylinder(r_out + RING_CLEAR + LIP, z_ring, align=MIN) - plug_up
+    lip = Pos(0, 0, z_ring) * (Cylinder(r_out + RING_CLEAR + LIP, 4, align=MIN)
+                               - Cylinder(r_out + RING_CLEAR, 4, align=MIN))
+    plug_floor = (floor + lip).clean()
+    ring = Pos(0, 0, z_ring) * Cylinder(r_out, SOCKET_DEPTH, align=MIN) - plug_up
+    ring_half = ring & Box(200, 200, 200, align=(Align.MIN, Align.CENTER, Align.CENTER))
+    ring_half = Pos(0, 0, -z_ring) * ring_half          # print on its foot-ring end
 
     # ---- checks ----
-    cavity = halves_pos - plug                        # what the halves actually form
-    restored = cavity - seat
-    diff = (restored - mug).volume + (mug - restored).volume
-    print(f"halves cavity minus seat vs mug: symmetric difference {diff:.2f} mm3 (want ~0)")
-    seated = Pos(0, 0, Z_RIM) * funnel               # funnel as it sits on the rim ledge
-    print(f"funnel intrudes into mug cavity: {(seated & mug).volume:.2f} mm3 (want 0)")
-    foot = seated & (Pos(0, 0, Z_RIM) * Cylinder(80, SEAT_DEPTH, align=(Align.CENTER, Align.CENTER, Align.MIN)))
-    print(f"funnel foot outside the pocket: {(foot - seat).volume:.2f} mm3 (want 0), "
-          f"foot volume {foot.volume:.0f} mm3")
-    res_ml = math.pi * R_RIM**2 * COLLAR_H / 1000
-    print(f"funnel straight-bore reservoir: {res_ml:.0f} mL")
+    print(f"body {body.volume/OZ:.2f} fl oz solid; body outside mug {(body - mug).volume:.2f} mm3 (want 0)")
+    rebuilt = body + handle
+    print(f"body + handle vs mug: {(mug - rebuilt).volume:.0f} mm3 missing "
+          f"(the 0.5 mm skin under the handle roots plus the split strip), "
+          f"{(rebuilt - mug).volume:.2f} mm3 extra (want 0)")
+    print(f"handle {handle.volume/1000:.1f} cm3; sprue sections "
+          + ", ".join(f"{f.area:.0f} mm2 at z {f.center().Z:.0f}" for f in root_secs))
+    cavity = body_pos - plug - collar
+    diff = (cavity - body).volume + (body - cavity).volume
+    print(f"side-half cavity minus collar vs body: symmetric difference {diff:.2f} mm3 (want ~0)")
+    res = math.pi * rc**2 * (COLLAR_H - COLLAR_STEP) / 1000
+    print(f"reservoir above the rim: ~{res:.0f} mL")
+    gap = (plug_up - Cylinder(r_in + 0.01, top, align=MIN)).volume
+    print(f"plug {plug.volume/1000:.0f} cm3 (plaster for the insert); plug outside the ring bore: {gap:.2f} mm3 (want 0)")
 
-    save("halves_positive", halves_pos)
+    save("body", body)
+    save("body_positive", body_pos)
+    save("handle_positive", handle_pos)
     save("plug_preview", plug)     # for checking only; not printed
-    save("plug_cup", cup)
-    save("funnel", funnel)
+    save("plug_floor", plug_floor)
+    save("plug_ring", ring_half)
 
 
 if __name__ == "__main__":
