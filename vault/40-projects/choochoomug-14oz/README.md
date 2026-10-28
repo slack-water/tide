@@ -7,7 +7,7 @@ type: project
 status: active
 importance: 3
 goal: Scale the choochoo mug to hold 14 oz and produce printable masters for two plaster slip-casting molds, one for the handleless body (two side halves and a foot plug) and one for the handle (two halves)
-scope: one mug form, Fusion STEP in, build123d scripts, five printed parts, two plaster molds, stoneware and porcelain slip
+scope: one mug form, Fusion STEP in, build123d scripts, eleven printed parts, two plaster molds, stoneware and porcelain slip
 tags: [ceramics, slipcasting, mold-making, 3d-printing, build123d]
 related: [mug-recessed-foot, skull-mold-draft-shell]
 schema-version: 1.0
@@ -20,7 +20,7 @@ A mug with a recessed foot that holds 14 oz fired (the first version held 11.95 
 
 ## Scope
 
-**In:** uniform rescale. The handle split off the body. A body mold: two side halves, a grooved foot plug, and a plaster reservoir collar. A handle mold: two halves with sprues. Printed tray masters with drafted walls and molded-in keys. A README and scripts so the whole pipeline reruns from the STEP.
+**In:** uniform rescale. The handle split off the body. A body mold: two side halves, a grooved foot plug, and a plaster reservoir collar. A handle mold: two halves with sprues and pour cups. Printed masters with molded-in keys, and detachable printed cottles (U-halves and clips) around them. Every printed molding surface 1.2 mm thick. A README and scripts that build all of it as exact build123d geometry.
 **Out:** shelling the model, a general mold generator, new handle geometry (the choochoo handle stays), a printed funnel. Anything else goes in the inbox.
 
 ## Done looks like
@@ -32,12 +32,13 @@ One mug cast and assembled: a body with seams only on two vertical lines plus th
 Follows [the skull glossary](../../90-archive/skull-mold-draft-shell/UBIQUITOUS_LANGUAGE.md).
 
 - **Parting plane:** Y=0. For the body it is any plane through the axis; for the handle it is the handle's mid-plane.
-- **Master:** a printed tray with half a positive on its back plate. Each master is cast twice.
-- **Tray:** the back plate plus the walls that hold the plaster. Walls are drafted 2° wherever the plaster only needs to release.
+- **Master:** a printed back plate with half a positive and the keys on it. Each master is cast twice.
+- **Cottle:** the walls that hold the plaster around a master. Here it is two identical **U-halves** (an end wall plus half of each side wall) joined at mid-length by **fins** and slide-on **clips**.
 - **Keys:** conical bosses and dimples on the back plate that become dimples and bosses in the plaster.
 - **Plug:** the plaster disc that forms the recessed foot; it sits in a grooved socket between the two side halves.
 - **Reservoir collar:** a 45° step out from the rim and a straight wall above it, cast into the top of the side halves. It holds the slip that drains into the plaster.
-- **Sprue:** the handle's root cross-section extended 15.6 mm toward the mug. Both sprues run to the handle mold's pour face.
+- **Sprue:** the handle's cross-section continued 15.4 mm straight past its root plane (x = 52.4) toward the mug. Over its last 10 mm each sprue flares into a **pour cup** (5 mm wider on every side, a 33.1 × 21.5 mm mouth) at the handle mold's pour face (x = 37).
+- **Skin:** the 1.2 mm (three 0.4 mm lines) shell that every printed molding surface is made of.
 
 ## Decisions and why
 
@@ -51,46 +52,79 @@ Follows [the skull glossary](../../90-archive/skull-mold-draft-shell/UBIQUITOUS_
 
 The handle is exactly symmetric top to bottom (checked on 3,000 sampled points), so its master is also cast twice and the second cast turns 180° about the mid-height line. The idea comes from Old Forge Creations' D-shaped handle mould; the geometry is ours.
 
-**Body = the +Y profile revolved.** The Fusion solid has a 6.2 mm wide, 0.04 mm high flat strip along the full height at ±X, a split artifact, and the handle sits at +X. The YZ section on the +Y side has neither, so it is the true profile. The handle is whatever of the mug lies outside a body that is 0.5 mm oversize, which drops the strip. Body + handle rebuilds the mug to within 266 mm³: the 0.5 mm skin under the roots, plus the strip.
+**Exact geometry, no meshes (2026-10-27, third pass).** Everything is described in build123d from measured dimensions; `choochoomug-14oz.step` is only read to check the result. I measured the dimensions from the STEP's own analytic faces.
 
-**Sprues, not fitted ends.** Each root's cross-section at x = 52.6 (just past the belly) is extruded to x = 37, which is the handle mold's pour face. Pour slip into one sprue and air leaves through the other. At leather hard, cut the sprues to the body's curve: r ≈ 51.6 at the lower root (z 21) and r ≈ 47.0 at the upper root (z 96). The upper root's flare stays on the handle and blends into the body.
+- **The body is a revolve.** It runs: a foot cone from (r 41.96, z 0) to (51.598, 7.710), an r 2.098 fillet to the belly at (52.381, 9.481), a 3.61° straight wall to (46.187, 107.556), an r 0.525 round onto the flat top at z 108.047 and r 45.664, and the dish underneath. The dish is neither a circle nor a parabola, so it is a spline through 9 points sampled from the STEP, with its end tangents. 0 of 1,500 sampled points disagree with the STEP.
+- **The handle is a stadium swept around a half circle.** The stadium is 11.538 radial by 23.078 along Y, with semicircle ends. It sweeps on r 37.12 about an axis parallel to Y through (52.418, 58.496). Fusion's side faces are cones with a 0° semi-angle about that axis. Sections at six angles match the STEP's; Fusion's crown is a B-spline within 0.07 mm of the semicircle. The roots end in the plane x = 52.418, at the belly.
+- The Fusion solid also has a 6.2 mm wide, 0.04 mm high flat strip down both sides, a split artifact. The analytic body drops it.
+
+An earlier pass cut the handle off with booleans against the Fusion faces and hollowed the masters as meshes. Those booleans were flaky (lone sprues, `.clean()` collapsing unions, nonsense symmetric differences), and the mesh hollowing left non-manifold edges. Built from the dimensions, every boolean is between lines, arcs, cones and stadiums.
+
+**Sprues, not fitted ends.** The handle's sweep runs on past its root plane in a straight line to x = 47. Over the last 10 mm, to x = 37 (the handle mold's pour face), it flares into a pour cup. The bare sprue is only 11.5 × 23 mm, too small to pour into cleanly. Pour slip into one cup and air leaves through the other. At leather hard, cut the sprues to the body's curve: r ≈ 51.6 at the lower root (z 21) and r ≈ 47.0 at the upper root (z 96). Fusion's small root fillets are not modelled; blend the joint by hand.
 
 **Foot plug with a V-groove, in a split ring.** For a side split, the dished underside is the only real undercut (4,860 of about 5,100 mm²), so the foot is still a separate plug. New: a 45° V-groove 3 mm deep sits 12.5 mm down the socket. It locks the plug between the halves, so the plug cannot drop out when the mold is turned over to drain. That replaces the 2° taper, which only resisted slip pressure. A grooved plug cannot leave a one-piece cup, so it is cast on a floor disc inside two identical ring halves. The Old Forge tumbler mould's insert works the same way.
 
 **Plaster reservoir collar instead of a printed funnel.** The collar steps out 4 mm from the rim on a 45° chamfer and rises 30 mm, holding about 200 mL against an estimated 150 to 200 mL of slip loss (assumes a 5 mm cast wall). The rim has a 0.5 mm round, so the cast has a slight waist at the rim, followed by the step: that is the cut line. This removes the printed funnel, its 0.3 mm gap and its seepage risk.
 
-**Trays with molded-in keys, not flanges with natch inserts.** Each master is one print: the back plate, the walls and the half positive. The pour box is the print, so there are no loose walls, and the keys form in the plaster, so there is no hardware. Body keys are 2 bosses on -X and 2 dimples on +X. Handle keys come as boss/dimple pairs mirrored about mid-height, one pair outside the D and one inside the loop. The walls that only release are drafted 2°. The faces that must come out flat or open are not drafted:
+**Molded-in keys, not natch inserts.** The keys form in the plaster, so there is no hardware. Body keys are 2 bosses on -X and 2 dimples on +X. Handle keys come as boss/dimple pairs mirrored about mid-height, one pair outside the D and one inside the loop.
 
-- the body floor, so the socket opens and the mold stands flat
-- the body cap, flush with the collar so the reservoir opens
-- the handle's sprue end, so both sprues open
+**Detachable cottles, not one-piece trays (2026-10-27, second pass).** The first pass printed the walls as part of the master, drafted 2°, with a slide-on cap. Plaster sets bonded to every wall at once and expands slightly, so a one-piece tray, the handle's above all, would be hard to release, and the undrafted floor and cap would drag. Now each master is just the back plate, the half positive and the keys. Around it stand two identical U-halves, joined at mid-length by fins and two slide-on C-clips, as on the Old Forge moulds. Demold: pull the clips, slide each U off along the mold's length (each wall touches the plaster on one face only), then lift the plaster off the master in +Y. No wall needs draft.
+
+- The U-halves stand on the table beside the plate rather than hooking under it, so the plate lies flat under the plaster's weight.
+- The plate stops 0.15 mm short of the end walls, so the socket, the reservoir collar and the handle's pour cups all touch a wall and come out open.
+- The body's U end walls are its floor and top. The mold still stands flat on the struck plaster faces.
+
+**1.2 mm skins on every molding surface (2026-10-27, third pass).** A solid master holds the set plaster rigidly. A 1.2 mm skin (three 0.4 mm lines) flexes inward as you pull, and it uses a fraction of the filament: the body master is 50 cm³ instead of 744, the handle master 23 instead of 83.
+
+- **Body hollow:** the positive's profile, offset 1.2 mm inward and revolved. The offset is exact: OCC's 2D offset fails on this profile, because the 0.525 mm rim round collapses under a 1.2 mm offset. So the hollow is the region inside the profile minus a 1.2 mm "sausage" (Minkowski sum with a disc) around each edge. It runs out through the plate back and is open at both ends, where the cottle end walls close it. Standing upright, the print then has no roof to bridge.
+- **Handle hollow:** a stadium 1.2 mm smaller, swept along the same path. A stadium's exact offset is a stadium. The pour-cup hollows are inset 1.2 / cos(flare), so the flared walls are 1.2 mm thick too.
+- **Parting face:** a 1.2 mm skin over a void, on 1.2 mm ribs at 45°, 25 mm apart. The ribs print both upright (body) and flat (handle), and they stop at the half's footprint so the shell can still flex. The void is built as disjoint diamond cells, because cutting a crossing grid of ribs out of one void ran OCC out of memory on this 3 GB machine.
+- **Keys:** each dimple is a 1.2 mm cup. The bosses stay solid; they are tiny.
+- **Cottles:** the cottle walls are 1.2 mm thick. Fins and clips mold no plaster, so they stay thicker.
+- **Plug parts:** the plug ring is a 1.2 mm wall that follows the V-groove. The plug floor is a 1.2 mm pit skin on concentric 1.2 mm rings at r 10, 20 and 30, open underneath.
+- **Checks:** probes confirm solid 0.6 mm in and hollow 1.3 mm in on the mug wall, the handle's outer side, crown and inner side, and the parting face. They also confirm that each skin's rim reaches the cottle wall at the socket, the collar and the pour cups.
 
 ## Parts
 
 | File | What it is | Print or cast |
 | --- | --- | --- |
-| `body_master_PRINT.stl` | Body tray with half `body_positive`, 166 × 83 × 166 mm | Print upright, floor on the bed; cast plaster twice |
-| `body_cap_PRINT.stl` | Cap that closes the top of the body tray, 172 × 86 × 16 mm | Print plate down |
-| `handle_master_PRINT.stl` | Handle tray with half `handle_positive`, 85 × 134 × 38 mm | Print back plate down; cast plaster twice |
-| `plug_floor.stl` | Floor disc with the dish pit and a locating lip, ⌀98.5 × 11 mm | Print; the plug is cast on it |
+| `body_master_PRINT.stl` | Hollow back plate with half `body_positive` and keys, 155 × 58 × 163 mm, 50 cm³ | Print standing on its socket end; cast plaster twice |
+| `body_cottle_PRINT.stl` | U-half of the body cottle, 174 × 83 × 83 mm | Print two |
+| `body_clip_PRINT.stl` | Fin clip, 83 mm long | Print two |
+| `handle_master_PRINT.stl` | Hollow back plate with half `handle_positive` and keys, 78 × 136 × 23 mm, 23 cm³ | Print back plate down; cast plaster twice |
+| `handle_cottle_PRINT.stl` | U-half of the handle cottle, 97 × 69 × 43 mm | Print two |
+| `handle_clip_PRINT.stl` | Fin clip, 43 mm long | Print two |
+| `plug_floor.stl` | Floor disc with the dish pit and a locating lip, ⌀92.9 × 11 mm | Print; the plug is cast on it |
 | `plug_ring.stl` | Half of the ring around the plug, with the V-ridge | Print two |
 | `body_positive.step` | Body + filled dish + grooved socket + reservoir collar | Source for the body master |
-| `handle_positive.step` | Handle cut at the body + both sprues | Source for the handle master |
+| `handle_positive.step` | Handle + both sprues and pour cups | Source for the handle master |
 | `body.step` | The handleless body | Reference |
 
-STL files are gitignored. Regenerate them from the STEP files and scripts.
+STL files are gitignored. Regenerate them with the scripts. The `.step` files are the same parts, for CAD.
 
-Plaster per pour: about 1.36 L per body half, 150 mL for the plug, 0.29 L per handle half.
+Plaster per pour: about 1.36 L per body half, 150 mL for the plug, 0.37 L per handle half.
 
 ## Scripts
 
-Setup: `python3 -m venv .venv && .venv/bin/pip install build123d trimesh`. On this machine that needed `sudo apt install python3-venv python3-pip` first.
+Setup: `python3 -m venv .venv && .venv/bin/pip install build123d` (`scale_mug.py` also needs `trimesh`). On this machine that needed `sudo apt install python3-venv python3-pip` first.
 
 1. `scale_mug.py`: scales `choochoomug.step` by `--scale` (default 1.049) and writes `choochoomug-14oz.step` and `.stl`.
-2. `make_mold_parts.py`: splits the body and handle, then writes `body`, `body_positive`, `handle_positive`, `plug_floor`, `plug_ring` and a `plug_preview` check part. Checks: body outside mug (want 0), side-half cavity vs body (want 0), plug inside the ring bore (want 0), reservoir volume.
-3. `make_masters.py`: builds the trays (`--margin 25`, `--plate 6`, `--wall 3`, `--draft 2`), adds the keys, and writes `body_master`, `body_cap` and `handle_master`. Checks: each master is one solid and its volume equals its parts; no key is within 3 mm of the cavity; each half plus its turned copy rebuilds the positive.
+2. `make_mold_parts.py`: the dimensions and the profile, stadium and path builders. Writes `body`, `body_positive`, `handle_positive`, `plug_floor` and `plug_ring` (about 1 minute). Checks:
+   - the body matches the STEP by point sampling
+   - the handle matches the STEP by sections at six angles (point sampling gives false insides near Fusion's B-spline crown)
+   - the flipped plug sits on the floor's pit without overlapping it
+   - it reports the reservoir volume
+3. `make_masters.py`: imports those builders and makes the hollow masters (`--margin 25`, `--plate 6`), the keys and the cottles. Writes `body_master`, `body_cottle`, `body_clip`, `handle_master`, `handle_cottle` and `handle_clip` (about 10 seconds). Checks:
+   - each master is one valid solid
+   - no key is within 3 mm of the cavity
+   - the skin probes pass
+   - the skin rims reach the cottle walls
+   - the two U-halves close the space without overlapping
 
-Two build123d (OCC) booleans in this pipeline are flaky. Fusing the sprues to the handle sometimes returns a lone sprue, and `.clean()` on that union does the same. The scripts use a fuzzy fuse (`tol=0.01`) and assert on volumes, so a bad boolean fails loudly instead of writing a broken part.
+Gotchas hit along the way:
+- build123d's `Spline` needs both end tangents or neither.
+- `Plane.XZ`'s normal is -Y.
+- OCC cannot 2D-offset these B-spline or tiny-arc profiles, hence the exact stadium and sausage offsets.
 
 ## Print settings
 
@@ -98,13 +132,13 @@ STLs cannot carry slicer settings, so set these per object in the slicer.
 
 | Part | Layer height | Notes |
 | --- | --- | --- |
-| Body master | 0.12 mm | Upright as exported; the layers are rings around the mug. The foot cone overhangs 51° from vertical over about 10 mm; look at it on the first print. 45° chamfers on the groove and collar. No supports |
-| Handle master | adaptive, or 0.12 mm over the handle | Back plate on the bed. The handle half rises 11.5 mm, so terraces are short |
-| Plug floor | 0.12 mm | Its pit forms the foot dish |
+| Body master | 0.12 mm | Standing on its socket end as exported; the layers are rings around the mug. The foot cone overhangs 51° from vertical over about 10 mm; look at it on the first print. 45° chamfers on the groove and collar. No supports |
+| Handle master | adaptive, or 0.12 mm over the handle | Open back on the bed. The handle half rises 11.5 mm (16.5 at the cups), so terraces are short. The hollow's crown is a 4.6 mm radius arch and the plate skin bridges diamond cells about 24 mm across; both sit inside, away from the molding faces |
+| Plug floor | 0.12 mm | Its pit forms the foot dish; the pit skin bridges at most 10 mm between its rings |
 | Plug ring ×2 | 0.2 mm | On its end; the V-ridge is 45° |
-| Body cap | 0.2 mm | |
+| Cottle U-halves ×2 per mold, clips ×2 per mold | 0.2 mm | On their table edge as exported. The clips pinch the fins with 0.1 mm per side; if too tight, scale the clip 102% in X and Z |
 
-All parts: elephant-foot compensation about 0.15 mm, 2 walls, about 15% infill. Import as-is: no rotation, no "place on face".
+All parts: at least 3 wall loops at 0.4 mm, so every 1.2 mm skin prints as solid perimeters (the parts are already hollow; infill only fills the thicker fins, clips and ledges). Elephant-foot compensation about 0.15 mm. Import as-is: no rotation, no "place on face".
 
 ## Lessons from the Glencairn 3-part mold
 
@@ -120,7 +154,7 @@ Studied 2026-10-11: a MakerWorld 3-part (three identical sides plus a foot inser
 
 Studied 2026-10-27: Old Forge Creations' "Smooth Tumbler/Mug Mould" (2 sides + base insert, ×1.12 for shrinkage) and "D-Shaped Handle Mould" (2-part). Same maker and license as the Glencairn, so again ideas only, no geometry.
 
-- **The print is the whole pour box.** The tumbler master is back plate + floor + half body in one upright print, with clip-on walls; the handle kit is the same with locks. Ours goes one step further: drafted walls are part of the master, and only the cap is separate.
+- **The print is the whole pour box.** The tumbler master is back plate + floor + half body in one upright print, with clip-on walls; the handle kit is the same with locks. Ours copies that: the walls come apart so they release one face at a time. (A first pass built the walls into the master with draft; I reverted that.)
 - **Keys are molded in.** Round bosses and dimples on the back plate, placed so one master's two casts mate.
 - **The foot insert has a groove** and is cast in a split form on a floor disc.
 - **A collar on the rim** casts a reservoir into the plaster.
@@ -130,30 +164,42 @@ Studied 2026-10-27: Old Forge Creations' "Smooth Tumbler/Mug Mould" (2 sides + b
 
 ## Pour and assembly (planned, not yet run)
 
-1. Print the body master, the body cap, the handle master, the plug floor and two plug rings.
-2. Body halves: slide the cap on and seal the cap seam from outside with clay or hot glue. Soap all surfaces. Lay the tray on its back plate and pour to the wall tops, brushing the mug surface first. Strike flat, let it set, and slide the block out in +Y. Pour again for the second half.
-3. Handle halves: soap, pour to the wall tops, strike, flex the tray off. Pour again.
+1. Print the body master, two body U-halves and two clips; the handle master, two handle U-halves and two clips; the plug floor and two plug rings.
+2. Body halves: lay the master on its back plate. Slide one U-half on from each end, then push the clips down over the fins. Seal the outside of the wall/plate seam and the fin joints with a clay coil. Soap everything. Pour to the wall tops, brushing the mug surface first, and strike flat. Once set, pull the clips, slide the U-halves off, and lift the plaster off the master. Pour again for the second half.
+3. Handle halves: the same, with the handle cottle. Brush plaster into the pour cups and around the handle first.
 4. Plug: set the two ring halves inside the floor's lip with their seams closed, tape or band the outside, soap, pour to the ring top, and strike flat.
 5. Dry everything. Dry-fit the body mold: plug in the socket (the groove must seat), turn one half 180° and close on the keys, strap. Dry-fit the handle mold the same way.
 6. Body: stand the mold on a flat surface and fill to the top of the collar. Top up as the level drops, drain at wall thickness, then cut the cast at the rim step when it releases.
-7. Handle: stand the mold with the sprues up, pour into one sprue until slip shows at the other, and let it fill solid. Demold and cut the sprues to the body's curve.
+7. Handle: stand the mold with the pour cups up, pour into one cup until slip shows in the other, and let it fill solid. Demold and cut the sprues to the body's curve.
 8. At leather hard, score and slip the joints. Attach the handle over one body seam line, then fettle.
 
 ## Risks to watch
 
 - The plug seam sits at the highest slip head. If it weeps, add a clay coil. If the groove does not seat, sand the plug's ridge or reprint the ring.
-- The body floor and cap are not drafted, so the plaster slides along them as it lifts out. If the block sticks, flex the walls, use more soap, or add 0.5° to the floor and accept a slight rock that a sanded base removes.
+- Cottle seams: the U-halves stand beside the plate with 0.15 mm clearance and butt at the fins. Plaster can seep at those seams; a clay coil outside both seams should hold it. If a U-half drags as it slides off, flex its walls out first.
 - Upright print: the foot cone overhangs 51° from vertical. If it sags, reprint with slower outer walls, or fill the shelf with a 45° skirt and carve the plaster back.
 - The foot ring is a knife edge by geometry (the underside rises 4.2 mm over 42 mm); trim and sponge it at leather hard.
-- Handle conical faces had about 1.7° of reverse draft over about 260 mm² for this split. Untested; flex the tray and pull gently.
+- The handle's inner and outer faces have 0° draft for 5.8 mm next to the parting line (cylinders about the handle axis). The 1.2 mm skin is there to flex away; pull gently.
 - Handle joint: cut sprues to fit by hand. If fitting by eye is unreliable, add a printed trimming template (not in scope yet; inbox it).
 - Scope creep: if more than three next actions are active at once, cut back to the smallest version.
 
 ## Next action
 
-- [ ] Print the plug floor, one plug ring and the handle master first (small, quick), and check the ring's V-ridge against the floor lip before printing the 166 mm body master
+- [ ] Print the handle master, its two U-halves and two clips, plus the plug floor and one plug ring (small and quick). Check the clip fit on the fins, the ring's V-ridge against the floor lip, and how the 1.2 mm skins print before printing the 163 mm body master
 
 ## Log
+
+### 2026-10-27 (third pass)
+
+Two asks: make every molding surface 1.2 mm thick so the masters flex off the plaster and use less filament, and build everything as plain build123d geometry. A mesh-erosion attempt (manifold3d) produced non-manifold STLs, so I dropped it.
+
+Measured the body and handle from the STEP's analytic faces. The handle turned out to be a stadium swept about a Y axis at the belly. Rebuilt the body, handle, positives and plug parts from those dimensions, and checked them against the STEP. Hollowed everything with exact 2D offsets: stadiums for the handle, edge sausages for the body. Built the plate void as diamond cells after a crossing rib grid ran OCC out of memory.
+
+Masters: body 50 cm³ (was 744), handle 23 cm³ (was 83). Nothing printed or cast yet.
+
+### 2026-10-27 (second pass)
+
+Reviewed the first pass: the cottle was part of each master, which would make release hard (the handle's above all), and the handle sprues had no pour cups. Split each cottle into two identical U-halves with fins and slide-on clips, Old Forge style; the masters are now plate + half positive + keys, and the body cap is gone. Added 10 mm pour cups to the handle sprues. Nothing printed or cast yet.
 
 ### 2026-10-27
 
