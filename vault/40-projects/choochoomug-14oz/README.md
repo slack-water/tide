@@ -1,13 +1,13 @@
 ---
 title: Choochoo Mug, 14 oz (Plaster Mold Masters)
 created: 2026-10-11
-updated: 2026-10-27
+updated: 2026-10-28
 folder: 40
 type: project
 status: active
 importance: 3
 goal: Scale the choochoo mug to hold 14 oz and produce printable masters for two plaster slip-casting molds, one for the handleless body (two side halves and a foot plug) and one for the handle (two halves)
-scope: one mug form, Fusion STEP in, build123d scripts, eleven printed parts, two plaster molds, stoneware and porcelain slip
+scope: one mug form, Fusion STEP in, build123d scripts, fifteen printed parts (nine designs), two plaster molds, stoneware and porcelain slip
 tags: [ceramics, slipcasting, mold-making, 3d-printing, build123d]
 related: [mug-recessed-foot, skull-mold-draft-shell]
 schema-version: 1.0
@@ -62,7 +62,7 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 
 **Sprues, not fitted ends.** The handle's sweep runs on past its root plane in a straight line to x = 47. Over the last 10 mm, to x = 37 (the handle mold's pour face), it flares into a pour cup. The bare sprue is only 11.5 × 23 mm, too small to pour into cleanly. Pour slip into one cup and air leaves through the other. At leather hard, cut the sprues to the body's curve: r ≈ 51.6 at the lower root (z 21) and r ≈ 47.0 at the upper root (z 96). Fusion's small root fillets are not modelled; blend the joint by hand.
 
-**Foot plug with a V-groove, in a split ring.** For a side split, the dished underside is the only real undercut (4,860 of about 5,100 mm²), so the foot is still a separate plug. New: a 45° V-groove 3 mm deep sits 12.5 mm down the socket. It locks the plug between the halves, so the plug cannot drop out when the mold is turned over to drain. That replaces the 2° taper, which only resisted slip pressure. A grooved plug cannot leave a one-piece cup, so it is cast on a floor disc inside two identical ring halves. The Old Forge tumbler mould's insert works the same way.
+**Foot plug with a V-groove, in a split ring.** For a side split, the dished underside is the only real undercut (4,860 of about 5,100 mm²), so the foot is still a separate plug. New: a 45° V-groove 3 mm deep sits 12.5 mm down the socket. It locks the plug between the halves, so the plug cannot drop out when the mold is turned over to drain. That replaces the 2° taper, which only resisted slip pressure. A grooved plug cannot leave a one-piece cup, so it is cast on a floor disc inside two identical ring halves. The halves join like the cottles, with fins and two clips, and the ring holds the disc: a 2 mm flange under it and a 45° seat on its chamfered rim. The plug's foot-ring edge falls where the seat meets the disc. The Old Forge tumbler mould's insert works the same way.
 
 **Plaster reservoir collar instead of a printed funnel.** The collar steps out 4 mm from the rim on a 45° chamfer and rises 30 mm, holding about 200 mL against an estimated 150 to 200 mL of slip loss (assumes a 5 mm cast wall). The rim has a 0.5 mm round, so the cast has a slight waist at the rim, followed by the step: that is the cut line. This removes the printed funnel, its 0.3 mm gap and its seepage risk.
 
@@ -81,7 +81,7 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 - **Parting face:** a 1.2 mm skin over a void, on 1.2 mm ribs at 45°, 25 mm apart. The ribs print both upright (body) and flat (handle), and they stop at the half's footprint so the shell can still flex. The void is built as disjoint diamond cells, because cutting a crossing grid of ribs out of one void ran OCC out of memory on this 3 GB machine.
 - **Keys:** each dimple is a 1.2 mm cup. The bosses stay solid; they are tiny.
 - **Cottles:** the cottle walls are 1.2 mm thick. Fins and clips mold no plaster, so they stay thicker.
-- **Plug parts:** the plug ring is a 1.2 mm wall that follows the V-groove. The plug floor is a 1.2 mm pit skin on concentric 1.2 mm rings at r 10, 20 and 30, open underneath.
+- **Plug parts:** the plug ring is a 1.2 mm wall that follows the V-groove, then a 1.2 mm 45° seat and a 1.2 mm wall round the disc edge. The plug floor is a 1.2 mm pit skin on concentric 1.2 mm rings at r 10, 20 and 30, open underneath.
 - **Checks:** probes confirm solid 0.6 mm in and hollow 1.3 mm in on the mug wall, the handle's outer side, crown and inner side, and the parting face. They also confirm that each skin's rim reaches the cottle wall at the socket, the collar and the pour cups.
 
 ## Parts
@@ -94,8 +94,9 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 | `handle_master_PRINT.stl` | Hollow back plate with half `handle_positive` and keys, 78 × 136 × 23 mm, 23 cm³ | Print back plate down; cast plaster twice |
 | `handle_cottle_PRINT.stl` | U-half of the handle cottle, 97 × 69 × 43 mm | Print two |
 | `handle_clip_PRINT.stl` | Fin clip, 43 mm long | Print two |
-| `plug_floor.stl` | Floor disc with the dish pit and a locating lip, ⌀92.9 × 11 mm | Print; the plug is cast on it |
-| `plug_ring.stl` | Half of the ring around the plug, with the V-ridge | Print two |
+| `plug_floor_PRINT.stl` | Floor disc with the dish pit and a 45° chamfered rim, ⌀89.9 × 7.2 mm | Print; the plug is cast on it |
+| `plug_ring_PRINT.stl` | Half of the ring around the plug: V-ridge, seat, disc pocket, flange and fins, 109 × 47 × 34 mm | Print two |
+| `plug_clip_PRINT.stl` | Fin clip, 34 mm long | Print two |
 | `body_positive.step` | Body + filled dish + grooved socket + reservoir collar | Source for the body master |
 | `handle_positive.step` | Handle + both sprues and pour cups | Source for the handle master |
 | `body.step` | The handleless body | Reference |
@@ -109,17 +110,17 @@ Plaster per pour: about 1.36 L per body half, 150 mL for the plug, 0.37 L per ha
 Setup: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt` (pins build123d 0.13.0 and its OCC kernel, the versions these scripts were checked with; `scale_mug.py` also needs `trimesh`). On this machine that needed `sudo apt install python3-venv python3-pip` first.
 
 1. `scale_mug.py`: scales `choochoomug.step` by `--scale` (default 1.049) and writes `choochoomug-14oz.step` and `.stl`.
-2. `make_mold_parts.py`: the dimensions and the profile, stadium and path builders. Writes `body`, `body_positive`, `handle_positive`, `plug_floor` and `plug_ring` (about 1 minute). Checks:
+2. `make_mold_parts.py`: the dimensions and the profile, stadium and path builders. Writes `body`, `body_positive` and `handle_positive` (about 40 seconds). Checks:
    - the body matches the STEP by point sampling
    - the handle matches the STEP by sections at six angles (point sampling gives false insides near Fusion's B-spline crown)
-   - the flipped plug sits on the floor's pit without overlapping it
    - it reports the reservoir volume
-3. `make_masters.py`: imports those builders and makes the hollow masters (`--margin 25`, `--plate 6`), the keys and the cottles. Writes `body_master`, `body_cottle`, `body_clip`, `handle_master`, `handle_cottle` and `handle_clip` (about 10 seconds). Checks:
+3. `make_masters.py`: imports those builders and makes the hollow masters (`--margin 25`, `--plate 6`), the keys and the cottles. Writes `body_master`, `body_cottle`, `body_clip`, `handle_master`, `handle_cottle`, `handle_clip`, `plug_floor`, `plug_ring` and `plug_clip` (about 12 seconds). Checks:
    - each master is one valid solid
    - no key is within 3 mm of the cavity
    - the skin probes pass
    - the skin rims reach the cottle walls
    - the two U-halves close the space without overlapping
+   - plug mold: ring halves, plug, floor and clips do not overlap; the ring closes at the wall, seat, disc edge, flange and fins; the flipped plug sits on the floor's pit
 
 Gotchas hit along the way:
 - build123d's `Spline` needs both end tangents or neither.
@@ -135,7 +136,8 @@ STLs cannot carry slicer settings, so set these per object in the slicer.
 | Body master | 0.12 mm | Standing on its socket end as exported; the layers are rings around the mug. The foot cone overhangs 51° from vertical over about 10 mm; look at it on the first print. 45° chamfers on the groove and collar. No supports |
 | Handle master | adaptive, or 0.12 mm over the handle | Open back on the bed. The handle half rises 11.5 mm (16.5 at the cups), so terraces are short. The hollow's crown is a 4.6 mm radius arch and the plate skin bridges diamond cells about 24 mm across; both sit inside, away from the molding faces |
 | Plug floor | 0.12 mm | Its pit forms the foot dish; the pit skin bridges at most 10 mm between its rings |
-| Plug ring ×2 | 0.2 mm | On its end; the V-ridge is 45° |
+| Plug ring ×2 | 0.2 mm | Flange down, as exported; the seat and V-ridge are 45° |
+| Plug clip ×2 | 0.2 mm | On its end |
 | Cottle U-halves ×2 per mold, clips ×2 per mold | 0.2 mm | On their table edge as exported. The clips pinch the fins with 0.1 mm per side; if too tight, scale the clip 102% in X and Z |
 
 All parts: at least 3 wall loops at 0.4 mm, so every 1.2 mm skin prints as solid perimeters (the parts are already hollow; infill only fills the thicker fins, clips and ledges). Elephant-foot compensation about 0.15 mm. Import as-is: no rotation, no "place on face".
@@ -156,7 +158,7 @@ Studied 2026-10-27: Old Forge Creations' "Smooth Tumbler/Mug Mould" (2 sides + b
 
 - **The print is the whole pour box.** The tumbler master is back plate + floor + half body in one upright print, with clip-on walls; the handle kit is the same with locks. Ours copies that: the walls come apart so they release one face at a time. (A first pass built the walls into the master with draft; I reverted that.)
 - **Keys are molded in.** Round bosses and dimples on the back plate, placed so one master's two casts mate.
-- **The foot insert has a groove** and is cast in a split form on a floor disc.
+- **The foot insert has a groove** and is cast in a split ring on a floor disc. The ring halves have fins clamped by short clips (the same clips as the walls), and the ring carries the disc on an inward flange, so the insert form stands as one unit.
 - **A collar on the rim** casts a reservoir into the plaster.
 - **One master, cast twice** for each mold, made possible by symmetry. Moving the handle off the body gives us the same thing.
 - **Handle mold demolding:** the maker flexes the printed mold away from the set plaster. Release agent on the printed surface.
@@ -164,10 +166,10 @@ Studied 2026-10-27: Old Forge Creations' "Smooth Tumbler/Mug Mould" (2 sides + b
 
 ## Pour and assembly (planned, not yet run)
 
-1. Print the body master, two body U-halves and two clips; the handle master, two handle U-halves and two clips; the plug floor and two plug rings.
+1. Print the body master, two body U-halves and two clips; the handle master, two handle U-halves and two clips; the plug floor, two plug rings and two plug clips.
 2. Body halves: lay the master on its back plate. Slide one U-half on from each end, then push the clips down over the fins. Seal the outside of the wall/plate seam and the fin joints with a clay coil. Soap everything. Pour to the wall tops, brushing the mug surface first, and strike flat. Once set, pull the clips, slide the U-halves off, and lift the plaster off the master. Pour again for the second half.
 3. Handle halves: the same, with the handle cottle. Brush plaster into the pour cups and around the handle first.
-4. Plug: set the two ring halves inside the floor's lip with their seams closed, tape or band the outside, soap, pour to the ring top, and strike flat.
+4. Plug: set the floor disc pit-up on the table and close the two ring halves around it, so the flanges go under the disc and the seats sit on its chamfer. Push the clips down over the fins. Seal the fin joints with clay, soap, pour to the ring top, and strike flat. Once set, pull the clips and part the ring halves off the plug.
 5. Dry everything. Dry-fit the body mold: plug in the socket (the groove must seat), turn one half 180° and close on the keys, strap. Dry-fit the handle mold the same way.
 6. Body: stand the mold on a flat surface and fill to the top of the collar. Top up as the level drops, drain at wall thickness, then cut the cast at the rim step when it releases.
 7. Handle: stand the mold with the pour cups up, pour into one cup until slip shows in the other, and let it fill solid. Demold and cut the sprues to the body's curve.
@@ -185,9 +187,13 @@ Studied 2026-10-27: Old Forge Creations' "Smooth Tumbler/Mug Mould" (2 sides + b
 
 ## Next action
 
-- [ ] Print the handle master, its two U-halves and two clips, plus the plug floor and one plug ring (small and quick). Check the clip fit on the fins, the ring's V-ridge against the floor lip, and how the 1.2 mm skins print before printing the 163 mm body master
+- [ ] Print the handle master, its two U-halves and two clips, plus the plug floor, two plug rings and two plug clips (small and quick). Check the clip fit on the fins, the ring's seat on the floor disc, and how the 1.2 mm skins print before printing the 163 mm body master
 
 ## Log
+
+### 2026-10-28
+
+The plug ring had no way to come apart or be held closed. Compared it against the Old Forge foot insert (two ring halves with fins and short clips; the ring's flange carries a 5 mm base disc) and rebuilt ours that way: fins at both ends of each half, the cottle clip at 34 mm, a 2 mm flange under the floor disc, and a 45° seat on the disc's chamfered rim in place of the floor lip. The plug parts moved to `make_masters.py` to share the fins and clip, and now export as `*_PRINT.stl`. Also made exports fail loudly and pinned build123d/OCP in `requirements.txt`, after `body_master_PRINT.stl` silently did not appear on another machine.
 
 ### 2026-10-27 (third pass)
 

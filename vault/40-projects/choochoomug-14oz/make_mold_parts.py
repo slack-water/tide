@@ -15,10 +15,9 @@ belly; its roots end in the plane x = HANDLE_CX.
                    the rim. Both plaster side halves are cast around this (make_masters.py).
   handle_positive  the handle, both roots extended along -X as straight sprues that flare into
                    pour cups at the pour face (x = SPRUE_END). The handle mold is cast around this.
-  plug_floor       printed disc with the dish pit; the plug is cast dish-down on it. A SKIN-thick
-                   pit on concentric SKIN rings, open underneath.
-  plug_ring        half of the split ring that walls the plug; print two. A SKIN-thick wall that
-                   follows the plug's V-groove, which is why the ring has to split.
+
+The plug's mold (floor disc, ring halves and clip) is built from the plug profiles here, in
+make_masters.py next to the cottles it shares fins and clips with.
 
 Setup:  python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 Usage:  .venv/bin/python make_mold_parts.py
@@ -27,10 +26,10 @@ import math
 import random
 from pathlib import Path
 
-from build123d import (Align, Axis, BuildLine, BuildSketch, Circle, Kind, Line, Locations, Mode, Plane,
+from build123d import (Align, Axis, BuildLine, BuildSketch, Circle, Line, Locations, Mode, Plane,
                        Polyline, Pos,
-                       Rectangle, Rot, SlotOverall, Spline, ThreePointArc, Transition, Wire,
-                       export_step, export_stl, import_step, loft, make_face, mirror, offset,
+                       Rectangle, SlotOverall, Spline, ThreePointArc, Transition, Wire,
+                       export_step, export_stl, import_step, loft, make_face, mirror,
                        revolve, section, sweep)
 
 HERE = Path(__file__).parent
@@ -67,7 +66,8 @@ SPRUE_END = 37.0      # sprues end here; this is the handle mold's pour face
 CUP_DEPTH = 10.0      # each sprue flares into a pour cup over its last CUP_DEPTH mm
 CUP_GROW = 5.0        # the cup mouth is this much wider than the sprue on every side
 RING_CLEAR = 0.3
-LIP = 3.0             # floor lip that locates the ring halves
+DISC_EDGE = 3.0       # floor disc runs this far past the foot ring, under the ring's 45 degree seat
+FLANGE = 2.0          # ring flange the floor disc rests on
 FLOOR = 3.0           # plug floor under the deepest point of the dish pit
 FLOOR_RIBS = (10.0, 20.0, 30.0)   # concentric ribs under the pit skin
 
@@ -260,15 +260,14 @@ def handle_inner(skin=SKIN):
 
 def plug_floor_profile():
     """Floor, in the flipped frame (bed at z = 0, plug dish-down): a SKIN pit on concentric SKIN
-    rings, a solid ledge for the ring halves, and the locating lip."""
+    rings, and a 45 degree chamfer from the foot ring out to the disc edge that the ring seats on."""
     z_ring = FLOOR + DISH[0][1]                          # foot-ring plane after the flip
     pit = [(r, z_ring - z) for r, z in DISH]              # dish pit, deepest (z = FLOOR) at the centre
-    r_lip = R_RING + SKIN + RING_CLEAR
+    r_d = R_RING + DISC_EDGE
 
     def b():
         Spline(*pit, tangents=[(1, 0), (DISH_T[1][0], -DISH_T[1][1])])
-        Polyline((R_RING, z_ring), (r_lip, z_ring), (r_lip, z_ring + 4), (r_lip + LIP, z_ring + 4),
-                 (r_lip + LIP, 0), (0, 0), pit[0])
+        Polyline((R_RING, z_ring), (r_d, z_ring - DISC_EDGE), (r_d, 0), (0, 0), pit[0])
     solid = outline_face(b)
     under = [(r, z - SKIN) for r, z in pit[:-1]] + [(R_RING - SKIN, pit[-1][1] - SKIN)]
 
@@ -281,12 +280,36 @@ def plug_floor_profile():
     return solid - void, z_ring
 
 
-def plug_ring_profile():
-    """A SKIN wall outside the plug's side that follows the V-groove (an outward offset of the
-    socket profile), between the plug's flat bottom and the foot-ring plane."""
-    s = socket_profile()
-    band = offset(s, amount=SKIN, kind=Kind.INTERSECTION) - s
-    return band & rect(0, 200, -SOCKET_DEPTH, 0)
+def plug_cavity_profile(z_ring):
+    """Everything inside the ring, flipped frame: the floor disc's pocket (RING_CLEAR round its
+    edge), the 45 degree seat, the plug with its V-groove, and the flange's bore below z = 0."""
+    side = [(r, z_ring - z) for r, z in reversed(groove_pts()[1:])]   # foot ring up to the plug's flat end
+    r_d = R_RING + DISC_EDGE
+    top = z_ring + SOCKET_DEPTH + 1
+    return outline_face(lambda: Polyline(
+        (0, -FLANGE - 1), (R_RING - SKIN, -FLANGE - 1), (R_RING - SKIN, 0), (r_d + RING_CLEAR, 0),
+        (r_d + RING_CLEAR, z_ring - DISC_EDGE), (r_d, z_ring - DISC_EDGE), *side, (R_RING, top), (0, top),
+        (0, -FLANGE - 1)))
+
+
+def plug_ring_profile(z_ring):
+    """The ring wall, flipped frame, as one polygon: the flange under the disc, a SKIN wall round the
+    disc edge, a SKIN 45 degree seat on the disc's chamfer, then a SKIN band that follows the plug's
+    side and V-groove up to its flat end. The outside is the inside offset SKIN, mitred by hand."""
+    g_lo, g_mid, g_hi = (z_ring - z for z in (GROOVE_Z + GROOVE_DEPTH, GROOVE_Z, GROOVE_Z - GROOVE_DEPTH))
+    r_d = R_RING + DISC_EDGE
+    r_o = r_d + RING_CLEAR + SKIN
+    z_top = z_ring + SOCKET_DEPTH
+    lift = SKIN * math.sqrt(2)                           # SKIN measured square to a 45 degree face
+    face = outline_face(lambda: Polyline(
+        (R_RING - SKIN, -FLANGE), (R_RING - SKIN, 0), (r_d + RING_CLEAR, 0),
+        (r_d + RING_CLEAR, z_ring - DISC_EDGE), (r_d, z_ring - DISC_EDGE), (R_RING, z_ring),
+        (R_RING, g_lo), (R_RING - GROOVE_DEPTH, g_mid), (R_RING, g_hi), (R_RING, z_top),
+        (R_RING + SKIN, z_top), (R_RING + SKIN, g_hi - lift + SKIN),
+        (R_RING - GROOVE_DEPTH + lift, g_mid), (R_RING + SKIN, g_lo + lift - SKIN),
+        (R_RING + SKIN, z_ring + lift - SKIN), (r_o, z_ring + lift - (r_o - R_RING)),
+        (r_o, -FLANGE), (R_RING - SKIN, -FLANGE)))
+    return face, r_o
 
 
 # ---------------- checks and output ----------------
@@ -342,12 +365,6 @@ def main():
     handle_pos = handle_solid()
     plug = revolve(plug_profile(), Axis.Z)
 
-    floor_face, z_ring = plug_floor_profile()
-    plug_floor = revolve(floor_face, Axis.Z)
-    # ring halves sit on the floor ledge around the flipped plug; print on the foot-ring end
-    ring_half = Rot(180, 0, 0) * revolve_half(plug_ring_profile())
-    ring_half = Pos(0, 0, -ring_half.bounding_box().min.Z) * ring_half
-
     # ---- checks ----
     ref = import_step(HERE / "choochoomug-14oz.step")
     compare("body (y > 12, clear of the handle and the Fusion split strip)", body, ref,
@@ -355,16 +372,10 @@ def main():
     compare_handle(handle_pos, ref)
     print(f"body {body.volume / OZ:.2f} fl oz solid; plug {plug.volume / 1000:.0f} cm3 of plaster; "
           f"reservoir above the rim ~{math.pi * R_COLLAR**2 * (COLLAR_H - COLLAR_STEP) / 1000:.0f} mL")
-    flipped = Pos(0, 0, z_ring) * Rot(180, 0, 0) * plug
-    common = flipped & plug_floor
-    print(f"flipped plug vs floor: overlap {common.volume if common else 0:.2f} mm3 (want 0), "
-          f"pit floor at z {FLOOR} touches the plug: {flipped.is_inside((0, 0, FLOOR + 0.05))}")
 
     save("body", body)
     save("body_positive", body_pos)
     save("handle_positive", handle_pos)
-    save("plug_floor", plug_floor)
-    save("plug_ring", ring_half)
 
 
 if __name__ == "__main__":

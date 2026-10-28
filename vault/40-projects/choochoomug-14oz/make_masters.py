@@ -28,6 +28,13 @@ away from the set plaster instead of holding it rigidly, and prints with little 
                   side wall, so they come out open.
   handle_cottle   one U-half for the handle; print two.
   handle_clip     fin clip for the handle cottle; print two.
+  plug_floor      floor disc with the dish pit; the plug is cast dish-down on it. A SKIN pit on
+                  concentric SKIN rings, open underneath, with a 45 degree chamfer round its rim.
+  plug_ring       half of the ring that walls the plug; print two. Like the Old Forge foot insert:
+                  the halves meet on fins and clip together, and a flange under the disc and a 45
+                  degree seat on its chamfer hold the disc, so ring and floor stand as one mold. The
+                  SKIN wall follows the plug's V-groove, which is why the ring has to split.
+  plug_clip       fin clip for the plug ring; print two.
 
 Print (STLs carry no settings; set them per object):
   all parts       3 or more wall loops, so each SKIN prints as solid perimeters; elephant-foot
@@ -37,6 +44,8 @@ Print (STLs carry no settings; set them per object):
   handle_master_PRINT  back plate (the open side) on the bed, adaptive or 0.12 mm layers over the
                        handle. The hollow's crown is a 4.6 mm radius arch; no supports.
   *_cottle_PRINT, *_clip_PRINT   on their table edge, 0.2 mm.
+  plug_floor_PRINT     flat side down, 0.12 mm (its pit forms the foot dish).
+  plug_ring_PRINT      flange down, 0.2 mm. The seat and V-ridge are 45 degrees; no supports.
 
 Usage: .venv/bin/python make_masters.py [--margin 25] [--plate 6]
 """
@@ -133,6 +142,14 @@ def skin_probe(name, part, points):
     assert ok
 
 
+def fin_clip(xo, y0, y1, zm):
+    """C-clip, y0 to y1 long, over a pair of fins that reach FIN out past x = xo, FIN_T either side
+    of z = zm."""
+    g = FIN_T + CLIP_FIT
+    return box(xo, xo + FIN + CLIP_FIT + CLIP_W, y0, y1, zm - g - CLIP_W, zm + g + CLIP_W) \
+        - box(xo - 1, xo + FIN + CLIP_FIT, y0 - 1, y1 + 1, zm - g, zm + g)
+
+
 def cottle(x0, x1, z0, z1, depth, plate, wall):
     """U-half for plaster space x in [x0, x1], z in [z0, z1]: end wall at z0, side walls to mid-length,
     fins at mid-length. Walls run from the table (y = -plate) to the plaster top (y = depth).
@@ -145,9 +162,7 @@ def cottle(x0, x1, z0, z1, depth, plate, wall):
     u = box(xo0, xo1, y0, y1, ze, z0 - FIT).fuse(
         box(xo0, xi0, y0, y1, ze, zm), box(xi1, xo1, y0, y1, ze, zm),
         box(xo0 - FIN, xo0, y0, y1, zm - FIN_T, zm), box(xo1, xo1 + FIN, y0, y1, zm - FIN_T, zm))
-    g = FIN_T + CLIP_FIT                           # clip: a C around one side's two fins
-    clip = box(xo1, xo1 + FIN + CLIP_FIT + CLIP_W, y0, y1, zm - g - CLIP_W, zm + g + CLIP_W) \
-        - box(xo1 - 1, xo1 + FIN + CLIP_FIT, y0 - 1, y1 + 1, zm - g, zm + g)
+    clip = fin_clip(xo1, y0, y1, zm)               # a C around one side's two fins
     other = mirror(u, about=Plane.XY.offset(zm))
     common = u & other
     closed = (u.is_inside(((x0 + x1) / 2, depth / 2, z0 - FIT - 0.1))
@@ -156,6 +171,45 @@ def cottle(x0, x1, z0, z1, depth, plate, wall):
     print(f"  U-halves overlap {common.volume if common else 0:.2f} mm3 (want 0), closed at end and joint: {closed}")
     assert closed and not (common and common.volume > 0.01)
     return u, clip
+
+
+def plug_mold():
+    """Floor disc, ring half and clip, in the flipped frame (floor on the table at z = 0, plug
+    dish-down on it). The ring half is the y >= 0 half with a fin at each end, on its own side of
+    the parting plane; the other half is the same part turned 180 degrees about Z."""
+    floor = revolve(mp.plug_floor_profile()[0], Axis.Z)
+    z_ring = mp.plug_floor_profile()[1]
+    face, r_o = mp.plug_ring_profile(z_ring)
+    cavity = revolve(mp.plug_cavity_profile(z_ring), Axis.Z)
+    zlo, zhi = -mp.FLANGE, z_ring + mp.SOCKET_DEPTH
+    fin = box(mp.R_RING - mp.GROOVE_DEPTH, r_o + FIN, 0, FIN_T, zlo, zhi) - cavity
+    ring = mp.revolve_half(face).fuse(fin, mirror(fin, about=Plane.YZ))
+    assert len(ring.solids()) == 1 and ring.is_valid, "plug ring boolean went wrong"
+    clip = Rot(90, 0, 0) * fin_clip(r_o, zlo, zhi, 0)     # clip length along y -> z, fins either side of y = 0
+
+    # checks: nothing overlaps, the ring closes on the plug, and the skins are SKIN
+    plug = Pos(0, 0, z_ring) * Rot(180, 0, 0) * revolve(mp.plug_profile(), Axis.Z)
+    other = Rot(0, 0, 180) * ring
+    vol = lambda a, b: (lambda c: c.volume if c else 0.0)(a & b)
+    overlaps = {"ring halves": vol(ring, other), "ring/plug": vol(ring, plug), "ring/floor": vol(ring, floor),
+                "floor/plug": vol(floor, plug), "clip/rings": vol(clip, ring) + vol(clip, other)}
+    print("plug mold overlaps (mm3, want 0):", {k: round(v, 2) for k, v in overlaps.items()})
+    assert all(v < 0.01 for v in overlaps.values())
+    mid = z_ring + mp.SOCKET_DEPTH - 3                     # plain wall above the groove
+    closed = {"wall": ring.is_inside((0, mp.R_RING + SKIN / 2, mid)),
+              "seat": ring.is_inside((0, mp.R_RING + 1.5, z_ring - 0.6)),
+              "disc edge": ring.is_inside((0, r_o - SKIN / 2, z_ring - mp.DISC_EDGE - 1)),
+              "flange": ring.is_inside((0, mp.R_RING, -mp.FLANGE / 2)),
+              "pit on plug": plug.is_inside((0, 0, mp.FLOOR + 0.05)),
+              "fins meet": other.is_inside((r_o + FIN / 2, -FIN_T / 2, mid))
+                           and ring.is_inside((r_o + FIN / 2, FIN_T / 2, mid))}
+    print("plug mold closed:", closed)
+    assert all(closed.values())
+    skin_probe("plug ring", ring, [((0, mp.R_RING, mid), (0, 1, 0))])
+    skin_probe("plug floor", floor, [((0, 0, mp.FLOOR), (0, 0, -1))])
+    print(f"plug plaster {plug.volume / 1000:.0f} cm3; mold {2 * (r_o + FIN + CLIP_FIT + CLIP_W):.1f} mm "
+          f"across the clips, {zhi - zlo:.1f} mm tall")
+    return floor, ring, clip
 
 
 def save_print(name, part, rot):
@@ -238,6 +292,13 @@ def main():
     save_print("handle_master", handle_master, flat)
     save_print("handle_cottle", handle_u, flat)
     save_print("handle_clip", handle_clip, flat)
+
+    # ---------------- plug ----------------
+    plug_floor, plug_ring, plug_clip = plug_mold()
+    upright = Rot(0, 0, 0)
+    save_print("plug_floor", plug_floor, upright)
+    save_print("plug_ring", plug_ring, upright)        # flange down
+    save_print("plug_clip", plug_clip, upright)
 
 
 if __name__ == "__main__":
