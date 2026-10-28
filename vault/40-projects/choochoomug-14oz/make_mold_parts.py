@@ -20,7 +20,7 @@ belly; its roots end in the plane x = HANDLE_CX.
   plug_ring        half of the split ring that walls the plug; print two. A SKIN-thick wall that
                    follows the plug's V-groove, which is why the ring has to split.
 
-Setup:  python3 -m venv .venv && .venv/bin/pip install build123d
+Setup:  python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 Usage:  .venv/bin/python make_mold_parts.py
 """
 import math
@@ -292,8 +292,10 @@ def plug_ring_profile():
 # ---------------- checks and output ----------------
 
 def save(name, solid):
-    export_step(solid, HERE / f"{name}.step")
-    export_stl(solid, HERE / f"{name}.stl", tolerance=0.02, angular_tolerance=0.15)
+    stl = HERE / f"{name}.stl"
+    stl.unlink(missing_ok=True)     # export_* return False on failure instead of raising
+    ok = export_step(solid, HERE / f"{name}.step") and export_stl(solid, stl, tolerance=0.02, angular_tolerance=0.15)
+    assert ok and stl.exists() and stl.stat().st_size > 0, f"{name}: STEP/STL export failed"
     bb = solid.bounding_box()
     print(f"{name:16s} {bb.size.X:6.1f} x {bb.size.Y:6.1f} x {bb.size.Z:6.1f} mm   "
           f"vol {solid.volume/1000:7.1f} cm3   solids={len(solid.solids())} valid={solid.is_valid}")

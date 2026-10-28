@@ -159,10 +159,12 @@ def cottle(x0, x1, z0, z1, depth, plate, wall):
 
 
 def save_print(name, part, rot):
-    export_step(part, HERE / f"{name}.step")
     on_bed = rot * part
     on_bed = Pos(0, 0, -on_bed.bounding_box().min.Z) * on_bed
-    export_stl(on_bed, HERE / f"{name}_PRINT.stl", tolerance=0.02, angular_tolerance=0.15)
+    stl = HERE / f"{name}_PRINT.stl"
+    stl.unlink(missing_ok=True)     # export_* return False on failure instead of raising
+    ok = export_step(part, HERE / f"{name}.step") and export_stl(on_bed, stl, tolerance=0.02, angular_tolerance=0.15)
+    assert ok and stl.exists() and stl.stat().st_size > 0, f"{name}: STEP/STL export failed"
     bb = on_bed.bounding_box()
     print(f"{name:14s} print {bb.size.X:6.1f} x {bb.size.Y:6.1f} x {bb.size.Z:6.1f} mm  "
           f"vol {part.volume/1000:6.1f} cm3  solids={len(part.solids())} valid={part.is_valid}")

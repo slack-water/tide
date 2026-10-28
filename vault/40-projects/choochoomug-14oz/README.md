@@ -106,7 +106,7 @@ Plaster per pour: about 1.36 L per body half, 150 mL for the plug, 0.37 L per ha
 
 ## Scripts
 
-Setup: `python3 -m venv .venv && .venv/bin/pip install build123d` (`scale_mug.py` also needs `trimesh`). On this machine that needed `sudo apt install python3-venv python3-pip` first.
+Setup: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt` (pins build123d 0.13.0 and its OCC kernel, the versions these scripts were checked with; `scale_mug.py` also needs `trimesh`). On this machine that needed `sudo apt install python3-venv python3-pip` first.
 
 1. `scale_mug.py`: scales `choochoomug.step` by `--scale` (default 1.049) and writes `choochoomug-14oz.step` and `.stl`.
 2. `make_mold_parts.py`: the dimensions and the profile, stadium and path builders. Writes `body`, `body_positive`, `handle_positive`, `plug_floor` and `plug_ring` (about 1 minute). Checks:
