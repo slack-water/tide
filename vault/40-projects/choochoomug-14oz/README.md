@@ -1,7 +1,7 @@
 ---
 title: Choochoo Mug, 14 oz (Plaster Mold Masters)
 created: 2026-10-11
-updated: 2026-10-28
+updated: 2026-10-30
 folder: 40
 type: project
 status: active
@@ -20,7 +20,7 @@ A mug with a recessed foot that holds 14 oz fired (the first version held 11.95 
 
 ## Scope
 
-**In:** uniform rescale. The handle split off the body. A body mold: two side halves, a grooved foot plug, and a plaster reservoir collar. A handle mold: two halves with sprues and pour cups. Printed masters with molded-in keys, and detachable printed cottles (U-halves and clips) around them. Every printed molding surface 1.2 mm thick. A README and scripts that build all of it as exact build123d geometry.
+**In:** uniform rescale. The handle split off the body. A body mold: two side halves, a grooved foot plug, and a plaster reservoir collar. A handle mold: two halves with sprues and pour cups. Printed masters with molded-in keys, and detachable printed cottles around them (U-halves with clips for the body, U-walls with lock bars for the handle). Every printed molding surface 1.2 mm thick. A README and scripts that build all of it as exact build123d geometry.
 **Out:** shelling the model, a general mold generator, new handle geometry (the choochoo handle stays), a printed funnel. Anything else goes in the inbox.
 
 ## Done looks like
@@ -33,7 +33,7 @@ Follows [the skull glossary](../../90-archive/skull-mold-draft-shell/UBIQUITOUS_
 
 - **Parting plane:** Y=0. For the body it is any plane through the axis; for the handle it is the handle's mid-plane.
 - **Master:** a printed back plate with half a positive and the keys on it. Each master is cast twice.
-- **Cottle:** the walls that hold the plaster around a master. Here it is two identical **U-halves** (an end wall plus half of each side wall) joined at mid-length by **fins** and slide-on **clips**.
+- **Cottle:** the walls that hold the plaster around a master. Here it is two identical **U-halves** (an end wall plus half of each side wall) joined at mid-length by **fins** and slide-on **clips**. The handle's cottle is split the other way, Old Forge style: each U is a side wall plus half of each end wall, and a **lock** (a C-channel) slides down over the **T-rails** where the end walls meet.
 - **Keys:** conical bosses and dimples on the back plate that become dimples and bosses in the plaster.
 - **Plug:** the plaster disc that forms the recessed foot; it sits in a grooved socket between the two side halves.
 - **Reservoir collar:** a 45° step out from the rim and a straight wall above it, cast into the top of the side halves. It holds the slip that drains into the plaster.
@@ -70,6 +70,8 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 
 **Detachable cottles, not one-piece trays (2026-10-27, second pass).** The first pass printed the walls as part of the master, drafted 2°, with a slide-on cap. Plaster sets bonded to every wall at once and expands slightly, so a one-piece tray, the handle's above all, would be hard to release, and the undrafted floor and cap would drag. Now each master is just the back plate, the half positive and the keys. Around it stand two identical U-halves, joined at mid-length by fins and two slide-on C-clips, as on the Old Forge moulds. Demold: pull the clips, slide each U off along the mold's length (each wall touches the plaster on one face only), then lift the plaster off the master in +Y. No wall needs draft.
 
+**Handle walls with lock bars (2026-10-30).** The handle cottle now follows the Old Forge D-handle kit instead of the body's. Each U-wall is one side wall plus the matching half of both end walls (the other is the same part turned 180°). The walls meet at mid-width on the end walls, where each ends in a T-rail, and a C-channel lock slides down over each pair of rails for the full height. A friction clip on flat fins can creep off as the plaster pushes outward; the lock interlocks with the rails, so the walls cannot spread. The pour cups now face a plain side wall with no joint in it. Demold: slide the locks up, pull each wall straight off in ±X (the side wall leaves its face; the end-wall halves slide along theirs), then lift the plaster off. The body and plug keep their fins and clips.
+
 - The U-halves stand on the table beside the plate rather than hooking under it, so the plate lies flat under the plaster's weight.
 - The plate stops 0.15 mm short of the end walls, so the socket, the reservoir collar and the handle's pour cups all touch a wall and come out open.
 - The body's U end walls are its floor and top. The mold still stands flat on the struck plaster faces.
@@ -80,7 +82,7 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 - **Handle hollow:** a stadium 1.2 mm smaller, swept along the same path. A stadium's exact offset is a stadium. The pour-cup hollows are inset 1.2 / cos(flare), so the flared walls are 1.2 mm thick too.
 - **Parting face:** a 1.2 mm skin over a void, on 1.2 mm ribs at 45°, 25 mm apart. The ribs print both upright (body) and flat (handle), and they stop at the half's footprint so the shell can still flex. The void is built as disjoint diamond cells, because cutting a crossing grid of ribs out of one void ran OCC out of memory on this 3 GB machine.
 - **Keys:** each dimple is a 1.2 mm cup. The bosses stay solid; they are tiny.
-- **Cottles:** the cottle walls are 1.2 mm thick. Fins and clips mold no plaster, so they stay thicker.
+- **Cottles:** the cottle walls are 1.2 mm thick. Fins, clips, rails and locks mold no plaster, so they stay thicker.
 - **Plug parts:** the plug ring is a 1.2 mm wall that follows the V-groove, then a 1.2 mm 45° seat and a 1.2 mm wall round the disc edge. The plug floor is a 1.2 mm pit skin on concentric 1.2 mm rings at r 10, 20 and 30, open underneath.
 - **Checks:** probes confirm solid 0.6 mm in and hollow 1.3 mm in on the mug wall, the handle's outer side, crown and inner side, and the parting face. They also confirm that each skin's rim reaches the cottle wall at the socket, the collar and the pour cups.
 
@@ -92,8 +94,8 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 | `body_cottle_PRINT.stl` | U-half of the body cottle, 174 × 83 × 83 mm | Print two |
 | `body_clip_PRINT.stl` | Fin clip, 83 mm long | Print two |
 | `handle_master_PRINT.stl` | Hollow back plate with half `handle_positive` and keys, 78 × 136 × 23 mm, 23 cm³ | Print back plate down; cast plaster twice |
-| `handle_cottle_PRINT.stl` | U-half of the handle cottle, 97 × 69 × 43 mm | Print two |
-| `handle_clip_PRINT.stl` | Fin clip, 43 mm long | Print two |
+| `handle_cottle_PRINT.stl` | U-wall of the handle cottle (side wall + two half end walls with T-rails), 40 × 149 × 43 mm | Print two |
+| `handle_lock_PRINT.stl` | C-channel lock over the end-wall rails, 14 × 7 × 43 mm | Print two |
 | `plug_floor_PRINT.stl` | Floor disc with the dish pit and a 45° chamfered rim, ⌀89.9 × 7.2 mm | Print; the plug is cast on it |
 | `plug_ring_PRINT.stl` | Half of the ring around the plug: V-ridge, seat, disc pocket, flange and fins, 109 × 47 × 34 mm | Print two |
 | `plug_clip_PRINT.stl` | Fin clip, 34 mm long | Print two |
@@ -114,12 +116,13 @@ Setup: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt` (pin
    - the body matches the STEP by point sampling
    - the handle matches the STEP by sections at six angles (point sampling gives false insides near Fusion's B-spline crown)
    - it reports the reservoir volume
-3. `make_masters.py`: imports those builders and makes the hollow masters (`--margin 25`, `--plate 6`), the keys and the cottles. Writes `body_master`, `body_cottle`, `body_clip`, `handle_master`, `handle_cottle`, `handle_clip`, `plug_floor`, `plug_ring` and `plug_clip` (about 12 seconds). Checks:
+3. `make_masters.py`: imports those builders and makes the hollow masters (`--margin 25`, `--plate 6`), the keys and the cottles. Writes `body_master`, `body_cottle`, `body_clip`, `handle_master`, `handle_cottle`, `handle_lock`, `plug_floor`, `plug_ring` and `plug_clip` (about 12 seconds). Checks:
    - each master is one valid solid
    - no key is within 3 mm of the cavity
    - the skin probes pass
    - the skin rims reach the cottle walls
    - the two U-halves close the space without overlapping
+   - handle walls and locks do not overlap, close at the corners and the end-wall joints, and each lock's lips sit behind both rail heads
    - plug mold: ring halves, plug, floor and clips do not overlap; the ring closes at the wall, seat, disc edge, flange and fins; the flipped plug sits on the floor's pit
 
 Gotchas hit along the way:
@@ -138,9 +141,9 @@ STLs cannot carry slicer settings, so set these per object in the slicer.
 | Plug floor | 0.12 mm | Its pit forms the foot dish; the pit skin bridges at most 10 mm between its rings |
 | Plug ring ×2 | 0.2 mm | Flange down, as exported; the seat and V-ridge are 45° |
 | Plug clip ×2 | 0.2 mm | On its end |
-| Cottle U-halves ×2 per mold, clips ×2 per mold | 0.2 mm | On their table edge as exported. The clips pinch the fins with 0.1 mm per side; if too tight, scale the clip 102% in X and Z |
+| Cottle U-halves ×2 per mold, clips or locks ×2 per mold | 0.2 mm | On their table edge as exported. The clips pinch the fins with 0.1 mm per side; if too tight, scale the clip 102% in X and Z. The handle locks stand on end and slide over the rails with 0.15 mm per side |
 
-All parts: at least 3 wall loops at 0.4 mm, so every 1.2 mm skin prints as solid perimeters (the parts are already hollow; infill only fills the thicker fins, clips and ledges). Elephant-foot compensation about 0.15 mm. Import as-is: no rotation, no "place on face".
+All parts: at least 3 wall loops at 0.4 mm, so every 1.2 mm skin prints as solid perimeters (the parts are already hollow; infill only fills the thicker fins, clips, rails, locks and ledges). Elephant-foot compensation about 0.15 mm. Import as-is: no rotation, no "place on face".
 
 ## Lessons from the Glencairn 3-part mold
 
@@ -166,9 +169,9 @@ Studied 2026-10-27: Old Forge Creations' "Smooth Tumbler/Mug Mould" (2 sides + b
 
 ## Pour and assembly (planned, not yet run)
 
-1. Print the body master, two body U-halves and two clips; the handle master, two handle U-halves and two clips; the plug floor, two plug rings and two plug clips.
+1. Print the body master, two body U-halves and two clips; the handle master, two handle U-walls and two locks; the plug floor, two plug rings and two plug clips.
 2. Body halves: lay the master on its back plate. Slide one U-half on from each end, then push the clips down over the fins. Seal the outside of the wall/plate seam and the fin joints with a clay coil. Soap everything. Pour to the wall tops, brushing the mug surface first, and strike flat. Once set, pull the clips, slide the U-halves off, and lift the plaster off the master. Pour again for the second half.
-3. Handle halves: the same, with the handle cottle. Brush plaster into the pour cups and around the handle first.
+3. Handle halves: lay the master on its back plate. Stand the two U-walls around it, pour cups against the plain side wall, and slide a lock down over the rails at each end. Seal, soap and pour as for the body, brushing plaster into the pour cups and around the handle first. Once set, slide the locks up, pull each wall straight off sideways, and lift the plaster off the master.
 4. Plug: set the floor disc pit-up on the table and close the two ring halves around it, so the flanges go under the disc and the seats sit on its chamfer. Push the clips down over the fins. Seal the fin joints with clay, soap, pour to the ring top, and strike flat. Once set, pull the clips and part the ring halves off the plug.
 5. Dry everything. Dry-fit the body mold: plug in the socket (the groove must seat), turn one half 180° and close on the keys, strap. Dry-fit the handle mold the same way.
 6. Body: stand the mold on a flat surface and fill to the top of the collar. Top up as the level drops, drain at wall thickness, then cut the cast at the rim step when it releases.
@@ -178,7 +181,7 @@ Studied 2026-10-27: Old Forge Creations' "Smooth Tumbler/Mug Mould" (2 sides + b
 ## Risks to watch
 
 - The plug seam sits at the highest slip head. If it weeps, add a clay coil. If the groove does not seat, sand the plug's ridge or reprint the ring.
-- Cottle seams: the U-halves stand beside the plate with 0.15 mm clearance and butt at the fins. Plaster can seep at those seams; a clay coil outside both seams should hold it. If a U-half drags as it slides off, flex its walls out first.
+- Cottle seams: the U-halves stand beside the plate with 0.15 mm clearance and butt at the fins (the handle's at the end-wall rails). Plaster can seep at those seams; a clay coil outside both seams should hold it. If a U-half drags as it slides off, flex its walls out first.
 - Upright print: the foot cone overhangs 51° from vertical. If it sags, reprint with slower outer walls, or fill the shelf with a 45° skirt and carve the plaster back.
 - The foot ring is a knife edge by geometry (the underside rises 4.2 mm over 42 mm); trim and sponge it at leather hard.
 - The handle's inner and outer faces have 0° draft for 5.8 mm next to the parting line (cylinders about the handle axis). The 1.2 mm skin is there to flex away; pull gently.
@@ -187,9 +190,13 @@ Studied 2026-10-27: Old Forge Creations' "Smooth Tumbler/Mug Mould" (2 sides + b
 
 ## Next action
 
-- [ ] Print the handle master, its two U-halves and two clips, plus the plug floor, two plug rings and two plug clips (small and quick). Check the clip fit on the fins, the ring's seat on the floor disc, and how the 1.2 mm skins print before printing the 163 mm body master
+- [ ] Print the handle master, its two U-walls and two locks, plus the plug floor, two plug rings and two plug clips (small and quick). Check the lock's slide over the rails, the clip fit on the fins, the ring's seat on the floor disc, and how the 1.2 mm skins print before printing the 163 mm body master
 
 ## Log
+
+### 2026-10-30
+
+Rebuilt the handle cottle like the Old Forge D-handle kit (from its 3MF): two identical U-walls, each a side wall plus half of both end walls, joined on the end walls by T-rails and slide-down C-channel locks. They replace the mid-length fins and clips, which the body and plug keep. `handle_clip` is replaced by `handle_lock`. The handle itself is unchanged. Nothing printed or cast yet.
 
 ### 2026-10-28
 

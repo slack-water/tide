@@ -3,10 +3,13 @@
 from the profiles in make_mold_parts.py.
 
 Each master is a back plate (the parting plane, Y=0) with half a positive and the keys on it.
-The cottle around it comes apart, like the Old Forge tumbler and handle moulds: two identical
+The cottle around it comes apart, like the Old Forge tumbler and handle moulds. Body: two identical
 U-halves (one end wall plus half of each side wall) stand on the table around the plate, meet at
-mid-length with fins, and two slide-on clips pinch the fins together. Demold by pulling the clips,
-sliding each U off along the mold's length, and lifting the plaster off the master in +Y.
+mid-length with fins, and two slide-on clips pinch the fins together; demold by pulling the clips
+and sliding each U off along the mold's length. Handle, as the Old Forge D-handle kit: two identical
+U-walls (one side wall plus half of each end wall) meet at mid-width on the end walls in T-rails,
+and a C-channel lock slides down over each pair; demold by sliding the locks up and pulling each
+wall off sideways. Then lift the plaster off the master in +Y.
 
 Every surface that molds plaster is SKIN thick (1.2 mm = 3 lines at 0.4 mm), so the master flexes
 away from the set plaster instead of holding it rigidly, and prints with little filament:
@@ -15,7 +18,7 @@ away from the set plaster instead of holding it rigidly, and prints with little 
     of the plate, and the body's is open at both ends (the cottle end walls close them).
   - the parting face is a SKIN plate over a void, on 45 degree diagonal SKIN ribs (printable both
     upright and flat); each dimple is a SKIN cup. The bosses stay solid; they are tiny.
-  - the cottle walls are SKIN thick. Fins and clips are not molding surfaces and stay thicker.
+  - the cottle walls are SKIN thick. Fins, clips, rails and locks are not molding surfaces and stay thicker.
 
   body_master     half of body_positive. Cast it twice: two casts from one master mate after a
                   180 degree turn about the mug axis. Bosses on -X, dimples on +X. The socket and
@@ -26,8 +29,8 @@ away from the set plaster instead of holding it rigidly, and prints with little 
                   a second cast turned 180 degrees about mid-height mates with the first. Bosses
                   above mid-height, dimples at the mirrored spots below. The pour cups meet the -X
                   side wall, so they come out open.
-  handle_cottle   one U-half for the handle; print two.
-  handle_clip     fin clip for the handle cottle; print two.
+  handle_cottle   one U-wall for the handle; print two.
+  handle_lock     C-channel lock over the end-wall rails; print two.
   plug_floor      floor disc with the dish pit; the plug is cast dish-down on it. A SKIN pit on
                   concentric SKIN rings, open underneath, with a 45 degree chamfer round its rim.
   plug_ring       half of the ring that walls the plug; print two. Like the Old Forge foot insert:
@@ -43,7 +46,7 @@ Print (STLs carry no settings; set them per object):
                        terraces). Foot cone overhang 51 degrees from vertical. No supports.
   handle_master_PRINT  back plate (the open side) on the bed, adaptive or 0.12 mm layers over the
                        handle. The hollow's crown is a 4.6 mm radius arch; no supports.
-  *_cottle_PRINT, *_clip_PRINT   on their table edge, 0.2 mm.
+  *_cottle_PRINT, *_clip_PRINT, handle_lock_PRINT   on their table edge or end, 0.2 mm.
   plug_floor_PRINT     flat side down, 0.12 mm (its pit forms the foot dish).
   plug_ring_PRINT      flange down, 0.2 mm. The seat and V-ridge are 45 degrees; no supports.
 
@@ -65,6 +68,9 @@ FIT = 0.15        # cottle wall to plate edge
 FIN, FIN_T = 8.0, 3.0                     # fin reach out from the wall, fin thickness
 CLIP_W, CLIP_FIT = 2.5, 0.1               # clip wall, clip-to-fin gap per side (snug pinch)
 RIB_PITCH = 25.0                          # diagonal rib spacing behind the parting-face skin
+RAIL_STEM, RAIL_HEAD = 2.5, 2.5           # handle wall T-rail: stem width per half, head reach past it
+RAIL_GAP, RAIL_T = 2.5, 2.5               # stem length out from the end wall, head thickness
+LOCK_W, LOCK_FIT = 2.0, 0.15              # lock channel wall, slide gap per side
 
 
 def box(x0, x1, y0, y1, z0, z1):
@@ -173,6 +179,40 @@ def cottle(x0, x1, z0, z1, depth, plate, wall):
     return u, clip
 
 
+def locked_cottle(x0, x1, z0, z1, depth, plate, wall):
+    """Old Forge handle-mould walls for plaster space x in [x0, x1], z in [z0, z1]: a U-half is the
+    x0 side wall plus the x0 half of both end walls. The halves meet at mid-width on the end walls,
+    where each ends in a T-rail on the outside; a C-channel lock slides down over each pair of rails,
+    so the walls cannot spread. The other half is the same part turned 180 degrees about the
+    vertical (Y) axis through the middle. Returns the U-half and the lock (in place at the z0 end)."""
+    xm, zm = (x0 + x1) / 2, (z0 + z1) / 2
+    y0, y1 = -plate, depth
+    xi0, xo0 = x0 - FIT, x0 - FIT - wall
+    ze0, ze1 = z0 - FIT - wall, z1 + FIT + wall    # end wall outer faces
+    rail = box(xm - RAIL_STEM, xm, y0, y1, ze0 - RAIL_GAP, ze0).fuse(
+        box(xm - RAIL_STEM - RAIL_HEAD, xm, y0, y1, ze0 - RAIL_GAP - RAIL_T, ze0 - RAIL_GAP))
+    u = box(xo0, xi0, y0, y1, ze0, ze1).fuse(
+        box(xo0, xm, y0, y1, ze0, z0 - FIT), box(xo0, xm, y0, y1, z1 + FIT, ze1),
+        rail, mirror(rail, about=Plane.XY.offset(zm)))
+    other = Pos(xm, 0, zm) * Rot(0, 180, 0) * Pos(-xm, 0, -zm) * u
+    hw, g = RAIL_STEM + RAIL_HEAD + LOCK_FIT, LOCK_FIT
+    lock = box(xm - hw - LOCK_W, xm + hw + LOCK_W, y0, y1, ze0 - RAIL_GAP - RAIL_T - g - LOCK_W, ze0 - g) \
+        - box(xm - hw, xm + hw, y0 - 1, y1 + 1, ze0 - RAIL_GAP - RAIL_T - g, ze0 - RAIL_GAP + g) \
+        - box(xm - RAIL_STEM - g, xm + RAIL_STEM + g, y0 - 1, y1 + 1, ze0 - RAIL_GAP, ze0)
+    vol = lambda a, b: (lambda c: c.volume if c else 0.0)(a & b)
+    overlap = vol(u, other) + vol(lock, u) + vol(lock, other)
+    yc = depth / 2
+    closed = (u.is_inside((x0 - FIT - wall / 2, yc, z0 - FIT - wall / 2))      # corner
+              and u.is_inside((xm - 0.5, yc, z0 - FIT - wall / 2))            # end wall reaches the joint
+              and other.is_inside((xm + 0.5, yc, z0 - FIT - wall / 2)))
+    behind = ze0 - RAIL_GAP / 2                                                # lip between head and wall
+    captured = all(lock.is_inside((xm + s * (RAIL_STEM + RAIL_HEAD / 2), yc, behind)) for s in (-1, 1))
+    print(f"  walls/locks overlap {overlap:.2f} mm3 (want 0), closed at corner and joint: {closed}, "
+          f"lock lips behind both rail heads: {captured}")
+    assert closed and captured and overlap < 0.01
+    return u, lock
+
+
 def plug_mold():
     """Floor disc, ring half and clip, in the flipped frame (floor on the table at z = 0, plug
     dish-down on it). The ring half is the y >= 0 half with a fin at each end, on its own side of
@@ -273,7 +313,7 @@ def main():
         ((mp.HANDLE_CX, 2.0, zc + mp.HANDLE_R - mp.HANDLE_W / 2), (0, 0, 1)),  # inner side, top arm
         ((cell_x((hx0 + hx1) / 2, -1), 0, (hz0 + hz1) / 2), (0, -1, 0))])      # parting face, inside the loop
     print("handle cottle:")
-    handle_u, handle_clip = cottle(hx0, hx1, hz0, hz1, hdepth, T, SKIN)
+    handle_u, handle_lock = locked_cottle(hx0, hx1, hz0, hz1, hdepth, T, SKIN)
     print(f"handle plaster space {hx1-hx0:.1f} x {hdepth:.1f} x {hz1-hz0:.1f} mm, "
           f"~{((hx1-hx0)*hdepth*(hz1-hz0) - hhalf.volume)/1e6:.2f} L per half (one master, cast twice)")
     # the skin's rim reaches the cottle wall plane at each opening, so plaster cannot get behind it
@@ -291,7 +331,7 @@ def main():
     save_print("body_clip", body_clip, flat)
     save_print("handle_master", handle_master, flat)
     save_print("handle_cottle", handle_u, flat)
-    save_print("handle_clip", handle_clip, flat)
+    save_print("handle_lock", handle_lock, flat)   # standing on its end: the lips print without overhang
 
     # ---------------- plug ----------------
     plug_floor, plug_ring, plug_clip = plug_mold()
