@@ -1,0 +1,76 @@
+---
+title: clay tube die — caulk gun extruder
+created: 2026-11-01
+updated: 2026-11-01
+folder: 40
+type: project
+status: active
+importance: 3
+tags: [making, ceramics, 3d-printing, build123d]
+ai-assisted: true
+schema-version: 1.0
+---
+
+# clay tube die
+
+a 3d-printed die that drops into my caulk gun's endcap and extrudes a hollow clay tube: **35 mm OD / 29 mm ID** (3 mm wall).
+
+## done when
+
+- a printed die extrudes a continuous tube with no visible seam lines from the spider arms
+- the wall comes out even all the way around
+
+## fixed dimensions
+
+| what | value |
+|---|---|
+| cap inside diameter | 60.5 mm (calipers) |
+| cap end-wall opening | 37 mm |
+| tube OD / ID | 35 / 29 mm |
+| barrel fit | body at 50.5 mm OD, from fit rings (49.5 very loose, 51.5 slightly too big) |
+
+## how it works
+
+z = 0 is the exit face. it sits against the cap's end wall, and the rest of the die points upstream into the barrel.
+
+- **flange** (58.4 mm OD × 4 mm, 0.8 mm chamfer on the bed-side edge): drops into the cap. clay pressure pushes it against the end wall, so it doesn't need clamping. it just has to be thinner than the gap between the barrel rim and the cap wall when the cap is screwed on.
+- **body** (50.5 mm OD): reaches up into the barrel and holds the inlet.
+- **inlet → flare**: the opening is 46.5 mm across with a chamfered rim. the outer wall then eases down to 35 mm along an S-curve (z 24 → 10).
+- **spider**: 3 teardrop-section arms (z 26–40) hold the mandrel. the round nose at the top splits the clay. the long taper underneath ends in a 0.4 mm tip, which lets the clay re-knit and also prints without supports.
+- **mandrel**: 29 mm cylinder through the land and flare, then a cone to a point at z 48 (it pokes 6 mm above the inlet). the arms join it on the cone.
+- **land** (z 0–10): straight 35/29 annulus that sets the tube size.
+
+the open area drops steadily from about 1400 mm² at the arms to 302 mm² at the exit. it never widens again, so the clay is squeezed the whole way. that's what welds the three streams back together after the arms. the clay has 26 mm to re-knit between the arm tails and the exit.
+
+## printing
+
+print it upright with the exit face on the bed. no supports needed: the mandrel and the outer wall both start on the bed, the flare only narrows going down, and the arm undersides are a steep taper.
+
+- the 37 mm opening gives the tube 1 mm of clearance per side past the cap wall
+- the arms are 3 mm thick. if they flex or snap, go to 4 mm (`ARM_W`)
+
+## files
+
+- `make_die.py` — parametric build123d source. everything is a constant at the top
+- `clay_tube_die.step` — CAD exchange
+- `clay_tube_die.stl` — print file (gitignored, regenerate with the script)
+- `fit_test.py` → `fit_flange.stl`, `fit_body.stl`: thin fit rings at the current flange and body ODs. print these before the full die
+
+```bash
+# reuses the build123d 0.13 venv from the mug project
+../choochoomug-14oz/.venv/bin/python make_die.py
+```
+
+## log
+
+- **v1 (2026-11-01)**: printed. the body (53.0 OD) just barely wouldn't enter the barrel. the flange (59.4 OD) needed thread leverage to seat in the cap and probably can't come out without breaking. likely cause: elephant's foot on the bed-side flange plus a tight cap bore. the exit ring looks right. the 3 mm wall may make fragile tubes, but that's fine for now: the plan is to fire them upright and hear how they ring when struck.
+- **v2 (2026-11-01)**: body OD 53.0 → 51.5 (inlet 49 → 47.5), flange OD 59.4 → 58.4, added a 0.8 mm chamfer on the flange's bed edge. tube geometry unchanged. superseded before printing.
+- **v3 (2026-11-01)**: calipers: barrel ID 50.5, cap ID 60.5. body OD → 49.5 (inlet 45.5), flange stays 58.4 (2.1 mm under the cap ID, since 1.1 mm was a press fit). tube geometry unchanged.
+- **fit tests (2026-11-01)**: the 58.4 flange ring fits the cap well. the 49.5 body ring was very loose, so the caliper reading was probably off.
+- **v4 (2026-11-01)**: body OD → 51.5 (inlet 47.5), same as v2. flange stays 58.4. tube geometry unchanged.
+- **v5 (2026-11-01)**: the 51.5 fit ring was slightly too big. body OD → 50.5 (inlet 46.5), splitting the difference. fit ring confirmed good. printing the full die.
+
+## open questions
+
+- [ ] measure the gap between the barrel rim and the cap wall with the cap screwed on. `FLANGE_T` (4 mm) has to fit in it
+- [ ] the arm roots aren't filleted: OCC wouldn't fillet those junctions at any radius tried. if clay hangs up there or the arms crack, add fillets in the slicer/CAD, or thicken the arms
