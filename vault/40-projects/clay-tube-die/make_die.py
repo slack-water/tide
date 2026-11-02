@@ -36,17 +36,19 @@ FLANGE_OD = CAP_ID - FIT
 FLANGE_T = 4.0                # must be <= gap between barrel rim and cap wall
 BODY_OD = BARREL_ID - 1.0     # upstream body slides into the barrel
 FLANGE_CHAMFER = 0.8          # bottom edge: eats elephant's foot, leads into the cap
-WALL = 2.0                    # body wall at the inlet
-BODY_H = 42.0                 # total height, exit face to inlet rim
+WALL = 3.0                    # body wall at the inlet and spider roots. v6: 2 → 3 (v5 arms tore off the wall)
+BODY_H = 54.0                 # total height, exit face to inlet rim (v6: 42 → 54 for longer arms)
 
 LAND = 10.0                   # parallel section at the exit
 FLARE_TOP = 24.0              # outer wall reaches inlet radius here
-ARM_Z0, ARM_Z1 = 26.0, 40.0   # spider arms: trailing (bottom) to leading (top) edge
+ARM_Z0, ARM_Z1 = 26.0, 50.0   # spider arms: trailing (bottom) to leading (top) edge.
+                              # v6: 14 → 24 mm chord (v5 arms bent and tore at both roots)
 N_ARMS = 3
-ARM_W = 3.0                   # arm thickness (tangential)
+ARM_W = 5.0                   # arm thickness (tangential). v6: 3 → 5
 
-MANDREL_CONE_Z0 = 24.0        # mandrel is cylindrical through the land and flare…
-MANDREL_TIP_Z = 48.0          # …then cones to a point, so the arms root on the cone
+MANDREL_CONE_Z0 = ARM_Z1 - 2  # mandrel stays a full 29 mm cylinder through the arms
+                              # (v5 rooted them on the thin cone, where they hinged)…
+MANDREL_TIP_Z = MANDREL_CONE_Z0 + 16.0  # …then cones to a point above them
 
 R_OUT = TUBE_OD / 2
 R_MAN = TUBE_ID / 2
@@ -56,6 +58,7 @@ R_BODY = BODY_OD / 2
 assert TUBE_OD < CAP_OPENING, "tube must pass the cap opening"
 assert BODY_OD < FLANGE_OD
 assert R_IN > R_OUT
+assert BODY_H - 1.6 > ARM_Z1, "arms must root in the straight part of the body wall"
 
 
 def channel() -> Part:
