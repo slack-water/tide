@@ -1,7 +1,7 @@
 ---
 title: clay tube die — caulk gun extruder
 created: 2026-11-01
-updated: 2026-11-01
+updated: 2026-11-02
 folder: 40
 type: project
 status: active
@@ -71,8 +71,11 @@ print it upright with the exit face on the bed. no supports needed: the mandrel 
 - **v5 (2026-11-01)**: the 51.5 fit ring was slightly too big. body OD → 50.5 (inlet 46.5), splitting the difference. fit ring confirmed good. printing the full die.
 - **v5 extrusion test (2026-11-01)**: failed. stiff clay. all three arms tore off the outer wall and bent nearly 90° at the mandrel joint, and the mandrel came out with the clay. rough load: 0.5–1 MPa barrel pressure on the mandrel's ~660 mm² projected area, so 300–700 N on the spider. the arms were 3 mm thick with a 14 mm chord, mostly thin taper, rooted on the thin part of the cone. tearing at both roots means the arms failed in bending.
 - **v6 (2026-11-01)**: stronger spider, tube geometry unchanged. arm chord 14 → 24 mm (z 26–50), `ARM_W` 3 → 5 mm, mandrel stays a full 29 mm cylinder through the arms (cone starts at z 48, tip at z 64). arm span drops from ~14 to 8.75 mm. roughly 8× stronger in bending. `BODY_H` 42 → 54, so the die takes ~12 mm more of the barrel. still 3 arms (each one is a seam), and the arm tails stay at z 26, so the clay still has 26 mm to re-knit. `WALL` 2 → 3 mm (inlet 46.5 → 44.5), because the v5 arms tore off a 2 mm wall. v5 was PETG at 0.28 mm layers, 15% grid infill. PETG explains the bending instead of snapping. next test: slightly softer clay.
+- **v5 printed (2026-11-02)**: 100% infill. extrudes clean tubes with slightly softer clay, but they curve to one side as they leave the nozzle. not yet known if it's the die (off-center mandrel), the feed (tilted seat, uneven slug), or gravity sag. next: rotate the die in the cap and check whether the curve follows it, and caliper the wall around a cut slice.
 
 ## open questions
 
+- [ ] why do the tubes curve? rotation test + wall-thickness check. if the mandrel is off-center: tape on the fast side as a test, then v6 with `ARM_W` 4. keep `LAND` at 10: a longer land roughly doubles its share of the extrusion force
+- [ ] extruding takes a hard crank on the 18:1 gun. at 0.5 MPa the ~2000 mm² plunger already needs ~1000 N, so this is mostly physics. free fixes first: oil the barrel, land and mandrel; load half-barrel slugs; sand the land (the layer lines run across the flow). for v6, a 4 mm wall cuts the land's share of the force by about a quarter and makes stronger tubes. if it's still hard, a cordless caulk gun beats a 26:1 (only ~44% more force, more pumps), since steady flow also helps straightness. any new gun has to take the 50.5 mm barrel and 60.5 mm cap, or the die needs a new fit
 - [ ] measure the gap between the barrel rim and the cap wall with the cap screwed on. `FLANGE_T` (4 mm) has to fit in it
 - [ ] the arm roots aren't filleted: OCC wouldn't fillet those junctions at any radius tried. if v6 cracks there, the next steps are 4 arms, then a steel cross-pin through the arms and mandrel
