@@ -7,7 +7,7 @@ orientation: exit face on the bed, no supports.
 layout, bottom to top:
   flange    z 0..FLANGE_T     drops into the cap (60 mm ID), clay pressure
                               seats it against the cap's end wall
-  land      z 0..LAND         parallel annulus that sets the tube: 35 OD / 29 ID
+  land      z 0..LAND         parallel annulus that sets the tube: 35 OD / 27 ID
   flare     z LAND..FLARE_TOP outer wall eases out to the inlet radius (S-curve)
   spider    z ARM_Z0..ARM_Z1  3 arms hold the mandrel; pointed top splits the
                               clay, knife-edge bottom lets it re-knit
@@ -28,7 +28,7 @@ BARREL_ID = 51.5     # effective, from fit rings: 49.5 very loose, 51.5 slightly
 
 # --- tube ---------------------------------------------------------------------
 TUBE_OD = 35.0
-TUBE_ID = 29.0
+TUBE_ID = 27.0                # v7: 29 → 27 for a 4 mm tube wall (OD capped by the 37 mm cap opening)
 
 # --- die ----------------------------------------------------------------------
 FIT = 2.1                     # diametral clearance in the cap (v1 at 1.1 was a press fit)
@@ -36,6 +36,7 @@ FLANGE_OD = CAP_ID - FIT
 FLANGE_T = 4.0                # must be <= gap between barrel rim and cap wall
 BODY_OD = BARREL_ID - 1.0     # upstream body slides into the barrel
 FLANGE_CHAMFER = 0.8          # bottom edge: eats elephant's foot, leads into the cap
+EXIT_CHAMFER = 0.6            # 45° on the exit bore and mandrel bed edges, against elephant's foot
 WALL = 3.0                    # body wall at the inlet and spider roots. v6: 2 → 3 (v5 arms tore off the wall)
 BODY_H = 54.0                 # total height, exit face to inlet rim (v6: 42 → 54 for longer arms)
 
@@ -46,7 +47,7 @@ ARM_Z0, ARM_Z1 = 26.0, 50.0   # spider arms: trailing (bottom) to leading (top) 
 N_ARMS = 3
 ARM_W = 5.0                   # arm thickness (tangential). v6: 3 → 5
 
-MANDREL_CONE_Z0 = ARM_Z1 - 2  # mandrel stays a full 29 mm cylinder through the arms
+MANDREL_CONE_Z0 = ARM_Z1 - 2  # mandrel stays a full-diameter cylinder through the arms
                               # (v5 rooted them on the thin cone, where they hinged)…
 MANDREL_TIP_Z = MANDREL_CONE_Z0 + 16.0  # …then cones to a point above them
 
@@ -58,12 +59,14 @@ R_BODY = BODY_OD / 2
 assert TUBE_OD < CAP_OPENING, "tube must pass the cap opening"
 assert BODY_OD < FLANGE_OD
 assert R_IN > R_OUT
+assert R_OUT + EXIT_CHAMFER < FLANGE_OD / 2 - FLANGE_CHAMFER
 assert BODY_H - 1.6 > ARM_Z1, "arms must root in the straight part of the body wall"
 
 
 def channel() -> Part:
     """the outer flow boundary, as a solid of revolution to subtract."""
-    pts_bottom = [(0, -1), (R_OUT, -1), (R_OUT, LAND)]
+    c = EXIT_CHAMFER
+    pts_bottom = [(0, -1), (R_OUT + c + 1, -1), (R_OUT, c), (R_OUT, LAND)]  # 45° bore chamfer
     flare = Spline((R_OUT, 0, LAND), (R_IN, 0, FLARE_TOP),
                    tangents=[(0, 0, 1), (0, 0, 1)])
     pts_top = [(R_IN, FLARE_TOP), (R_IN, BODY_H - 1.6), (R_BODY - 0.2, BODY_H),
@@ -83,6 +86,8 @@ def channel() -> Part:
 
 def mandrel() -> Part:
     cyl = Pos(0, 0, MANDREL_CONE_Z0 / 2) * Cylinder(R_MAN, MANDREL_CONE_Z0)
+    foot = cyl.edges().filter_by(lambda e: e.center().Z < 0.01)
+    cyl = chamfer(foot, EXIT_CHAMFER)
     h = MANDREL_TIP_Z - MANDREL_CONE_Z0
     cone = Pos(0, 0, MANDREL_CONE_Z0 + h / 2) * Cone(R_MAN, 0.01, h)
     return cyl + cone

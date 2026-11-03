@@ -1,7 +1,7 @@
 ---
 title: clay tube die — caulk gun extruder
 created: 2026-11-01
-updated: 2026-11-02
+updated: 2026-11-03
 folder: 40
 type: project
 status: active
@@ -13,7 +13,7 @@ schema-version: 1.0
 
 # clay tube die
 
-a 3d-printed die that drops into my caulk gun's endcap and extrudes a hollow clay tube: **35 mm OD / 29 mm ID** (3 mm wall).
+a 3d-printed die that drops into my caulk gun's endcap and extrudes a hollow clay tube: **35 mm OD / 27 mm ID** (4 mm wall).
 
 ## done when
 
@@ -26,7 +26,7 @@ a 3d-printed die that drops into my caulk gun's endcap and extrudes a hollow cla
 |---|---|
 | cap inside diameter | 60.5 mm (calipers) |
 | cap end-wall opening | 37 mm |
-| tube OD / ID | 35 / 29 mm |
+| tube OD / ID | 35 / 27 mm (OD can't grow: the cap opening is 37) |
 | barrel fit | body at 50.5 mm OD, from fit rings (49.5 very loose, 51.5 slightly too big) |
 
 ## how it works
@@ -37,10 +37,10 @@ z = 0 is the exit face. it sits against the cap's end wall, and the rest of the 
 - **body** (50.5 mm OD): reaches up into the barrel and holds the inlet.
 - **inlet → flare**: the opening is 44.5 mm across with a chamfered rim. the outer wall then eases down to 35 mm along an S-curve (z 24 → 10).
 - **spider**: 3 teardrop-section arms (z 26–50, 5 mm thick) hold the mandrel. the round nose at the top splits the clay. the long taper underneath ends in a 0.4 mm tip, which lets the clay re-knit and also prints without supports.
-- **mandrel**: 29 mm cylinder through the land, flare, and spider, then a cone to a point at z 64 (it pokes 10 mm above the inlet). the arms join the full-diameter cylinder, not the cone.
-- **land** (z 0–10): straight 35/29 annulus that sets the tube size.
+- **mandrel**: 27 mm cylinder through the land, flare, and spider, then a cone to a point at z 64 (it pokes 10 mm above the inlet). the arms join the full-diameter cylinder, not the cone.
+- **land** (z 0–10): straight 35/27 annulus that sets the tube size. the exit bore and the mandrel foot each have a 0.6 mm 45° chamfer on the bed edge, so elephant's foot can't pinch the tube wall at the lip.
 
-the open area drops steadily from about 1400 mm² at the inlet, through about 800 mm² between the arms, to 302 mm² at the exit. it never widens again, so the clay is squeezed the whole way. that's what welds the three streams back together after the arms. the clay has 26 mm to re-knit between the arm tails and the exit.
+the open area drops steadily from about 1400 mm² at the inlet, through about 850 mm² between the arms, to 390 mm² at the exit. it never widens again, so the clay is squeezed the whole way. that's what welds the three streams back together after the arms. the clay has 26 mm to re-knit between the arm tails and the exit.
 
 ## printing
 
@@ -72,10 +72,11 @@ print it upright with the exit face on the bed. no supports needed: the mandrel 
 - **v5 extrusion test (2026-11-01)**: failed. stiff clay. all three arms tore off the outer wall and bent nearly 90° at the mandrel joint, and the mandrel came out with the clay. rough load: 0.5–1 MPa barrel pressure on the mandrel's ~660 mm² projected area, so 300–700 N on the spider. the arms were 3 mm thick with a 14 mm chord, mostly thin taper, rooted on the thin part of the cone. tearing at both roots means the arms failed in bending.
 - **v6 (2026-11-01)**: stronger spider, tube geometry unchanged. arm chord 14 → 24 mm (z 26–50), `ARM_W` 3 → 5 mm, mandrel stays a full 29 mm cylinder through the arms (cone starts at z 48, tip at z 64). arm span drops from ~14 to 8.75 mm. roughly 8× stronger in bending. `BODY_H` 42 → 54, so the die takes ~12 mm more of the barrel. still 3 arms (each one is a seam), and the arm tails stay at z 26, so the clay still has 26 mm to re-knit. `WALL` 2 → 3 mm (inlet 46.5 → 44.5), because the v5 arms tore off a 2 mm wall. v5 was PETG at 0.28 mm layers, 15% grid infill. PETG explains the bending instead of snapping. next test: slightly softer clay.
 - **v5 printed (2026-11-02)**: 100% infill. extrudes clean tubes with slightly softer clay, but they curve to one side as they leave the nozzle. not yet known if it's the die (off-center mandrel), the feed (tilted seat, uneven slug), or gravity sag. next: rotate the die in the cap and check whether the curve follows it, and caliper the wall around a cut slice.
+- **v7 (2026-11-03)**: tube wall 3 → 4 mm for stronger tubes and less land drag. `TUBE_ID` 29 → 27, so the mandrel is 27 mm. the OD stays 35 because the cap's 37 mm opening caps it. keeps all the v6 spider changes (v6 was never printed). exit area 302 → 390 mm², so the squeeze from between the arms to the exit drops from ~2.6× to ~2.2×: watch for arm seams. the arm span grows by 1 mm, but the mandrel carries ~13% less load (573 vs 661 mm² projected), so the spider's strength is about the same. added a 0.6 mm 45° chamfer (`EXIT_CHAMFER`) on the exit bore and mandrel bed edges against elephant's foot. the flange edge already had 0.8 mm.
 
 ## open questions
 
-- [ ] why do the tubes curve? rotation test + wall-thickness check. if the mandrel is off-center: tape on the fast side as a test, then v6 with `ARM_W` 4. keep `LAND` at 10: a longer land roughly doubles its share of the extrusion force
-- [ ] extruding takes a hard crank on the 18:1 gun. at 0.5 MPa the ~2000 mm² plunger already needs ~1000 N, so this is mostly physics. free fixes first: oil the barrel, land and mandrel; load half-barrel slugs; sand the land (the layer lines run across the flow). for v6, a 4 mm wall cuts the land's share of the force by about a quarter and makes stronger tubes. if it's still hard, a cordless caulk gun beats a 26:1 (only ~44% more force, more pumps), since steady flow also helps straightness. any new gun has to take the 50.5 mm barrel and 60.5 mm cap, or the die needs a new fit
+- [ ] why do the tubes curve? rotation test + wall-thickness check. if the mandrel is off-center: tape on the fast side as a test, then correct it in the next version. keep `LAND` at 10: a longer land roughly doubles its share of the extrusion force
+- [ ] extruding takes a hard crank on the 18:1 gun. at 0.5 MPa the ~2000 mm² plunger already needs ~1000 N, so this is mostly physics. free fixes first: oil the barrel, land and mandrel; load half-barrel slugs; sand the land (the layer lines run across the flow). v7's 4 mm wall should cut the land's share of the force by about a quarter. next test: lubricate more generously when using it and see how much the effort drops. if it's still hard, a mechanical extruder is on the table. a cordless caulk gun beats a 26:1 (only ~44% more force, more pumps), since steady flow also helps straightness. any new gun has to take the 50.5 mm barrel and 60.5 mm cap, or the die needs a new fit
 - [ ] measure the gap between the barrel rim and the cap wall with the cap screwed on. `FLANGE_T` (4 mm) has to fit in it
 - [ ] the arm roots aren't filleted: OCC wouldn't fillet those junctions at any radius tried. if v6 cracks there, the next steps are 4 arms, then a steel cross-pin through the arms and mandrel
