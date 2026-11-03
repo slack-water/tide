@@ -1,7 +1,7 @@
 ---
 title: clay tube die — caulk gun extruder
 created: 2026-11-01
-updated: 2026-11-01
+updated: 2026-11-02
 folder: 40
 type: project
 status: active
@@ -69,8 +69,11 @@ print it upright with the exit face on the bed. no supports needed: the mandrel 
 - **fit tests (2026-11-01)**: the 58.4 flange ring fits the cap well. the 49.5 body ring was very loose, so the caliper reading was probably off.
 - **v4 (2026-11-01)**: body OD → 51.5 (inlet 47.5), same as v2. flange stays 58.4. tube geometry unchanged.
 - **v5 (2026-11-01)**: the 51.5 fit ring was slightly too big. body OD → 50.5 (inlet 46.5), splitting the difference. fit ring confirmed good. printing the full die.
+- **v5 printed (2026-11-02)**: 100% infill. extrudes clean tubes with slightly softer clay, but they curve to one side as they leave the nozzle. not yet known if it's the die (off-center mandrel), the feed (tilted seat, uneven slug), or gravity sag. next: rotate the die in the cap and check whether the curve follows it, and caliper the wall around a cut slice.
 
 ## open questions
 
+- [ ] why do the tubes curve? rotation test + wall-thickness check. if the mandrel is off-center: tape on the fast side as a test, then v6 with `ARM_W` 4. keep `LAND` at 10: a longer land roughly doubles its share of the extrusion force
+- [ ] extruding takes a hard crank on the 18:1 gun. at 0.5 MPa the ~2000 mm² plunger already needs ~1000 N, so this is mostly physics. free fixes first: oil the barrel, land and mandrel; load half-barrel slugs; sand the land (the layer lines run across the flow). for v6, a 4 mm wall cuts the land's share of the force by about a quarter and makes stronger tubes. if it's still hard, a cordless caulk gun beats a 26:1 (only ~44% more force, more pumps), since steady flow also helps straightness. any new gun has to take the 50.5 mm barrel and 60.5 mm cap, or the die needs a new fit
 - [ ] measure the gap between the barrel rim and the cap wall with the cap screwed on. `FLANGE_T` (4 mm) has to fit in it
 - [ ] the arm roots aren't filleted: OCC wouldn't fillet those junctions at any radius tried. if clay hangs up there or the arms crack, add fillets in the slicer/CAD, or thicken the arms
