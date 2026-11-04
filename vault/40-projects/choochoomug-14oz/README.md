@@ -1,7 +1,7 @@
 ---
 title: Choochoo Mug, 14 oz (Plaster Mold Masters)
 created: 2026-10-11
-updated: 2026-11-03
+updated: 2026-11-04
 folder: 40
 type: project
 status: active
@@ -21,7 +21,7 @@ A mug with a recessed foot that holds 14 oz fired (the first version held 11.95 
 ## Scope
 
 **In:** uniform rescale. The handle split off the body. A body mold: two side halves, a grooved foot plug, and a plaster reservoir collar. A handle mold: two halves with sprues and pour cups. Printed masters with molded-in keys. The body's halves are poured at once from two masters paired back to back in a plywood box with printed end caps. The handle has a detachable printed cottle (U-walls with lock bars). Every printed molding surface 1.2 mm thick. A README and scripts that build all of it as exact build123d geometry.
-**Out:** shelling the model, a general mold generator, new handle geometry (the choochoo handle stays), a printed funnel. Anything else goes in the inbox.
+**Out:** shelling the model, a general mold generator, new handle geometry (the choochoo handle stays, apart from a 2° release draft on its inner and outer faces), a printed funnel. Anything else goes in the inbox.
 
 ## Done looks like
 
@@ -82,6 +82,8 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 - **Keys moved out to 15 mm of plaster.** The keys had about 6.5 mm of plaster between them and the cavity, and the same to the outer face, which is thin enough to chip. A new `--side` (default 42) sets the side margin on its own; the margin behind the positive (`--margin`) stays 25. It costs plaster: 1.79 L per half (was 1.36), 3.58 L per pour.
 - **Demold:** strip the plywood and caps, pull the pair apart at the backs, then release each master from its own plaster exactly as before.
 
+**Handle draft, 2° (2026-11-04).** The thin skin releases the body well, but it does not flex enough on the handle. The handle's inner and outer faces were 0° (parallel to the pull) for 5.8 mm either side of the parting plane, and a 1.2 mm skin on a 5.8 mm radius is nearly as stiff as solid plastic, so thickness was never going to fix it. Those faces now lean in 2° from the parting plane. The handle keeps its full 11.54 mm width at the parting plane and its 23.08 mm thickness. The flats narrow to 11.11 mm where they meet the end arcs, and the arcs shrink from r 5.77 to r 5.56 so they stay tangent. That is at most about 0.2 mm a side, gone in fettling, and the volume drops from 38.5 to 37.8 cm³. The sprues and pour cups get the same draft, so the swept section stays continuous. The checks still compare the undrafted handle with the Fusion STEP (an exact match), then probe the drafted faces. I chose 2° over 1° for more release margin.
+
 **Handle walls with lock bars (2026-10-30).** The handle cottle now follows the Old Forge D-handle kit instead of the body's. Each U-wall is one side wall plus the matching half of both end walls (the other is the same part turned 180°). The walls meet at mid-width on the end walls, where each ends in a T-rail, and a C-channel lock slides down over each pair of rails for the full height. A friction clip on flat fins can creep off as the plaster pushes outward; the lock interlocks with the rails, so the walls cannot spread. The pour cups now face a plain side wall with no joint in it. Demold: slide the locks up, pull each wall straight off in ±X (the side wall leaves its face; the end-wall halves slide along theirs), then lift the plaster off. The body and plug keep their fins and clips.
 
 - The U-halves stand on the table beside the plate rather than hooking under it, so the plate lies flat under the plaster's weight.
@@ -91,7 +93,7 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 **1.2 mm skins on every molding surface (2026-10-27, third pass).** A solid master holds the set plaster rigidly. A 1.2 mm skin (three 0.4 mm lines) flexes inward as you pull, and it uses a fraction of the filament: the body master is 50 cm³ instead of 744, the handle master 23 instead of 83.
 
 - **Body hollow:** the positive's profile, offset 1.2 mm inward and revolved. The offset is exact: OCC's 2D offset fails on this profile, because the 0.525 mm rim round collapses under a 1.2 mm offset. So the hollow is the region inside the profile minus a 1.2 mm "sausage" (Minkowski sum with a disc) around each edge. It runs out through the plate back and is open at both ends, where the end caps (body) close it. Standing upright, the print then has no roof to bridge.
-- **Handle hollow:** a stadium 1.2 mm smaller, swept along the same path. A stadium's exact offset is a stadium. The pour-cup hollows are inset 1.2 / cos(flare), so the flared walls are 1.2 mm thick too.
+- **Handle hollow:** a drafted stadium 1.2 mm smaller, swept along the same path. A drafted stadium's exact offset is a drafted stadium: the end arcs keep their centres and the flats move in 1.2 / cos(2°). The pour-cup hollows are inset 1.2 / cos(flare), so the flared walls are 1.2 mm thick too.
 - **Parting face:** a 1.2 mm skin over a void, on 1.2 mm ribs at 45°, 25 mm apart. The ribs print both upright (body) and flat (handle), and they stop at the half's footprint so the shell can still flex. The void is built as disjoint diamond cells, because cutting a crossing grid of ribs out of one void ran OCC out of memory on this 3 GB machine.
 - **Keys:** each dimple is a 1.2 mm cup. The bosses stay solid; they are tiny.
 - **Cottles:** the cottle walls are 1.2 mm thick. Fins, clips, rails and locks mold no plaster, so they stay thicker.
@@ -111,7 +113,7 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 | `plug_ring_PRINT.stl` | Half of the ring around the plug: V-ridge, seat, disc pocket, flange and fins, 109 × 47 × 34 mm | Print two |
 | `plug_clip_PRINT.stl` | Fin clip, 34 mm long | Print two |
 | `body_positive.step` | Body + filled dish + grooved socket + reservoir collar | Source for the body master |
-| `handle_positive.step` | Handle + both sprues and pour cups | Source for the handle master |
+| `handle_positive.step` | Handle (2° draft on its inner and outer faces) + both sprues and pour cups | Source for the handle master |
 | `body.step` | The handleless body | Reference |
 
 STL files are gitignored. Regenerate them with the scripts. The `.step` files are the same parts, for CAD.
@@ -199,7 +201,7 @@ Studied 2026-10-27: Old Forge Creations' "Smooth Tumbler/Mug Mould" (2 sides + b
 - Body master size: 209 mm across the fences. Check it fits the bed before slicing.
 - Upright print: the foot cone overhangs 51° from vertical. If it sags, reprint with slower outer walls, or fill the shelf with a 45° skirt and carve the plaster back.
 - The foot ring is a knife edge by geometry (the underside rises 4.2 mm over 42 mm); trim and sponge it at leather hard.
-- The handle's inner and outer faces have 0° draft for 5.8 mm next to the parting line (cylinders about the handle axis). The 1.2 mm skin is there to flex away; pull gently.
+- The handle's inner and outer faces now have 2° of draft (they had 0° for 5.8 mm next to the parting line). If it still drags, the next step is a TPU handle positive in a rigid PLA plate.
 - Handle joint: cut sprues to fit by hand. If fitting by eye is unreliable, add a printed trimming template (not in scope yet; inbox it).
 - Scope creep: if more than three next actions are active at once, cut back to the smallest version.
 
@@ -208,6 +210,10 @@ Studied 2026-10-27: Old Forge Creations' "Smooth Tumbler/Mug Mould" (2 sides + b
 - [ ] Print two body masters and two end caps. Check the back pins seat (0.15 mm clearance) and the pair sits flat back to back, then stand it in a test groove before building the full plywood box
 
 ## Log
+
+### 2026-11-04
+
+Added a 2° draft to the handle's inner and outer faces, as a drafted stadium swept the same way. It is full width at the parting plane, the flats lean in, and the end arcs stay tangent and still reach the same crown. The hollow is an exact 1.2 mm offset of it. The undrafted handle still matches the Fusion STEP exactly; probes confirm the lean. `handle_positive` and `handle_master` regenerated; nothing else changed. Not printed yet.
 
 ### 2026-11-03
 

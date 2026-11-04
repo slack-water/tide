@@ -8,7 +8,8 @@ Axis = Z, foot ring at Z=0, handle on +X, handle mid-plane = Y=0.
 The body is a revolve: foot cone, a fillet onto the belly, a 3.6 degree wall, a small rim round, a
 flat top, and the dish underneath (a spline; it is neither a circle nor a parabola). The handle is a
 stadium cross-section (11.538 x 23.078) swept around a half circle about an axis parallel to Y at the
-belly; its roots end in the plane x = HANDLE_CX.
+belly; its roots end in the plane x = HANDLE_CX. The positive's inner and outer faces get HANDLE_DRAFT
+(2 degrees) away from the parting plane so the plaster releases; draft=0 is the handle as modelled.
 
   body             the mug without its handle. Reference only.
   body_positive    body + filled dish + grooved socket boss below the foot + reservoir collar on
@@ -28,7 +29,7 @@ from pathlib import Path
 
 from build123d import (Align, Axis, BuildLine, BuildSketch, Circle, Line, Locations, Mode, Plane,
                        Polyline, Pos,
-                       Rectangle, SlotOverall, Spline, ThreePointArc, Transition, Wire,
+                       Rectangle, Spline, ThreePointArc, Transition, Wire,
                        export_step, export_stl, import_step, loft, make_face, mirror,
                        revolve, section, sweep)
 
@@ -65,6 +66,9 @@ COLLAR_H = 30.0       # reservoir height above the rim (~200 mL against 150-200 
 SPRUE_END = 37.0      # sprues end here; this is the handle mold's pour face
 CUP_DEPTH = 10.0      # each sprue flares into a pour cup over its last CUP_DEPTH mm
 CUP_GROW = 5.0        # the cup mouth is this much wider than the sprue on every side
+HANDLE_DRAFT = 2.0    # degrees on the handle's inner and outer faces, away from the parting plane:
+                      # those faces were 0 degrees (parallel to the pull) for 5.8 mm either side of
+                      # Y = 0, and a 1.2 mm skin on a 5.8 mm radius is too stiff to flex free
 RING_CLEAR = 0.3
 DISC_EDGE = 3.0       # floor disc runs this far past the foot ring, under the ring's 45 degree seat
 FLANGE = 2.0          # ring flange the floor disc rests on
@@ -216,11 +220,33 @@ def positive_inner_profile(skin=SKIN):
 
 # ---------------- handle ----------------
 
-def stadium(origin, length, width, half=False):
-    """Stadium in the plane x = origin.x: `length` along Y, `width` along Z. half keeps Y >= 0."""
+def drafted_stadium(length, width, draft):
+    """Local (u, v) points and arcs of a stadium `length` along u with its flat sides `width` apart at
+    u = 0, the flats leaning in at `draft` degrees either side of u = 0 and the end arcs tangent to
+    them, so the ends still reach u = +-length / 2. With draft = 0 it is the plain stadium. An offset
+    of d inward is the same shape with length - 2d and width - 2d / cos(draft): the arcs keep their
+    centres, so the skin stays exactly d thick."""
+    t = math.radians(draft)
+    a, b = length / 2, width / 2
+    rho = (b * math.cos(t) - a * math.sin(t)) / (1 - math.sin(t))   # end arc radius
+    assert rho > 0, "draft too steep for this stadium"
+    uc = a - rho                                                     # end arc centres at u = +-uc
+    tu, tv = uc + rho * math.sin(t), rho * math.cos(t)               # tangent point, +u +v quadrant
+    return a, b, tu, tv
+
+
+def stadium(origin, length, width, half=False, draft=0.0):
+    """Stadium in the plane x = origin.x: `length` along Y, `width` along Z, flats drafted `draft`
+    degrees away from Y = 0 (see drafted_stadium). half keeps Y >= 0."""
     pl = Plane(origin=origin, x_dir=(0, 1, 0), z_dir=(1, 0, 0))
+    a, b, tu, tv = drafted_stadium(length, width, draft)
     with BuildSketch(pl) as s:
-        SlotOverall(length, width)
+        with BuildLine():
+            ThreePointArc((tu, tv), (a, 0), (tu, -tv))
+            Polyline((tu, -tv), (0, -b), (-tu, -tv))
+            ThreePointArc((-tu, -tv), (-a, 0), (-tu, tv))
+            Polyline((-tu, tv), (0, b), (tu, tv))
+        make_face()
         if half:
             Rectangle(length, width + 2, align=(Align.MIN, Align.CENTER), mode=Mode.INTERSECT)
     return s.sketch.face()
@@ -233,27 +259,30 @@ def handle_path(x_end):
                  Line((cx, 0, cz + r), (x_end, 0, cz + r))])
 
 
-def handle_solid(length=HANDLE_L, width=HANDLE_W, cup_inset=0.0, half=False, open_cups=0.0):
+def handle_solid(length=HANDLE_L, width=HANDLE_W, cup_inset=0.0, half=False, open_cups=0.0,
+                 draft=HANDLE_DRAFT):
     """Handle + sprues swept from x = SPRUE_END + CUP_DEPTH, plus a pour cup lofted on each end.
     cup_inset shrinks the cups (on every side) relative to the sweep; open_cups runs them that much
-    past the pour face."""
+    past the pour face. draft = 0 gives the handle as modelled in Fusion."""
     x1 = SPRUE_END + CUP_DEPTH
     zs = (HANDLE_CZ - HANDLE_R, HANDLE_CZ + HANDLE_R)
-    body = sweep(stadium((x1, 0, zs[0]), length, width, half), path=handle_path(x1),
+    body = sweep(stadium((x1, 0, zs[0]), length, width, half, draft), path=handle_path(x1),
                  transition=Transition.RIGHT)
     grow = CUP_GROW * (CUP_DEPTH + open_cups) / CUP_DEPTH
-    cups = [loft([stadium((x1, 0, z), length - 2 * cup_inset, width - 2 * cup_inset, half),
+    cups = [loft([stadium((x1, 0, z), length - 2 * cup_inset, width - 2 * cup_inset, half, draft),
                   stadium((SPRUE_END - open_cups, 0, z), length - 2 * cup_inset + 2 * grow,
-                          width - 2 * cup_inset + 2 * grow, half)]) for z in zs]
+                          width - 2 * cup_inset + 2 * grow, half, draft)]) for z in zs]
     return body.fuse(*cups)
 
 
 def handle_inner(skin=SKIN):
-    """The handle master's hollow: the stadium offset by `skin` (an exact offset of a stadium is a
-    stadium), cups offset by skin / cos(flare) so the flared wall is still `skin` thick, open at the
-    pour face. Full, not half: its lower half runs out through the plate back."""
+    """The handle master's hollow: the stadium offset by `skin` (an exact offset of a drafted stadium
+    is a drafted stadium, width shrinking by skin / cos(draft) a side), cups offset by
+    skin / cos(flare) so the flared wall is still `skin` thick, open at the pour face. Full, not
+    half: its lower half runs out through the plate back."""
     k = 1 / math.cos(math.atan(CUP_GROW / CUP_DEPTH))
-    return handle_solid(HANDLE_L - 2 * skin, HANDLE_W - 2 * skin, cup_inset=skin * (k - 1), open_cups=1.0)
+    w = HANDLE_W - 2 * skin / math.cos(math.radians(HANDLE_DRAFT))
+    return handle_solid(HANDLE_L - 2 * skin, w, cup_inset=skin * (k - 1), open_cups=1.0)
 
 
 # ---------------- plug mold ----------------
@@ -363,13 +392,31 @@ def main():
     body = revolve(body_profile(), Axis.Z)
     body_pos = revolve(positive_profile(), Axis.Z)
     handle_pos = handle_solid()
+    handle_fusion = handle_solid(draft=0.0)
     plug = revolve(plug_profile(), Axis.Z)
 
     # ---- checks ----
     ref = import_step(HERE / "choochoomug-14oz.step")
     compare("body (y > 12, clear of the handle and the Fusion split strip)", body, ref,
             ((-55, 12, -1), (55, 55, 110)))
-    compare_handle(handle_pos, ref)
+    compare_handle(handle_fusion, ref)       # undrafted, as modelled; then report what the draft costs
+    _, _, tu, tv = drafted_stadium(HANDLE_L, HANDLE_W, HANDLE_DRAFT)
+    rho = tv / math.cos(math.radians(HANDLE_DRAFT))
+    print(f"handle draft {HANDLE_DRAFT} degrees on the inner and outer faces: {HANDLE_W:.3f} mm wide at "
+          f"the parting plane, {2 * tv:.3f} where the flats meet the end arcs (|y| = {tu:.2f}); end arcs "
+          f"r {rho:.3f} (was {HANDLE_W / 2:.3f}); volume {handle_pos.volume / 1000:.2f} cm3 "
+          f"(undrafted {handle_fusion.volume / 1000:.2f})")
+    # the draft is there: at the crown of the D (angle 0, radial = +X) the outer and inner faces sit
+    # at W/2 - y tan(draft) from the centre line, at y = 1 and y = 5 (on the flats, clear of the arcs)
+    k = math.tan(math.radians(HANDLE_DRAFT))
+    leans = []
+    for y in (1.0, 5.0):
+        for side in (1, -1):
+            x = HANDLE_CX + HANDLE_R + side * (HANDLE_W / 2 - y * k)
+            leans.append(handle_pos.is_inside((x - side * 0.02, y, HANDLE_CZ))
+                         and not handle_pos.is_inside((x + side * 0.02, y, HANDLE_CZ)))
+    print(f"handle faces lean {HANDLE_DRAFT} degrees at 4 probes (within 0.02 mm): {all(leans)}")
+    assert all(leans)
     print(f"body {body.volume / OZ:.2f} fl oz solid; plug {plug.volume / 1000:.0f} cm3 of plaster; "
           f"reservoir above the rim ~{math.pi * R_COLLAR**2 * (COLLAR_H - COLLAR_STEP) / 1000:.0f} mL")
 

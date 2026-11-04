@@ -340,11 +340,12 @@ def main():
     pairs = [(hb.max.X + 11, 25.0), (62.0, 18.0)]   # boss/dimple pairs: outside the D, inside the loop
     handle_master = master(hhalf, hinner, hx0, hx1, hz0, hz1, T,
                            [(x, zc + d) for x, d in pairs], [(x, zc - d) for x, d in pairs])
-    ro = mp.HANDLE_R + mp.HANDLE_W / 2
+    dy = 2.0 * math.tan(math.radians(mp.HANDLE_DRAFT))   # the drafted faces lean in this much at y = 2
+    ro = mp.HANDLE_R + mp.HANDLE_W / 2 - dy
     skin_probe("handle master", handle_master, [
         ((mp.HANDLE_CX + ro, 2.0, zc), (-1, 0, 0)),                        # outer side of the D
         ((mp.HANDLE_CX + mp.HANDLE_R, mp.HANDLE_L / 2, zc), (0, -1, 0)),   # crown
-        ((mp.HANDLE_CX, 2.0, zc + mp.HANDLE_R - mp.HANDLE_W / 2), (0, 0, 1)),  # inner side, top arm
+        ((mp.HANDLE_CX, 2.0, zc + mp.HANDLE_R - mp.HANDLE_W / 2 + dy), (0, 0, 1)),  # inner side, top arm
         ((cell_x((hx0 + hx1) / 2, -1), 0, (hz0 + hz1) / 2), (0, -1, 0))])      # parting face, inside the loop
     print("handle cottle:")
     handle_u, handle_lock = locked_cottle(hx0, hx1, hz0, hz1, hdepth, T, SKIN)
