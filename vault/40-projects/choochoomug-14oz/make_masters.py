@@ -3,28 +3,33 @@
 from the profiles in make_mold_parts.py.
 
 Each master is a back plate (the parting plane, Y=0) with half a positive and the keys on it.
-The cottle around it comes apart, like the Old Forge tumbler and handle moulds. Body: two identical
-U-halves (one end wall plus half of each side wall) stand on the table around the plate, meet at
-mid-length with fins, and two slide-on clips pinch the fins together; demold by pulling the clips
-and sliding each U off along the mold's length. Handle, as the Old Forge D-handle kit: two identical
+Body: both halves are poured at once, in a plywood box. Two prints of body_master stand back to back
+on their plate edges, the second turned 180 degrees about the mug axis; pins and sockets on the
+plate backs (where no plaster reaches) register them, and the plaster on either face balances, so
+neither plate bows. The bottom fence stands in a groove in the plywood floor; the top fence is a
+clamp edge above the fill line. Two printed end caps close the ends (and the skins' open ends);
+plywood walls the long sides. Demold: strip the plywood and caps, pull the pair apart at the backs,
+then release each master from its own plaster as before. Handle, as the Old Forge D-handle kit: two identical
 U-walls (one side wall plus half of each end wall) meet at mid-width on the end walls in T-rails,
 and a C-channel lock slides down over each pair; demold by sliding the locks up and pulling each
-wall off sideways. Then lift the plaster off the master in +Y.
+wall off sideways, then lift the plaster off the master in +Y.
 
 Every surface that molds plaster is SKIN thick (1.2 mm = 3 lines at 0.4 mm), so the master flexes
 away from the set plaster instead of holding it rigidly, and prints with little filament:
   - the half positive is hollow. Body: the positive's profile offset SKIN inward in 2D and revolved.
     Handle: a stadium SKIN smaller swept along the same path. Both hollows run out through the back
-    of the plate, and the body's is open at both ends (the cottle end walls close them).
+    of the plate, and the body's is open at both ends (the end caps close them).
   - the parting face is a SKIN plate over a void, on 45 degree diagonal SKIN ribs (printable both
     upright and flat); each dimple is a SKIN cup. The bosses stay solid; they are tiny.
-  - the cottle walls are SKIN thick. Fins, clips, rails and locks are not molding surfaces and stay thicker.
+  - the handle cottle walls are SKIN thick. Fins, clips, rails, locks, pins and the body end caps are
+    not flexing surfaces and stay thicker.
 
-  body_master     half of body_positive. Cast it twice: two casts from one master mate after a
-                  180 degree turn about the mug axis. Bosses on -X, dimples on +X. The socket and
-                  collar ends meet the U end walls, so the socket and the reservoir come out open.
-  body_cottle     one U-half for the body; print two.
-  body_clip       fin clip for the body cottle; print two.
+  body_master     half of body_positive; print two and pair them back to back (or cast one twice).
+                  The casts mate after a 180 degree turn about the mug axis. Bosses on -X, dimples
+                  on +X, each with 15 mm of plaster round it at --side 42. A pin on the +X side of
+                  the back and a socket on the -X side, so one print mates with another. The socket
+                  and collar ends meet the end caps, so the socket and the reservoir come out open.
+  body_cap        flat end cap spanning both halves' plaster; print two (one per end).
   handle_master   half of handle_positive. Cast it twice: the handle is symmetric top to bottom, so
                   a second cast turned 180 degrees about mid-height mates with the first. Bosses
                   above mid-height, dimples at the mirrored spots below. The pour cups meet the -X
@@ -46,17 +51,18 @@ Print (STLs carry no settings; set them per object):
                        terraces). Foot cone overhang 51 degrees from vertical. No supports.
   handle_master_PRINT  back plate (the open side) on the bed, adaptive or 0.12 mm layers over the
                        handle. The hollow's crown is a 4.6 mm radius arch; no supports.
+  body_cap_PRINT       flat, 0.2 mm.
   *_cottle_PRINT, *_clip_PRINT, handle_lock_PRINT   on their table edge or end, 0.2 mm.
   plug_floor_PRINT     flat side down, 0.12 mm (its pit forms the foot dish).
   plug_ring_PRINT      flange down, 0.2 mm. The seat and V-ridge are 45 degrees; no supports.
 
-Usage: .venv/bin/python make_masters.py [--margin 25] [--plate 6]
+Usage: .venv/bin/python make_masters.py [--margin 25] [--side 42] [--plate 6]
 """
 import argparse
 import math
 from pathlib import Path
 
-from build123d import (Align, Axis, Box, BuildSketch, Compound, Cone, Locations, Plane, Pos,
+from build123d import (Align, Axis, Box, BuildSketch, Compound, Cone, Cylinder, Locations, Plane, Pos,
                        Rectangle, Rot, export_step, export_stl, extrude, mirror, revolve)
 
 import make_mold_parts as mp
@@ -71,6 +77,14 @@ RIB_PITCH = 25.0                          # diagonal rib spacing behind the part
 RAIL_STEM, RAIL_HEAD = 2.5, 2.5           # handle wall T-rail: stem width per half, head reach past it
 RAIL_GAP, RAIL_T = 2.5, 2.5               # stem length out from the end wall, head thickness
 LOCK_W, LOCK_FIT = 2.0, 0.15              # lock channel wall, slide gap per side
+PIN_D, PIN_TIP, PIN_H = 8.0, 6.0, 3.5     # back pin: base diameter, tip diameter, length out of the back
+PIN_FIT = 0.15                            # socket clearance per side (and at the bottom)
+PIN_PAD = PIN_D + 2 * PIN_FIT + 2 * SKIN + 2   # solid pad left in the plate void round a pin or socket
+FENCE = 10.0      # body plate runs this far past the plaster on both X edges: the top one is a clamp
+                  # edge above the fill line, the bottom one stands in a groove in the plywood floor.
+                  # Both, because the paired master is turned 180 degrees about Z, which swaps them.
+GROOVE_FIT = 0.15 # floor groove clearance per side
+CAP_T = 5.0       # body end cap thickness; it closes a flat plaster end face, so it stays stiff
 
 
 def box(x0, x1, y0, y1, z0, z1):
@@ -86,15 +100,24 @@ def cone_y(r0, r1, h, at):
     return Pos(at[0], 0, at[1]) * c
 
 
-def master(half, inner, x0, x1, z0, z1, plate, bosses, dimples):
-    """Plate + half positive + keys, minus the hollow and the plate void (ribs and dimple cups kept)."""
+def master(half, inner, x0, x1, z0, z1, plate, bosses, dimples, pins=(), sockets=()):
+    """Plate + half positive + keys, minus the hollow and the plate void (ribs and dimple cups kept).
+    pins and sockets are (x, z) spots on the plate back (y = -plate): a pin sticks out of the back,
+    a socket is a hole into it, and each sits on a solid pad left in the void."""
+    back = Pos(0, -plate, 0)
     outer = box(x0, x1, -plate, 0, z0, z1).fuse(half)
     outer = outer.fuse(*[cone_y(KEY_D / 2, KEY_TIP / 2, KEY_H, b) for b in bosses])
     outer = outer.cut(*[cone_y(KEY_D / 2, KEY_TIP / 2, -KEY_H, d) for d in dimples])
+    if pins:
+        outer = outer.fuse(*[back * cone_y(PIN_D / 2, PIN_TIP / 2, -PIN_H, p) for p in pins])
     void = plate_void(x0, x1, z0, z1, plate)
     cups = [cone_y(KEY_D / 2 + SKIN, KEY_TIP / 2 + SKIN, -(KEY_H + SKIN), d) for d in dimples]
-    void = void.cut(*cups)
-    m = outer.cut(inner, void)
+    # the void cells run SKIN + 1 past the plate back, so the pads do too (else they nick the pin's base)
+    pads = [Pos(p[0], -(plate + SKIN + 2) / 2, p[1]) * Rot(90, 0, 0) * Cylinder(PIN_PAD / 2, plate + SKIN + 2)
+            for p in (*pins, *sockets)]
+    void = void.cut(*cups, *pads)
+    holes = [back * cone_y(PIN_D / 2 + PIN_FIT, PIN_TIP / 2 + PIN_FIT, PIN_H + PIN_FIT, s) for s in sockets]
+    m = outer.cut(inner, void, *holes)
     assert len(m.solids()) == 1 and m.is_valid, f"master boolean went wrong: {len(m.solids())} solids"
     return m
 
@@ -154,29 +177,6 @@ def fin_clip(xo, y0, y1, zm):
     g = FIN_T + CLIP_FIT
     return box(xo, xo + FIN + CLIP_FIT + CLIP_W, y0, y1, zm - g - CLIP_W, zm + g + CLIP_W) \
         - box(xo - 1, xo + FIN + CLIP_FIT, y0 - 1, y1 + 1, zm - g, zm + g)
-
-
-def cottle(x0, x1, z0, z1, depth, plate, wall):
-    """U-half for plaster space x in [x0, x1], z in [z0, z1]: end wall at z0, side walls to mid-length,
-    fins at mid-length. Walls run from the table (y = -plate) to the plaster top (y = depth).
-    Returns the U-half, the clip, and the mid-length z."""
-    zm = (z0 + z1) / 2
-    y0, y1 = -plate, depth
-    xi0, xi1 = x0 - FIT, x1 + FIT                  # wall inner faces
-    xo0, xo1 = xi0 - wall, xi1 + wall              # wall outer faces
-    ze = z0 - FIT - wall                           # end wall outer face
-    u = box(xo0, xo1, y0, y1, ze, z0 - FIT).fuse(
-        box(xo0, xi0, y0, y1, ze, zm), box(xi1, xo1, y0, y1, ze, zm),
-        box(xo0 - FIN, xo0, y0, y1, zm - FIN_T, zm), box(xo1, xo1 + FIN, y0, y1, zm - FIN_T, zm))
-    clip = fin_clip(xo1, y0, y1, zm)               # a C around one side's two fins
-    other = mirror(u, about=Plane.XY.offset(zm))
-    common = u & other
-    closed = (u.is_inside(((x0 + x1) / 2, depth / 2, z0 - FIT - 0.1))
-              and u.is_inside((x0 - FIT - 0.1, depth / 2, zm - 1))
-              and other.is_inside((x0 - FIT - 0.1, depth / 2, zm + 1)))
-    print(f"  U-halves overlap {common.volume if common else 0:.2f} mm3 (want 0), closed at end and joint: {closed}")
-    assert closed and not (common and common.volume > 0.01)
-    return u, clip
 
 
 def locked_cottle(x0, x1, z0, z1, depth, plate, wall):
@@ -252,6 +252,27 @@ def plug_mold():
     return floor, ring, clip
 
 
+def body_pair_check(a, w2, depth, z0, z1, plate, kx, zm):
+    """Pair two prints of the body master back to back, as for a simultaneous pour: the second is the
+    first turned 180 degrees about the mug axis and slid back so the plate backs meet at y = -plate.
+    Check the pins seat in the sockets, the backs touch, nothing overlaps, and the caps touch both
+    masters' skin rims. Overlap is checked in a slab round the backs (the positives face away and
+    cannot meet), which keeps the boolean small enough for this machine."""
+    b = Pos(0, -2 * plate, 0) * Rot(0, 0, 180) * a
+    mid = PIN_H / 2
+    seated = {"A pin in B socket": a.is_inside((kx, -plate - mid, zm)) and not b.is_inside((kx, -plate - mid, zm)),
+              "B pin in A socket": b.is_inside((-kx, -plate + mid, zm)) and not a.is_inside((-kx, -plate + mid, zm)),
+              "pin clears socket wall": not b.is_inside((kx + PIN_D / 2 - 0.05, -plate - 0.1, zm))}
+    xr = w2 + FENCE - SKIN / 2                 # on the plate's rim
+    touch = {"backs touch at the rim": a.is_inside((xr, -plate + 0.05, zm)) and b.is_inside((xr, -plate - 0.05, zm))}
+    slab = box(-w2 - FENCE - 1, w2 + FENCE + 1, -plate - PIN_H - 1, -plate + PIN_H + 1, z0 - 1, z1 + 1)
+    common = (a & slab) & (b & slab)
+    over = common.volume if common else 0.0
+    print("body pair:", seated, touch, f"overlap {over:.3f} mm3 (want 0)")
+    assert all(seated.values()) and all(touch.values()) and over < 0.01
+    return b
+
+
 def save_print(name, part, rot):
     on_bed = rot * part
     on_bed = Pos(0, 0, -on_bed.bounding_box().min.Z) * on_bed
@@ -266,7 +287,10 @@ def save_print(name, part, rot):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--margin", type=float, default=25.0, help="plaster around the body in X and Y (mm)")
+    ap.add_argument("--margin", type=float, default=25.0,
+                    help="body: plaster behind the positive in Y (mm)")
+    ap.add_argument("--side", type=float, default=42.0,
+                    help="body: plaster beside the positive in X (mm), holding the keys; 42 leaves 15 mm round each")
     ap.add_argument("--plate", type=float, default=6.0, help="back plate depth (mm); dimples are 4 deep")
     args = ap.parse_args()
     T = args.plate
@@ -274,12 +298,16 @@ def main():
     # ---------------- body ----------------
     half = mp.revolve_half(mp.positive_profile())
     inner = revolve(mp.positive_inner_profile(), Axis.Z)       # full turn: its -Y half opens the plate back
-    w2 = mp.R_MAX + args.margin
-    depth = mp.R_MAX + args.margin
-    z0, z1 = -mp.SOCKET_DEPTH + FIT, mp.Z_TOP - FIT   # plate stops FIT short so the positive meets the end walls
-    kx = mp.R_MAX + args.margin / 2
+    w2 = mp.R_MAX + args.side                  # plaster space x in [-w2, w2]; -X on the floor, +X the fill line
+    depth = mp.R_MAX + args.margin             # plaster space y in [0, depth] for this half
+    z0, z1 = -mp.SOCKET_DEPTH + FIT, mp.Z_TOP - FIT   # plate stops FIT short so the positive meets the end caps
+    kx = mp.R_MAX + args.side / 2              # keys centred in the side margin
     kz = [z0 + 0.25 * (z1 - z0), z0 + 0.75 * (z1 - z0)]
-    body_master = master(half, inner, -w2, w2, z0, z1, T, [(-kx, z) for z in kz], [(kx, z) for z in kz])
+    zm = (z0 + z1) / 2
+    body_master = master(half, inner, -w2 - FENCE, w2 + FENCE, z0, z1, T, [(-kx, z) for z in kz], [(kx, z) for z in kz],
+                         pins=[(kx, zm)], sockets=[(-kx, zm)])
+    key_gap = args.side / 2 - KEY_D / 2
+    print(f"body keys: {key_gap:.1f} mm of plaster from each key's edge to the cavity and to the floor/fill face")
     # probes: belly wall (inward normal -Y), parting face between ribs (normal -Y), a dimple cup
     zw = 60.0
     rw = mp.BELLY[0] + (zw - mp.BELLY[1]) * (mp.WALL_TOP[0] - mp.BELLY[0]) / (mp.WALL_TOP[1] - mp.BELLY[1])
@@ -290,10 +318,16 @@ def main():
     # dimple cups: SKIN behind the pit tip is solid (the next 0.1 mm may be a rib, so not checked)
     assert all(body_master.is_inside((kx, -KEY_H - SKIN / 2, z)) for z in kz), "dimple cup missing"
 
-    print("body cottle:")
-    body_u, body_clip = cottle(-w2, w2, z0, z1, depth, T, SKIN)
-    print(f"body plaster space {2*w2:.1f} x {depth:.1f} x {z1-z0:.1f} mm, "
-          f"~{(2*w2*depth*(z1-z0) - half.volume)/1e6:.2f} L per half (one master, cast twice)")
+    body_pair_check(body_master, w2, depth, z0, z1, T, kx, zm)
+    body_cap = box(-w2, w2 + FENCE, -2 * T - depth, depth, z0 - FIT - CAP_T, z0 - FIT)
+    zlen = (z1 + FIT) - (z0 - FIT)
+    print(f"body plaster space per half {2*w2:.1f} (x, floor to fill) x {depth:.1f} (y) x {zlen:.1f} (z) mm, "
+          f"~{(2*w2*depth*zlen - half.volume)/1e6:.2f} L per half, ~{2*(2*w2*depth*zlen - half.volume)/1e6:.2f} L "
+          f"per pour (both halves)")
+    print(f"body plywood box, inside: {zlen + 2*CAP_T:.1f} mm long (caps included) x {2*depth + 2*T:.1f} mm "
+          f"wide (wall to wall), fill to {2*w2:.1f} mm above the floor; plates and caps stand "
+          f"{FENCE:.0f} mm above the fill line. Floor groove under the plates: {2*T + 2*GROOVE_FIT:.2f} mm wide, "
+          f"{FENCE:.0f} mm deep, {depth:.1f} mm from each side wall")
 
     # ---------------- handle ----------------
     hhalf = mp.handle_solid(half=True)
@@ -327,8 +361,7 @@ def main():
 
     flat = Rot(90, 0, 0)                       # y = -plate (table side / open back) onto the bed
     save_print("body_master", body_master, Rot(0, 0, 0))   # standing on its socket end
-    save_print("body_cottle", body_u, flat)
-    save_print("body_clip", body_clip, flat)
+    save_print("body_cap", body_cap, Rot(0, 0, 0))         # flat on the bed
     save_print("handle_master", handle_master, flat)
     save_print("handle_cottle", handle_u, flat)
     save_print("handle_lock", handle_lock, flat)   # standing on its end: the lips print without overhang
