@@ -9,7 +9,8 @@ plate backs (where no plaster reaches) register them, and the plaster on either 
 neither plate bows. The bottom fence stands in a groove in the plywood floor; the top fence is a
 clamp edge above the fill line. Two printed end caps close the ends (and the skins' open ends);
 plywood walls the long sides. Demold: strip the plywood and caps, pull the pair apart at the backs,
-then release each master from its own plaster as before. Handle, as the Old Forge D-handle kit: two identical
+then release each master from its own plaster as before. Every printed cottle joint is
+a T-rail pair with a slide-down C-channel lock (rail_and_lock). Handle, as the Old Forge D-handle kit: two identical
 U-walls (one side wall plus half of each end wall) meet at mid-width on the end walls in T-rails,
 and a C-channel lock slides down over each pair; demold by sliding the locks up and pulling each
 wall off sideways, then lift the plaster off the master in +Y.
@@ -21,7 +22,7 @@ away from the set plaster instead of holding it rigidly, and prints with little 
     of the plate, and the body's is open at both ends (the end caps close them).
   - the parting face is a SKIN plate over a void, on 45 degree diagonal SKIN ribs (printable both
     upright and flat); each dimple is a SKIN cup. The bosses stay solid; they are tiny.
-  - the handle cottle walls are SKIN thick. Fins, clips, rails, locks, pins and the body end caps are
+  - the handle cottle walls are SKIN thick. Rails, locks, pins and the body end caps are
     not flexing surfaces and stay thicker.
 
   body_master     half of body_positive; print two and pair them back to back (or cast one twice).
@@ -38,11 +39,15 @@ away from the set plaster instead of holding it rigidly, and prints with little 
   handle_lock     C-channel lock over the end-wall rails; print two.
   plug_floor      floor disc with the dish pit; the plug is cast dish-down on it. A SKIN pit on
                   concentric SKIN rings, open underneath, with a 45 degree chamfer round its rim.
-  plug_ring       half of the ring that walls the plug; print two. Like the Old Forge foot insert:
-                  the halves meet on fins and clip together, and a flange under the disc and a 45
-                  degree seat on its chamfer hold the disc, so ring and floor stand as one mold. The
-                  SKIN wall follows the plug's V-groove, which is why the ring has to split.
-  plug_clip       fin clip for the plug ring; print two.
+  plug_ring       half of the ring that walls the plug; print two. The halves meet on T-rails held
+                  by slide-down locks, as on the handle cottle, and hang on the disc by a 45 degree seat on its chamfer, RING_LIFT off
+                  the table, with a skirt round the disc edge. No flange: the seat is the only
+                  contact, so the locks close the joints fully and a disc printed a little tall only
+                  lifts the ring. The SKIN wall follows the plug's V-groove (PLUG_CLEAR inside the
+                  socket's), which is why the ring has to split.
+  plug_ring_test  the bottom TEST mm of plug_ring above the foot ring; print two (and two
+                  plug_lock_test) to check the fit on the floor disc before printing the full ring.
+  plug_lock       C-channel lock over the plug ring's rails; print two.
 
 Print (STLs carry no settings; set them per object):
   all parts       3 or more wall loops, so each SKIN prints as solid perimeters; elephant-foot
@@ -52,9 +57,9 @@ Print (STLs carry no settings; set them per object):
   handle_master_PRINT  back plate (the open side) on the bed, adaptive or 0.12 mm layers over the
                        handle. The hollow's crown is a 4.6 mm radius arch; no supports.
   body_cap_PRINT       flat, 0.2 mm.
-  *_cottle_PRINT, *_clip_PRINT, handle_lock_PRINT   on their table edge or end, 0.2 mm.
+  *_cottle_PRINT, *_lock_PRINT   on their table edge or end, 0.2 mm.
   plug_floor_PRINT     flat side down, 0.12 mm (its pit forms the foot dish).
-  plug_ring_PRINT      flange down, 0.2 mm. The seat and V-ridge are 45 degrees; no supports.
+  plug_ring_PRINT      skirt down, 0.2 mm (the test ring the same). The seat and V-ridge are 45 degrees; no supports.
 
 Usage: .venv/bin/python make_masters.py [--margin 25] [--side 42] [--plate 6]
 """
@@ -71,8 +76,6 @@ HERE = Path(__file__).parent
 SKIN = mp.SKIN
 KEY_D, KEY_TIP, KEY_H = 12.0, 6.0, 4.0   # conical key: base diameter, tip diameter, height
 FIT = 0.15        # cottle wall to plate edge
-FIN, FIN_T = 8.0, 3.0                     # fin reach out from the wall, fin thickness
-CLIP_W, CLIP_FIT = 2.5, 0.1               # clip wall, clip-to-fin gap per side (snug pinch)
 RIB_PITCH = 25.0                          # diagonal rib spacing behind the parting-face skin
 RAIL_STEM, RAIL_HEAD = 2.5, 2.5           # handle wall T-rail: stem width per half, head reach past it
 RAIL_GAP, RAIL_T = 2.5, 2.5               # stem length out from the end wall, head thickness
@@ -84,6 +87,7 @@ FENCE = 10.0      # body plate runs this far past the plaster on both X edges: t
                   # edge above the fill line, the bottom one stands in a groove in the plywood floor.
                   # Both, because the paired master is turned 180 degrees about Z, which swaps them.
 GROOVE_FIT = 0.15 # floor groove clearance per side
+TEST = 4.0        # plug_ring_test: this much of the ring above the foot ring (the groove starts at 9.5)
 CAP_T = 5.0       # body end cap thickness; it closes a flat plaster end face, so it stays stiff
 
 
@@ -171,12 +175,30 @@ def skin_probe(name, part, points):
     assert ok
 
 
-def fin_clip(xo, y0, y1, zm):
-    """C-clip, y0 to y1 long, over a pair of fins that reach FIN out past x = xo, FIN_T either side
-    of z = zm."""
-    g = FIN_T + CLIP_FIT
-    return box(xo, xo + FIN + CLIP_FIT + CLIP_W, y0, y1, zm - g - CLIP_W, zm + g + CLIP_W) \
-        - box(xo - 1, xo + FIN + CLIP_FIT, y0 - 1, y1 + 1, zm - g, zm + g)
+RAIL_OUT = RAIL_GAP + RAIL_T + LOCK_FIT + LOCK_W   # a locked joint reaches this far out from the wall
+RAIL_HALF_W = RAIL_STEM + RAIL_HEAD + LOCK_FIT + LOCK_W   # and this far either side of the joint
+
+
+def rail_and_lock(place, c0, c1):
+    """Every cottle joint, Old Forge D-handle style. Two walls meet on a joint plane; each carries
+    half a T-rail on its outside, and a C-channel lock slides along the pair. `place(a0, a1, b0, b1,
+    c0, c1)` maps a box in joint coordinates to the world: a out from the wall face (0 at the face),
+    b across the joint (the half's own side is b <= 0), c along the joint. Returns this half's rail
+    (the other half's is the same part turned 180 degrees) and the lock, both c0 to c1 long."""
+    g = LOCK_FIT
+    rail = place(0, RAIL_GAP, -RAIL_STEM, 0, c0, c1).fuse(
+        place(RAIL_GAP, RAIL_GAP + RAIL_T, -RAIL_STEM - RAIL_HEAD, 0, c0, c1))
+    hw = RAIL_STEM + RAIL_HEAD + g
+    lock = place(g, RAIL_OUT, -hw - LOCK_W, hw + LOCK_W, c0, c1) \
+        - place(RAIL_GAP - g, RAIL_GAP + RAIL_T + g, -hw, hw, c0 - 1, c1 + 1) \
+        - place(0, RAIL_GAP, -RAIL_STEM - g, RAIL_STEM + g, c0 - 1, c1 + 1)
+    return rail, lock
+
+
+def lock_captured(lock, place_pt):
+    """The lock's lips sit behind both rail heads; place_pt(a, b) maps a joint point at mid-length
+    to the world."""
+    return all(lock.is_inside(place_pt(RAIL_GAP / 2, s * (RAIL_STEM + RAIL_HEAD / 2))) for s in (-1, 1))
 
 
 def locked_cottle(x0, x1, z0, z1, depth, plate, wall):
@@ -189,24 +211,19 @@ def locked_cottle(x0, x1, z0, z1, depth, plate, wall):
     y0, y1 = -plate, depth
     xi0, xo0 = x0 - FIT, x0 - FIT - wall
     ze0, ze1 = z0 - FIT - wall, z1 + FIT + wall    # end wall outer faces
-    rail = box(xm - RAIL_STEM, xm, y0, y1, ze0 - RAIL_GAP, ze0).fuse(
-        box(xm - RAIL_STEM - RAIL_HEAD, xm, y0, y1, ze0 - RAIL_GAP - RAIL_T, ze0 - RAIL_GAP))
+    rail, lock = rail_and_lock(lambda a0, a1, b0, b1, c0, c1: box(xm + b0, xm + b1, c0, c1, ze0 - a1, ze0 - a0),
+                               y0, y1)
     u = box(xo0, xi0, y0, y1, ze0, ze1).fuse(
         box(xo0, xm, y0, y1, ze0, z0 - FIT), box(xo0, xm, y0, y1, z1 + FIT, ze1),
         rail, mirror(rail, about=Plane.XY.offset(zm)))
     other = Pos(xm, 0, zm) * Rot(0, 180, 0) * Pos(-xm, 0, -zm) * u
-    hw, g = RAIL_STEM + RAIL_HEAD + LOCK_FIT, LOCK_FIT
-    lock = box(xm - hw - LOCK_W, xm + hw + LOCK_W, y0, y1, ze0 - RAIL_GAP - RAIL_T - g - LOCK_W, ze0 - g) \
-        - box(xm - hw, xm + hw, y0 - 1, y1 + 1, ze0 - RAIL_GAP - RAIL_T - g, ze0 - RAIL_GAP + g) \
-        - box(xm - RAIL_STEM - g, xm + RAIL_STEM + g, y0 - 1, y1 + 1, ze0 - RAIL_GAP, ze0)
     vol = lambda a, b: (lambda c: c.volume if c else 0.0)(a & b)
     overlap = vol(u, other) + vol(lock, u) + vol(lock, other)
     yc = depth / 2
     closed = (u.is_inside((x0 - FIT - wall / 2, yc, z0 - FIT - wall / 2))      # corner
               and u.is_inside((xm - 0.5, yc, z0 - FIT - wall / 2))            # end wall reaches the joint
               and other.is_inside((xm + 0.5, yc, z0 - FIT - wall / 2)))
-    behind = ze0 - RAIL_GAP / 2                                                # lip between head and wall
-    captured = all(lock.is_inside((xm + s * (RAIL_STEM + RAIL_HEAD / 2), yc, behind)) for s in (-1, 1))
+    captured = lock_captured(lock, lambda a, b: (xm + b, yc, ze0 - a))
     print(f"  walls/locks overlap {overlap:.2f} mm3 (want 0), closed at corner and joint: {closed}, "
           f"lock lips behind both rail heads: {captured}")
     assert closed and captured and overlap < 0.01
@@ -214,42 +231,56 @@ def locked_cottle(x0, x1, z0, z1, depth, plate, wall):
 
 
 def plug_mold():
-    """Floor disc, ring half and clip, in the flipped frame (floor on the table at z = 0, plug
-    dish-down on it). The ring half is the y >= 0 half with a fin at each end, on its own side of
-    the parting plane; the other half is the same part turned 180 degrees about Z."""
+    """Floor disc, ring half and lock, in the flipped frame (floor on the table at z = 0, plug
+    dish-down on it). The ring half is the y >= 0 half with a half T-rail at each end (on a web out
+    to the skirt's radius), on its own side of the parting plane; the other half is the same part
+    turned 180 degrees about Z. A lock slides down over each pair of rails."""
     floor = revolve(mp.plug_floor_profile()[0], Axis.Z)
     z_ring = mp.plug_floor_profile()[1]
     face, r_o = mp.plug_ring_profile(z_ring)
     cavity = revolve(mp.plug_cavity_profile(z_ring), Axis.Z)
-    zlo, zhi = -mp.FLANGE, z_ring + mp.SOCKET_DEPTH
-    fin = box(mp.R_RING - mp.GROOVE_DEPTH, r_o + FIN, 0, FIN_T, zlo, zhi) - cavity
-    ring = mp.revolve_half(face).fuse(fin, mirror(fin, about=Plane.YZ))
+    zlo, zhi = mp.RING_LIFT, z_ring + mp.SOCKET_DEPTH
+    r_i = mp.R_RING - mp.PLUG_CLEAR                        # the cast plug's side
+    # joint coordinates at +X: a out from r_o, b = -y (the half's own side is y >= 0), c = z
+    place = lambda a0, a1, b0, b1, c0, c1: box(r_o + a0, r_o + a1, -b1, -b0, c0, c1)
+    rail, lock = rail_and_lock(place, zlo, zhi)
+    rail = rail.fuse(box(r_i - mp.GROOVE_DEPTH, r_o + 0.5, 0, RAIL_STEM, zlo, zhi) - cavity)  # web to the wall
+    ring = mp.revolve_half(face).fuse(rail, mirror(rail, about=Plane.YZ))
     assert len(ring.solids()) == 1 and ring.is_valid, "plug ring boolean went wrong"
-    clip = Rot(90, 0, 0) * fin_clip(r_o, zlo, zhi, 0)     # clip length along y -> z, fins either side of y = 0
 
     # checks: nothing overlaps, the ring closes on the plug, and the skins are SKIN
-    plug = Pos(0, 0, z_ring) * Rot(180, 0, 0) * revolve(mp.plug_profile(), Axis.Z)
+    plug = Pos(0, 0, z_ring) * Rot(180, 0, 0) * revolve(mp.plug_profile(mp.PLUG_CLEAR), Axis.Z)
     other = Rot(0, 0, 180) * ring
     vol = lambda a, b: (lambda c: c.volume if c else 0.0)(a & b)
     overlaps = {"ring halves": vol(ring, other), "ring/plug": vol(ring, plug), "ring/floor": vol(ring, floor),
-                "floor/plug": vol(floor, plug), "clip/rings": vol(clip, ring) + vol(clip, other)}
+                "floor/plug": vol(floor, plug), "lock/rings": vol(lock, ring) + vol(lock, other)}
     print("plug mold overlaps (mm3, want 0):", {k: round(v, 2) for k, v in overlaps.items()})
     assert all(v < 0.01 for v in overlaps.values())
     mid = z_ring + mp.SOCKET_DEPTH - 3                     # plain wall above the groove
-    closed = {"wall": ring.is_inside((0, mp.R_RING + SKIN / 2, mid)),
-              "seat": ring.is_inside((0, mp.R_RING + 1.5, z_ring - 0.6)),
+    rs, zs = mp.R_RING + 1.5, z_ring - 1.5                # a point on the seat / disc chamfer
+    closed = {"wall": ring.is_inside((0, r_i + SKIN / 2, mid)),
+              "seat on chamfer": ring.is_inside((0, rs, zs + 0.05)) and floor.is_inside((0, rs, zs - 0.05)),
               "disc edge": ring.is_inside((0, r_o - SKIN / 2, z_ring - mp.DISC_EDGE - 1)),
-              "flange": ring.is_inside((0, mp.R_RING, -mp.FLANGE / 2)),
+              "ring off the table": abs(ring.bounding_box().min.Z - mp.RING_LIFT) < 1e-3,
               "pit on plug": plug.is_inside((0, 0, mp.FLOOR + 0.05)),
-              "fins meet": other.is_inside((r_o + FIN / 2, -FIN_T / 2, mid))
-                           and ring.is_inside((r_o + FIN / 2, FIN_T / 2, mid))}
+              "plug clears socket": plug.is_inside((0, r_i - 0.05, mid))
+                                    and not plug.is_inside((0, r_i + 0.05, mid)),
+              "rails meet": other.is_inside((r_o + RAIL_GAP / 2, -RAIL_STEM / 2, mid))
+                            and ring.is_inside((r_o + RAIL_GAP / 2, RAIL_STEM / 2, mid)),
+              "lock lips behind both rail heads": lock_captured(lock, lambda a, b: (r_o + a, -b, mid))}
     print("plug mold closed:", closed)
     assert all(closed.values())
-    skin_probe("plug ring", ring, [((0, mp.R_RING, mid), (0, 1, 0))])
+    skin_probe("plug ring", ring, [((0, r_i, mid), (0, 1, 0))])
     skin_probe("plug floor", floor, [((0, 0, mp.FLOOR), (0, 0, -1))])
-    print(f"plug plaster {plug.volume / 1000:.0f} cm3; mold {2 * (r_o + FIN + CLIP_FIT + CLIP_W):.1f} mm "
-          f"across the clips, {zhi - zlo:.1f} mm tall")
-    return floor, ring, clip
+    print(f"plug plaster {plug.volume / 1000:.0f} cm3; mold {2 * (r_o + RAIL_OUT):.1f} mm "
+          f"across the locks, {zhi - zlo:.1f} mm tall; ring hangs on its seat {mp.RING_LIFT} mm off the table; "
+          f"plug {mp.PLUG_CLEAR} mm per side under its socket")
+    # fit test: the ring's bottom TEST mm (skirt, seat and rails, below the groove) to try on the floor
+    # disc, with a lock cut to the same length
+    cut = box(-r_o - RAIL_OUT - 1, r_o + RAIL_OUT + 1, -RAIL_HALF_W - 1, r_o + 1, zlo - 1, z_ring + TEST)
+    test, test_lock = ring & cut, lock & cut
+    assert len(test.solids()) == 1 and test.is_valid, "plug ring test boolean went wrong"
+    return floor, ring, lock, test, test_lock
 
 
 def body_pair_check(a, w2, depth, z0, z1, plate, kx, zm):
@@ -368,11 +399,13 @@ def main():
     save_print("handle_lock", handle_lock, flat)   # standing on its end: the lips print without overhang
 
     # ---------------- plug ----------------
-    plug_floor, plug_ring, plug_clip = plug_mold()
+    plug_floor, plug_ring, plug_lock, plug_ring_test, plug_lock_test = plug_mold()
     upright = Rot(0, 0, 0)
     save_print("plug_floor", plug_floor, upright)
-    save_print("plug_ring", plug_ring, upright)        # flange down
-    save_print("plug_clip", plug_clip, upright)
+    save_print("plug_ring", plug_ring, upright)        # skirt down
+    save_print("plug_ring_test", plug_ring_test, upright)
+    save_print("plug_lock", plug_lock, upright)        # on its end
+    save_print("plug_lock_test", plug_lock_test, upright)
 
 
 if __name__ == "__main__":

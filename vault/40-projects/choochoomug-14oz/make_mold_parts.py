@@ -17,8 +17,8 @@ belly; its roots end in the plane x = HANDLE_CX. The positive's inner and outer 
   handle_positive  the handle, both roots extended along -X as straight sprues that flare into
                    pour cups at the pour face (x = SPRUE_END). The handle mold is cast around this.
 
-The plug's mold (floor disc, ring halves and clip) is built from the plug profiles here, in
-make_masters.py next to the cottles it shares fins and clips with.
+The plug's mold (floor disc, ring halves and locks) is built from the plug profiles here, in
+make_masters.py next to the handle cottle it shares its rails and locks with.
 
 Setup:  python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 Usage:  .venv/bin/python make_mold_parts.py
@@ -69,9 +69,11 @@ CUP_GROW = 5.0        # the cup mouth is this much wider than the sprue on every
 HANDLE_DRAFT = 2.0    # degrees on the handle's inner and outer faces, away from the parting plane:
                       # those faces were 0 degrees (parallel to the pull) for 5.8 mm either side of
                       # Y = 0, and a 1.2 mm skin on a 5.8 mm radius is too stiff to flex free
-RING_CLEAR = 0.3
+RING_CLEAR = 0.3      # ring skirt round the floor disc's edge, per side
+PLUG_CLEAR = 0.25     # cast plug is this much smaller than its socket, per side (sides and V-groove)
 DISC_EDGE = 3.0       # floor disc runs this far past the foot ring, under the ring's 45 degree seat
-FLANGE = 2.0          # ring flange the floor disc rests on
+RING_LIFT = 0.5       # the ring rests only on its seat; its bottom stands this far off the table, so
+                      # a disc printed a little tall lifts the ring instead of holding the joints open
 FLOOR = 3.0           # plug floor under the deepest point of the dish pit
 FLOOR_RIBS = (10.0, 20.0, 30.0)   # concentric ribs under the pit skin
 
@@ -111,10 +113,11 @@ def wall_edges(start):
     ThreePointArc(WALL_TOP, arc_mid(*RIM_ROUND, WALL_TOP, (R_RIM, Z_RIM)), (R_RIM, Z_RIM))
 
 
-def groove_pts():
+def groove_pts(clear=0.0):
+    """The socket's side, axis out and up to the foot ring; `clear` moves it in (the cast plug)."""
     g0, g1 = GROOVE_Z - GROOVE_DEPTH, GROOVE_Z + GROOVE_DEPTH
-    return [(0, -SOCKET_DEPTH), (R_RING, -SOCKET_DEPTH), (R_RING, g0), (R_RING - GROOVE_DEPTH, GROOVE_Z),
-            (R_RING, g1), (R_RING, 0)]
+    r = R_RING - clear
+    return [(0, -SOCKET_DEPTH), (r, -SOCKET_DEPTH), (r, g0), (r - GROOVE_DEPTH, GROOVE_Z), (r, g1), (r, 0)]
 
 
 def body_profile():
@@ -135,12 +138,14 @@ def positive_profile():
     return outline_face(b)
 
 
-def plug_profile():
+def plug_profile(clear=0.0):
+    """The plug: the socket's side (moved in by `clear`) under the dish, trimmed at the side."""
     def b():
-        Polyline(*groove_pts())
+        Polyline(*groove_pts(clear), (R_RING, 0))
         Spline(*reversed(DISH), tangents=[(-DISH_T[1][0], -DISH_T[1][1]), (-1, 0)])
         Line(DISH[0], (0, -SOCKET_DEPTH))
-    return outline_face(b)
+    face = outline_face(b)
+    return face & rect(0, R_RING - clear, -SOCKET_DEPTH - 1, DISH[0][1] + 1) if clear else face
 
 
 def socket_profile():
@@ -309,35 +314,40 @@ def plug_floor_profile():
     return solid - void, z_ring
 
 
-def plug_cavity_profile(z_ring):
-    """Everything inside the ring, flipped frame: the floor disc's pocket (RING_CLEAR round its
-    edge), the 45 degree seat, the plug with its V-groove, and the flange's bore below z = 0."""
-    side = [(r, z_ring - z) for r, z in reversed(groove_pts()[1:])]   # foot ring up to the plug's flat end
+def ring_inner_pts(z_ring):
+    """The ring's inner surface, flipped frame, bottom to top: a skirt RING_CLEAR round the disc
+    edge, the 45 degree seat on the disc's chamfer up to the foot ring, a PLUG_CLEAR ledge in, then
+    the cast plug's side with its V-groove up to its flat end."""
+    side = [(r, z_ring - z) for r, z in reversed(groove_pts(PLUG_CLEAR)[1:])]
     r_d = R_RING + DISC_EDGE
+    return [(r_d + RING_CLEAR, RING_LIFT), (r_d + RING_CLEAR, z_ring - DISC_EDGE), (r_d, z_ring - DISC_EDGE),
+            (R_RING, z_ring), *side]
+
+
+def plug_cavity_profile(z_ring):
+    """Everything inside the ring, flipped frame: the floor disc's pocket, the seat and the cast plug."""
+    pts = ring_inner_pts(z_ring)
     top = z_ring + SOCKET_DEPTH + 1
-    return outline_face(lambda: Polyline(
-        (0, -FLANGE - 1), (R_RING - SKIN, -FLANGE - 1), (R_RING - SKIN, 0), (r_d + RING_CLEAR, 0),
-        (r_d + RING_CLEAR, z_ring - DISC_EDGE), (r_d, z_ring - DISC_EDGE), *side, (R_RING, top), (0, top),
-        (0, -FLANGE - 1)))
+    return outline_face(lambda: Polyline((0, -1), (pts[0][0], -1), *pts, (pts[-1][0], top), (0, top), (0, -1)))
 
 
 def plug_ring_profile(z_ring):
-    """The ring wall, flipped frame, as one polygon: the flange under the disc, a SKIN wall round the
-    disc edge, a SKIN 45 degree seat on the disc's chamfer, then a SKIN band that follows the plug's
-    side and V-groove up to its flat end. The outside is the inside offset SKIN, mitred by hand."""
+    """The ring wall, flipped frame, as one polygon: a SKIN skirt round the disc edge, a SKIN 45
+    degree seat on the disc's chamfer, then a SKIN band that follows the cast plug's side and V-groove
+    up to its flat end. No flange: the ring hangs on its seat, RING_LIFT off the table. The outside is
+    the inside offset SKIN, mitred by hand."""
     g_lo, g_mid, g_hi = (z_ring - z for z in (GROOVE_Z + GROOVE_DEPTH, GROOVE_Z, GROOVE_Z - GROOVE_DEPTH))
-    r_d = R_RING + DISC_EDGE
-    r_o = r_d + RING_CLEAR + SKIN
+    r_i = R_RING - PLUG_CLEAR                            # the cast plug's side
+    r_o = R_RING + DISC_EDGE + RING_CLEAR + SKIN
     z_top = z_ring + SOCKET_DEPTH
     lift = SKIN * math.sqrt(2)                           # SKIN measured square to a 45 degree face
+    seat_out = R_RING + z_ring + lift                    # outer seat face: r + z = this
     face = outline_face(lambda: Polyline(
-        (R_RING - SKIN, -FLANGE), (R_RING - SKIN, 0), (r_d + RING_CLEAR, 0),
-        (r_d + RING_CLEAR, z_ring - DISC_EDGE), (r_d, z_ring - DISC_EDGE), (R_RING, z_ring),
-        (R_RING, g_lo), (R_RING - GROOVE_DEPTH, g_mid), (R_RING, g_hi), (R_RING, z_top),
-        (R_RING + SKIN, z_top), (R_RING + SKIN, g_hi - lift + SKIN),
-        (R_RING - GROOVE_DEPTH + lift, g_mid), (R_RING + SKIN, g_lo + lift - SKIN),
-        (R_RING + SKIN, z_ring + lift - SKIN), (r_o, z_ring + lift - (r_o - R_RING)),
-        (r_o, -FLANGE), (R_RING - SKIN, -FLANGE)))
+        *ring_inner_pts(z_ring),
+        (r_i + SKIN, z_top), (r_i + SKIN, g_hi - lift + SKIN),
+        (r_i - GROOVE_DEPTH + lift, g_mid), (r_i + SKIN, g_lo + lift - SKIN),
+        (r_i + SKIN, seat_out - r_i - SKIN), (r_o, seat_out - r_o),
+        (r_o, RING_LIFT), ring_inner_pts(z_ring)[0]))
     return face, r_o
 
 
@@ -393,7 +403,7 @@ def main():
     body_pos = revolve(positive_profile(), Axis.Z)
     handle_pos = handle_solid()
     handle_fusion = handle_solid(draft=0.0)
-    plug = revolve(plug_profile(), Axis.Z)
+    plug = revolve(plug_profile(PLUG_CLEAR), Axis.Z)
 
     # ---- checks ----
     ref = import_step(HERE / "choochoomug-14oz.step")

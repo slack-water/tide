@@ -1,7 +1,7 @@
 ---
 title: Choochoo Mug, 14 oz (Plaster Mold Masters)
 created: 2026-10-11
-updated: 2026-11-04
+updated: 2026-11-05
 folder: 40
 type: project
 status: active
@@ -35,7 +35,7 @@ Follows [the skull glossary](../../90-archive/skull-mold-draft-shell/UBIQUITOUS_
 - **Master:** a printed back plate with half a positive and the keys on it. The body master is printed twice and the pair is poured at once. The handle master is cast twice.
 - **Pair:** two body masters back to back, registered by **back pins** (a pin and a socket on each plate back, where no plaster reaches). The plates' **fences** run 10 mm past the plaster on both edges: the bottom one stands in a groove in the plywood floor, and the top one is a clamp edge.
 - **End cap:** a flat printed plate that closes one end of the body box, both halves at once, and seals the skins' open ends.
-- **Cottle:** the walls that hold the plaster around a master. For the body it is now plywood long sides and floor plus printed end caps. (It was two identical **U-halves** joined at mid-length by **fins** and slide-on **clips**, which the plug ring still uses.) The handle's cottle is split the other way, Old Forge style: each U is a side wall plus half of each end wall, and a **lock** (a C-channel) slides down over the **T-rails** where the end walls meet.
+- **Cottle:** the walls that hold the plaster around a master. For the body it is now plywood long sides and floor plus printed end caps. (It was two identical **U-halves** joined at mid-length by **fins** and slide-on **clips**.) Every printed cottle joint is now a pair of **T-rails** with a **lock** (a C-channel) slid down over them, as on the Old Forge D-handle kit. The handle's cottle is split that way: each U is a side wall plus half of each end wall, and the rails sit where the end walls meet. The plug ring's two halves meet on rails the same way.
 - **Keys:** conical bosses and dimples on the back plate that become dimples and bosses in the plaster.
 - **Plug:** the plaster disc that forms the recessed foot; it sits in a grooved socket between the two side halves.
 - **Reservoir collar:** a 45° step out from the rim and a straight wall above it, cast into the top of the side halves. It holds the slip that drains into the plaster.
@@ -64,7 +64,9 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 
 **Sprues, not fitted ends.** The handle's sweep runs on past its root plane in a straight line to x = 47. Over the last 10 mm, to x = 37 (the handle mold's pour face), it flares into a pour cup. The bare sprue is only 11.5 × 23 mm, too small to pour into cleanly. Pour slip into one cup and air leaves through the other. At leather hard, cut the sprues to the body's curve: r ≈ 51.6 at the lower root (z 21) and r ≈ 47.0 at the upper root (z 96). Fusion's small root fillets are not modelled; blend the joint by hand.
 
-**Foot plug with a V-groove, in a split ring.** For a side split, the dished underside is the only real undercut (4,860 of about 5,100 mm²), so the foot is still a separate plug. New: a 45° V-groove 3 mm deep sits 12.5 mm down the socket. It locks the plug between the halves, so the plug cannot drop out when the mold is turned over to drain. That replaces the 2° taper, which only resisted slip pressure. A grooved plug cannot leave a one-piece cup, so it is cast on a floor disc inside two identical ring halves. The halves join like the cottles, with fins and two clips, and the ring holds the disc: a 2 mm flange under it and a 45° seat on its chamfered rim. The plug's foot-ring edge falls where the seat meets the disc. The Old Forge tumbler mould's insert works the same way.
+**Foot plug with a V-groove, in a split ring.** For a side split, the dished underside is the only real undercut (4,860 of about 5,100 mm²), so the foot is still a separate plug. New: a 45° V-groove 3 mm deep sits 12.5 mm down the socket. It locks the plug between the halves, so the plug cannot drop out when the mold is turned over to drain. That replaces the 2° taper, which only resisted slip pressure. A grooved plug cannot leave a one-piece cup, so it is cast on a floor disc inside two identical ring halves. The halves join like the handle cottle, on T-rails with two locks (fins and clips until 2026-11-05), and a 45° seat sits on the disc's chamfered rim. The plug's foot-ring edge falls where the seat meets the disc. The Old Forge tumbler mould's insert works the same way, with a flange under the disc as well; ours dropped that (see below).
+
+**Plug clearance and a floating ring (2026-11-05).** The first plug came out too big to fit its socket, and the ring had not closed cleanly on the floor disc. Two causes. (1) The plug was the socket's exact size, so any error made it too big. (2) The ring was held vertically twice: by its flange under the disc and by its seat on the disc's chamfer. A disc printed even slightly tall stopped the seat before the fins met, and at 45° each 0.1 mm of extra height holds each half 0.1 mm open. Plaster's setting expansion (about 0.2%) then pushes on a ring that is already loose. Fixes: the ring now molds the plug 0.25 mm per side inside the socket, on the sides and the V-groove (`PLUG_CLEAR`). A 0.25 mm ledge at the foot ring steps in from the seat; it is trimmed with the knife edge anyway. The flange is gone. The ring hangs on its seat, with its bottom 0.5 mm off the table (`RING_LIFT`) and a skirt 0.3 mm round the disc edge. The seat is now the ring's only contact, so it stays sealed, the locks close the joints fully, and a tall disc just lifts the ring. Raising the seat off the chamfer was rejected: the gap would let plaster flash over the chamfer and down round the disc edge.
 
 **Plaster reservoir collar instead of a printed funnel.** The collar steps out 4 mm from the rim on a 45° chamfer and rises 30 mm, holding about 200 mL against an estimated 150 to 200 mL of slip loss (assumes a 5 mm cast wall). The rim has a 0.5 mm round, so the cast has a slight waist at the rim, followed by the step: that is the cut line. This removes the printed funnel, its 0.3 mm gap and its seepage risk.
 
@@ -84,7 +86,9 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 
 **Handle draft, 2° (2026-11-04).** The thin skin releases the body well, but it does not flex enough on the handle. The handle's inner and outer faces were 0° (parallel to the pull) for 5.8 mm either side of the parting plane, and a 1.2 mm skin on a 5.8 mm radius is nearly as stiff as solid plastic, so thickness was never going to fix it. Those faces now lean in 2° from the parting plane. The handle keeps its full 11.54 mm width at the parting plane and its 23.08 mm thickness. The flats narrow to 11.11 mm where they meet the end arcs, and the arcs shrink from r 5.77 to r 5.56 so they stay tangent. That is at most about 0.2 mm a side, gone in fettling, and the volume drops from 38.5 to 37.8 cm³. The sprues and pour cups get the same draft, so the swept section stays continuous. The checks still compare the undrafted handle with the Fusion STEP (an exact match), then probe the drafted faces. I chose 2° over 1° for more release margin.
 
-**Handle walls with lock bars (2026-10-30).** The handle cottle now follows the Old Forge D-handle kit instead of the body's. Each U-wall is one side wall plus the matching half of both end walls (the other is the same part turned 180°). The walls meet at mid-width on the end walls, where each ends in a T-rail, and a C-channel lock slides down over each pair of rails for the full height. A friction clip on flat fins can creep off as the plaster pushes outward; the lock interlocks with the rails, so the walls cannot spread. The pour cups now face a plain side wall with no joint in it. Demold: slide the locks up, pull each wall straight off in ±X (the side wall leaves its face; the end-wall halves slide along theirs), then lift the plaster off. The body and plug keep their fins and clips.
+**Handle walls with lock bars (2026-10-30).** The handle cottle now follows the Old Forge D-handle kit instead of the body's. Each U-wall is one side wall plus the matching half of both end walls (the other is the same part turned 180°). The walls meet at mid-width on the end walls, where each ends in a T-rail, and a C-channel lock slides down over each pair of rails for the full height. A friction clip on flat fins can creep off as the plaster pushes outward; the lock interlocks with the rails, so the walls cannot spread. The pour cups now face a plain side wall with no joint in it. Demold: slide the locks up, pull each wall straight off in ±X (the side wall leaves its face; the end-wall halves slide along theirs), then lift the plaster off.
+
+**One joint style for every cottle (2026-11-05).** The rail-and-lock joint is now the standard: one builder (`rail_and_lock` in `make_masters.py`) makes the rails and locks for the handle cottle and the plug ring. The plug ring's fins and clips are replaced by a half T-rail at each end of each half, on a web out to the skirt, and a lock slides down over each pair. The body box is plywood and has no printed joints.
 
 - The U-halves stand on the table beside the plate rather than hooking under it, so the plate lies flat under the plaster's weight.
 - The plate stops 0.15 mm short of the end walls, so the socket, the reservoir collar and the handle's pour cups all touch a wall and come out open.
@@ -96,8 +100,8 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 - **Handle hollow:** a drafted stadium 1.2 mm smaller, swept along the same path. A drafted stadium's exact offset is a drafted stadium: the end arcs keep their centres and the flats move in 1.2 / cos(2°). The pour-cup hollows are inset 1.2 / cos(flare), so the flared walls are 1.2 mm thick too.
 - **Parting face:** a 1.2 mm skin over a void, on 1.2 mm ribs at 45°, 25 mm apart. The ribs print both upright (body) and flat (handle), and they stop at the half's footprint so the shell can still flex. The void is built as disjoint diamond cells, because cutting a crossing grid of ribs out of one void ran OCC out of memory on this 3 GB machine.
 - **Keys:** each dimple is a 1.2 mm cup. The bosses stay solid; they are tiny.
-- **Cottles:** the cottle walls are 1.2 mm thick. Fins, clips, rails and locks mold no plaster, so they stay thicker.
-- **Plug parts:** the plug ring is a 1.2 mm wall that follows the V-groove, then a 1.2 mm 45° seat and a 1.2 mm wall round the disc edge. The plug floor is a 1.2 mm pit skin on concentric 1.2 mm rings at r 10, 20 and 30, open underneath.
+- **Cottles:** the cottle walls are 1.2 mm thick. Rails and locks mold no plaster, so they stay thicker.
+- **Plug parts:** the plug ring is a 1.2 mm wall that follows the V-groove, then a 1.2 mm 45° seat and a 1.2 mm skirt round the disc edge. The plug floor is a 1.2 mm pit skin on concentric 1.2 mm rings at r 10, 20 and 30, open underneath.
 - **Checks:** probes confirm solid 0.6 mm in and hollow 1.3 mm in on the mug wall, the handle's outer side, crown and inner side, and the parting face. They also confirm that each skin's rim reaches the cottle wall at the socket, the collar and the pour cups.
 
 ## Parts
@@ -110,8 +114,9 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 | `handle_cottle_PRINT.stl` | U-wall of the handle cottle (side wall + two half end walls with T-rails), 40 × 149 × 43 mm | Print two |
 | `handle_lock_PRINT.stl` | C-channel lock over the end-wall rails, 14 × 7 × 43 mm | Print two |
 | `plug_floor_PRINT.stl` | Floor disc with the dish pit and a 45° chamfered rim, ⌀89.9 × 7.2 mm | Print; the plug is cast on it |
-| `plug_ring_PRINT.stl` | Half of the ring around the plug: V-ridge, seat, disc pocket, flange and fins, 109 × 47 × 34 mm | Print two |
-| `plug_clip_PRINT.stl` | Fin clip, 34 mm long | Print two |
+| `plug_ring_PRINT.stl` | Half of the ring around the plug: V-ridge, seat, skirt round the disc and T-rails, 103 × 47 × 32 mm | Print two |
+| `plug_lock_PRINT.stl` | C-channel lock over the ring's rails, 7 × 14 × 32 mm | Print two |
+| `plug_ring_test_PRINT.stl`, `plug_lock_test_PRINT.stl` | The ring's and lock's bottom 10.7 mm (skirt, seat, rails), for checking the fit on the floor disc | Print two of each first |
 | `body_positive.step` | Body + filled dish + grooved socket + reservoir collar | Source for the body master |
 | `handle_positive.step` | Handle (2° draft on its inner and outer faces) + both sprues and pour cups | Source for the handle master |
 | `body.step` | The handleless body | Reference |
@@ -129,7 +134,7 @@ Setup: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt` (pin
    - the body matches the STEP by point sampling
    - the handle matches the STEP by sections at six angles (point sampling gives false insides near Fusion's B-spline crown)
    - it reports the reservoir volume
-3. `make_masters.py`: imports those builders and makes the hollow masters (`--margin 25`, `--side 42`, `--plate 6`), the keys, the body end cap and the handle cottle. Writes `body_master`, `body_cap`, `handle_master`, `handle_cottle`, `handle_lock`, `plug_floor`, `plug_ring` and `plug_clip` (about 12 seconds). Checks:
+3. `make_masters.py`: imports those builders and makes the hollow masters (`--margin 25`, `--side 42`, `--plate 6`), the keys, the body end cap and the handle cottle. Writes `body_master`, `body_cap`, `handle_master`, `handle_cottle`, `handle_lock`, `plug_floor`, `plug_ring`, `plug_lock` and the two plug test parts (about 12 seconds). Checks:
    - each master is one valid solid
    - no key is within 3 mm of the cavity
    - the skin probes pass
@@ -137,7 +142,7 @@ Setup: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt` (pin
    - body pair: each back pin sits in the other print's socket, the backs touch at the rim, and the two prints do not overlap (a deliberate 0.5 mm interference reads 1,249 mm³ and a 0.6 mm sideways shift 18 mm³, so the check is live)
    - it prints the plywood box size, the floor groove, and the plaster per pour
    - handle walls and locks do not overlap, close at the corners and the end-wall joints, and each lock's lips sit behind both rail heads
-   - plug mold: ring halves, plug, floor and clips do not overlap; the ring closes at the wall, seat, disc edge, flange and fins; the flipped plug sits on the floor's pit
+   - plug mold: ring halves, plug, floor and locks do not overlap; the ring closes at the wall, seat, disc edge and rails, and the locks capture both rail heads; the ring stands 0.5 mm off the table; the flipped plug sits on the floor's pit and clears its socket by 0.25 mm
 
 Gotchas hit along the way:
 - build123d's `Spline` needs both end tangents or neither.
@@ -153,12 +158,11 @@ STLs cannot carry slicer settings, so set these per object in the slicer.
 | Body master | 0.12 mm | Standing on its socket end as exported; the layers are rings around the mug. The foot cone overhangs 51° from vertical over about 10 mm; look at it on the first print. 45° chamfers on the groove and collar. No supports |
 | Handle master | adaptive, or 0.12 mm over the handle | Open back on the bed. The handle half rises 11.5 mm (16.5 at the cups), so terraces are short. The hollow's crown is a 4.6 mm radius arch and the plate skin bridges diamond cells about 24 mm across; both sit inside, away from the molding faces |
 | Plug floor | 0.12 mm | Its pit forms the foot dish; the pit skin bridges at most 10 mm between its rings |
-| Plug ring ×2 | 0.2 mm | Flange down, as exported; the seat and V-ridge are 45° |
-| Plug clip ×2 | 0.2 mm | On its end |
+| Plug ring ×2, test ring ×2 | 0.2 mm | Skirt down, as exported; the seat and V-ridge are 45° |
 | Body end caps ×2 | 0.2 mm | Flat on the bed |
-| Handle U-walls ×2, locks ×2, plug clips ×2 | 0.2 mm | On their table edge as exported. The clips pinch the fins with 0.1 mm per side; if too tight, scale the clip 102% in X and Z. The handle locks stand on end and slide over the rails with 0.15 mm per side |
+| Handle U-walls ×2, handle locks ×2, plug locks ×2 | 0.2 mm | On their table edge or end as exported. The locks slide over the rails with 0.15 mm per side |
 
-All parts: at least 3 wall loops at 0.4 mm, so every 1.2 mm skin prints as solid perimeters (the parts are already hollow; infill only fills the thicker fins, clips, rails, locks and ledges). Elephant-foot compensation about 0.15 mm. Import as-is: no rotation, no "place on face".
+All parts: at least 3 wall loops at 0.4 mm, so every 1.2 mm skin prints as solid perimeters (the parts are already hollow; infill only fills the thicker rails, locks and ledges). Elephant-foot compensation about 0.15 mm. Import as-is: no rotation, no "place on face".
 
 ## Lessons from the Glencairn 3-part mold
 
@@ -184,10 +188,10 @@ Studied 2026-10-27: Old Forge Creations' "Smooth Tumbler/Mug Mould" (2 sides + b
 
 ## Pour and assembly (planned, not yet run)
 
-1. Print two body masters and two body end caps; the handle master, two handle U-walls and two locks; the plug floor, two plug rings and two plug clips.
+1. Print two body masters and two body end caps; the handle master, two handle U-walls and two locks; the plug floor, two plug rings and two plug locks (two plug test rings and test locks first).
 2. Body halves, both at once: build the plywood box. `make_masters.py` prints the inside size (173 × 167 mm, fill to 189 mm) and the floor groove (12.3 mm wide, 10 mm deep, centred). Pin the two masters back to back and stand the pair in the groove. Set an end cap against each end so it touches both skins' rims, close the plywood long sides against the caps' edges, and clamp. Clamp the pair's top fences too. Seal the cap and groove joints with clay. Soap everything. Pour both sides together so the levels stay even, brushing the mug surfaces first, and strike flat at the fill line, below the fences. Once set, strip the plywood and caps, pull the pair apart at the backs, and release each master from its plaster.
 3. Handle halves: lay the master on its back plate. Stand the two U-walls around it, pour cups against the plain side wall, and slide a lock down over the rails at each end. Seal, soap and pour as for the body, brushing plaster into the pour cups and around the handle first. Once set, slide the locks up, pull each wall straight off sideways, and lift the plaster off the master.
-4. Plug: set the floor disc pit-up on the table and close the two ring halves around it, so the flanges go under the disc and the seats sit on its chamfer. Push the clips down over the fins. Seal the fin joints with clay, soap, pour to the ring top, and strike flat. Once set, pull the clips and part the ring halves off the plug.
+4. Plug: first close the two test rings on the floor disc and slide the test locks down over the rails. The halves must meet with no light between them, and the ring must clear the table all round. If the joints stay open, sand the disc's chamfer. Then set the floor disc pit-up on the table and close the two ring halves around it, so the seats sit on its chamfer and the skirts hang round its edge, clear of the table. Slide the locks down over the rails and check the halves meet along their whole length. Press the ring down onto the disc and run a clay coil round its bottom edge onto the table. The coil holds it down and seals the gap under it. Seal the rail joints with clay, soap, pour to the ring top, and strike flat. Once set, slide the locks up and part the ring halves off the plug.
 5. Dry everything. Dry-fit the body mold: plug in the socket (the groove must seat), turn one half 180° and close on the keys, strap. Dry-fit the handle mold the same way.
 6. Body: stand the mold on a flat surface and fill to the top of the collar. Top up as the level drops, drain at wall thickness, then cut the cast at the rim step when it releases.
 7. Handle: stand the mold with the pour cups up, pour into one cup until slip shows in the other, and let it fill solid. Demold and cut the sprues to the body's curve.
@@ -196,6 +200,8 @@ Studied 2026-10-27: Old Forge Creations' "Smooth Tumbler/Mug Mould" (2 sides + b
 ## Risks to watch
 
 - The plug seam sits at the highest slip head. If it weeps, add a clay coil. If the groove does not seat, sand the plug's ridge or reprint the ring.
+- The plug ring rests on its seat by its own weight (about 20 g for the pair) and the clay coil. The plaster's upward push on the V-ridge is small (about 0.1 N), but if the cast plug shows a fin at the foot ring, the ring lifted: weight the locks next time.
+- Plug fit: it is 0.25 mm per side under the socket. If it rattles or slip weeps at the foot ring, reduce `PLUG_CLEAR`; if it still will not go in, measure it across and along the joint line to see whether the ring opened again.
 - Body box seams: the caps butt against the skin rims and the plywood, and the plates stand in the floor groove. Plaster can seep at any of them; clay coils outside should hold it. Handle cottle seams: the U-walls butt at the end-wall rails, so seal them the same way.
 - Body pair: pour both sides together. A head difference loads the pair sideways, and only the pins and the groove resist it. Check for bowing the first time.
 - Body master size: 209 mm across the fences. Check it fits the bed before slicing.
@@ -210,6 +216,10 @@ Studied 2026-10-27: Old Forge Creations' "Smooth Tumbler/Mug Mould" (2 sides + b
 - [ ] Print two body masters and two end caps. Check the back pins seat (0.15 mm clearance) and the pair sits flat back to back, then stand it in a test groove before building the full plywood box
 
 ## Log
+
+### 2026-11-05
+
+The first cast plug was too big to fit its socket, and the plug ring had not seated cleanly on the floor disc. The plug now has 0.25 mm per side of clearance in its socket. The ring's flange is gone: the ring hangs on its 45° seat, 0.5 mm off the table, so the locks close the joints fully even if the disc prints a little tall. Added `plug_ring_test`, the bottom of the ring, to check the fit on the disc before printing the full ring. Standardized every printed cottle joint on the handle's T-rails and slide-down locks: the plug ring's fins and clips are gone, `plug_clip` is replaced by `plug_lock` (and `plug_lock_test`), and the handle and plug share one builder. The handle cottle's geometry is unchanged. See Decisions.
 
 ### 2026-11-04
 
