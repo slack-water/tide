@@ -1,7 +1,7 @@
 ---
 title: side yard — drainage, pup potty, the view from the dining doors
 created: 2026-11-01
-updated: 2026-11-07
+updated: 2026-11-08
 folder: 40
 type: project
 status: active
@@ -193,12 +193,55 @@ areas come from the [layout plan](https://claude.ai/artifact/XxgKd7ZKt8d94eFWTjF
 
 ## phase 1 — drainage and grade (the actual problem)
 
-- [ ] clear everything: flagstone (keep it for reuse), square pavers (keep), turf, the cinder-block shelf, loose tubing
+- [ ] clear everything: flagstone, square pavers, turf, the cinder-block shelf, loose tubing. nothing is reused; see [access and haul-off](#access-and-haul-off) for where each goes
 - [ ] lower the grade along the house to expose 4" of stucco above soil
 - [ ] dig the trench, lay fabric, gravel, and pipe (+ sump/pump or flo-well per phase 0)
 - [ ] **while it's open, lay sleeves.** an empty 1" conduit for low-voltage lighting and fountain/pump power, plus a sleeve under the path for drip lines. a few dollars now saves digging it all up again later
 - [ ] **convert the irrigation zone to drip** at the manifold (filter + pressure regulator + ½" mainline). bury the lines in the sleeves. no more spray in this yard
 - [ ] backfill and compact. **test with a hose before any finish surface goes down**
+
+### access and haul-off
+
+**don't book any of this until phase 0 is done:** 811 marks are down, the perc test has picked the outlet, and the grade map has cut numbers. this is the most expensive weekend of phase 1.
+
+**the way in is the 37" iron gate.** both walls stay. widening to 55" by taking out the wall beside the gate only buys a bigger bucket. taking out the front block wall kills the nook's back wall, and it turns a drainage project into a masonry one (see [[FAILURE-MODES]] → scope creep).
+
+**the machine.** a narrow-track walk-behind loader (Dingo TX 1000 narrow-track, a narrow Kanga, or similar) with a bucket and a trencher attachment, **35" or narrower, measured at the tracks**. tell the rental yard the gate is 37". 2–3 rental days.
+
+- the trencher cuts the 30 ft trench. the bucket strips the surface sections and carries spoil out, then rock in
+- stay ~1 ft off the stucco. the house-side cut is by hand: that's where the footing and the 4" clearance are
+- leave the last 1–2" everywhere and shave to grade by hand against the laser
+- hand-dig around 811 marks, irrigation lines, the AC lineset, and the condensate line
+- fallback if the loader won't fit: a powered track dumper (~24–30") and hand digging
+
+**getting through the gate.** lift the iron gate off its hinges for the rental days, and pad both posts with carpet or foam. line up straight before going through.
+
+**protecting the back yard.** rent HDPE ground-protection mats (~4 × 8 ft) with the machine. plywood slides on turf and gets slick when wet.
+
+- **astroturf:** full coverage, overlapped, no gaps. plan the route so the machine never turns on turf, because skid-steering shears fibers and tears seams. brush up and top up the infill afterward
+- **concrete:** mats at every turn, slab edge, and step
+- **drain grates, cleanouts, the curb-drain line:** find them before rental day, and span them with a mat or route around them
+- mat the whole route before starting, not partway in
+
+**haul-off: three streams, kept separate.**
+
+| what | where it goes |
+|---|---|
+| soil, ~12–15 cy loose (~15–20 tons) | dirt-only ("clean fill") roll-off, ~10 cy class. expect a swap, so two loads. ask about the tonnage cap and the swap price. no sod, wood, or trash in it, or the load gets charged as mixed debris |
+| flagstone, square pavers, cinder blocks | free on Marketplace or Craigslist first. leftovers go to a concrete/rock recycler, not the dirt bin. (nothing is reused, per the 11-03 direction change) |
+| turf, roots, loose tubing | city green-waste bin over a few weeks, or ask the bin company |
+
+- **keep ~1 cy of soil** in a pile for fence-side fill (per the grade map) and the planting bed
+- the bin goes in the driveway on plywood, end door facing the route, so the loader can run straight in
+
+**sequence: soil out, then rock in.** the bin and the ~10 cy rock delivery both need the driveway.
+
+1. 811 marked, grade map done, cut/fill on the stakes
+2. mats down, gate off, bin delivered
+3. machine: trench, then bulk strip, spoil straight into the bin. swap the bin as needed
+4. hand: house-side cut, fine grade to the laser
+5. bin picked up, then rock delivered where the bucket can scoop it (keep the machine, or schedule a second rental, for the rock run in)
+6. pull the mats, rehang the gate, brush the turf
 
 ## phase 2 — surfaces (after this, the yard counts as done)
 
@@ -269,7 +312,11 @@ camellia sasanqua / japonica · cast-iron plant (*aspidistra*) · boston or holl
 
 ## log
 
-### 2026-11-07 (latest)
+### 2026-11-08 (latest)
+
+added an [access and haul-off](#access-and-haul-off) plan to phase 1. the gate is 37" and both walls stay: a ≤35" narrow-track loader fits. HDPE mats protect the back-yard turf and concrete. a dirt-only roll-off (likely two loads) takes the soil, the old stone gets listed free, and the soil goes out before the rock comes in. none of it gets booked before phase 0 is done. the phase 1 "clear everything" line no longer says to keep the flagstone and pavers.
+
+### 2026-11-07 (late)
 
 added a [materials estimate](#materials-estimate) using the layout plan areas: ~3.5 cy drain rock, ~5.5 cy base, ¾ cy bedding chip, ~190 sf concrete pavers, 1¼ cy field gravel, ⅓ cy pebble. one ¾" clean crushed product covers the trench and all the bases (~9 cy, one delivery). spoil out is ~12–15 cy, and that's the biggest solo-labor line. the layout plan doc is now updated to match (concrete pavers dry-laid by hand, no slabs, revised build order).
 
