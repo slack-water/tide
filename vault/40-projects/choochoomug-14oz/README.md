@@ -1,7 +1,7 @@
 ---
 title: Choochoo Mug, 14 oz (Plaster Mold Masters)
 created: 2026-10-11
-updated: 2026-11-05
+updated: 2026-11-08
 folder: 40
 type: project
 status: active
@@ -74,7 +74,7 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 
 **Detachable cottles, not one-piece trays (2026-10-27, second pass; body part superseded 2026-11-03, see below).** The first pass printed the walls as part of the master, drafted 2°, with a slide-on cap. Plaster sets bonded to every wall at once and expands slightly, so a one-piece tray, the handle's above all, would be hard to release, and the undrafted floor and cap would drag. Now each master is just the back plate, the half positive and the keys. Around it stand two identical U-halves, joined at mid-length by fins and two slide-on C-clips, as on the Old Forge moulds. Demold: pull the clips, slide each U off along the mold's length (each wall touches the plaster on one face only), then lift the plaster off the master in +Y. No wall needs draft.
 
-**Body: both halves poured at once, from a back-to-back pair (2026-11-03).** The goal changed. I want to queue up many molds and pour them all in one plaster session, so both halves of a mold have to be poured together, not one master cast twice. The halves then come from two different prints, and they match only if (1) the prints agree, which two prints of one STL on one printer do to about 0.1 mm, and (2) neither moves or warps during the pour, which a loose 1.2 mm skin in a box would not guarantee.
+**Body: both halves poured at once, from a back-to-back pair (2026-11-03; under review 2026-11-08, see the next entry).** The goal changed. I want to queue up many molds and pour them all in one plaster session, so both halves of a mold have to be poured together, not one master cast twice. The halves then come from two different prints, and they match only if (1) the prints agree, which two prints of one STL on one printer do to about 0.1 mm, and (2) neither moves or warps during the pour, which a loose 1.2 mm skin in a box would not guarantee.
 
 - **Pair the masters only while pouring.** Two prints of `body_master` stand back to back, the second turned 180° about the mug axis, as the two plaster halves already mate. The plaster on either face pushes against the other print's back, so neither plate bows.
 - **Pins on the plate backs.** Each back has a pin (+X) and a socket (−X), a tapered 8 → 6 mm pin, 3.5 mm long, with 0.15 mm clearance. The 180° turn puts each pin in the other print's socket, so one STL mates with itself. The pins sit where no plaster reaches; through-pins would be buried in plaster on both faces.
@@ -83,6 +83,24 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 - **Printed end caps, plywood sides.** The skins are open at both ends, and the end walls must meet them within the 0.15 mm fit, or plaster gets behind the skin. Plywood is not that flat, so the two end caps are printed (5 mm, flat). Plywood takes the long sides and the floor, which only have to hold liquid.
 - **Keys moved out to 15 mm of plaster.** The keys had about 6.5 mm of plaster between them and the cavity, and the same to the outer face, which is thin enough to chip. A new `--side` (default 42) sets the side margin on its own; the margin behind the positive (`--margin`) stays 25. It costs plaster: 1.79 L per half (was 1.36), 3.58 L per pour.
 - **Demold:** strip the plywood and caps, pull the pair apart at the backs, then release each master from its own plaster exactly as before.
+
+**Flat pours on melamine, placed by a set jig (2026-11-08, planned; a fit coupon decides it).** The back-to-back pair was built on a constraint I had not questioned: pour both halves standing in their assembled position, so they fit. But "pour every mold in one session" only needs both halves poured from the same mix, not in the same box. The fit lives in three tiers:
+
+- **Tier 1, from the print (~0.1 to 0.2 mm):** the cavity, the key positions relative to it, and a flat parting face.
+- **Tier 2 (~1 mm):** the positive's ends meeting the end boards. A gap leaves a fin to trim.
+- **Tier 3 (several mm):** everything else about the cottle.
+
+The cottle never touches tier 1. So the plan is:
+
+- **Melamine is the parting face.** Print only the half positive as a skin, closed at both ends, and tape it to a melamine board. Melamine is flatter than any printed face. The printed plate, back pins, fences, floor groove and end caps all go.
+- **A set jig holds the thin skin true while it is taped down.** One rigid print (8 mm, solid) places everything: a cutout the skin's footprint plus 0.1 mm, holes for glued-on bosses, and guide holes for a 12 mm 90° spot drill that cuts the dimples into the melamine. One jig placement fixes the cavity-to-key relation, the same principle as the plate. The jig then lifts off before the pour. It lends the skin stiffness only while it is set down, so the skin keeps its flex for release.
+- **Cheap adjustable cottle.** Four melamine boards in a pinwheel, cut on the table-saw sled and reusable for every mold. They stand on the melamine. The end boards butt against the skin's closed ends. Seal with hot glue rather than clay. A flat pour is about 80 mm deep instead of 189, so the seams see less than half the head.
+- **Print and pour orientation are separate choices.** The body master can still print upright, for ring layers, and then lie flat to pour.
+- **Keys from a drill have to be sized for it.** A drilled cone dimple has a sharp point. With equal 90° cones the flank gap is (boss − dimple) / 2, and the plaster boss's tip only clears if the dimple's depth is less than the boss's height. So the printed boss is a full point (12 mm base, 6 tall) and the dimple is drilled 11.6 mm wide: 0.2 mm flank gap, 0.2 mm tip clearance.
+- **Tape the rim, do not glue round it.** The skin's ends are closed and the board closes its underside, so the inside cannot be reached once it is down. Glue run round the outside of the rim would mold into the cavity edge. Thin double-sided tape on the rim's bed-side face holds it and seals it. It also peels, so the skin can come off with the plaster and then flex out as before. Bosses: CA.
+- **Check the plaster's heat.** PLA softens around 55 to 60 °C. The first pour gets a thermometer; PETG if it comes close.
+
+Nothing in the body or handle masters changes until the coupon from `fit_coupon.py` has been poured and measured. If the seam steps are within a couple of tenths, the body master is redone this way. The handle already pours flat, so it just swaps its printed walls for the boards. The plug ring stays printed: its V-groove and seat mold plaster.
 
 **Handle draft, 2° (2026-11-04).** The thin skin releases the body well, but it does not flex enough on the handle. The handle's inner and outer faces were 0° (parallel to the pull) for 5.8 mm either side of the parting plane, and a 1.2 mm skin on a 5.8 mm radius is nearly as stiff as solid plastic, so thickness was never going to fix it. Those faces now lean in 2° from the parting plane. The handle keeps its full 11.54 mm width at the parting plane and its 23.08 mm thickness. The flats narrow to 11.11 mm where they meet the end arcs, and the arcs shrink from r 5.77 to r 5.56 so they stay tangent. That is at most about 0.2 mm a side, gone in fettling, and the volume drops from 38.5 to 37.8 cm³. The sprues and pour cups get the same draft, so the swept section stays continuous. The checks still compare the undrafted handle with the Fusion STEP (an exact match), then probe the drafted faces. I chose 2° over 1° for more release margin.
 
@@ -117,6 +135,9 @@ An earlier pass cut the handle off with booleans against the Fusion faces and ho
 | `plug_ring_PRINT.stl` | Half of the ring around the plug: V-ridge, seat, skirt round the disc and T-rails, 103 × 47 × 32 mm | Print two |
 | `plug_lock_PRINT.stl` | C-channel lock over the ring's rails, 7 × 14 × 32 mm | Print two |
 | `plug_ring_test_PRINT.stl`, `plug_lock_test_PRINT.stl` | The ring's and lock's bottom 10.7 mm (skirt, seat, rails), for checking the fit on the floor disc | Print two of each first |
+| `coupon_skin_PRINT.stl` | Fit coupon: teardrop half positive, 1.2 mm skin, closed ends, 90 × 40 × 26 mm (`fit_coupon.py`) | Print two, rim down |
+| `coupon_boss_PRINT.stl` | Fit coupon: 90° point boss, ⌀12 × 6 mm | Print four |
+| `coupon_jig_PRINT.stl` | Fit coupon: set jig with skin cutout, boss holes, spot-drill guides and clamp ears, 170 × 130 × 8 mm | Print one, 40 % infill |
 | `body_positive.step` | Body + filled dish + grooved socket + reservoir collar | Source for the body master |
 | `handle_positive.step` | Handle (2° draft on its inner and outer faces) + both sprues and pour cups | Source for the handle master |
 | `body.step` | The handleless body | Reference |
@@ -144,7 +165,10 @@ Setup: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt` (pin
    - handle walls and locks do not overlap, close at the corners and the end-wall joints, and each lock's lips sit behind both rail heads
    - plug mold: ring halves, plug, floor and locks do not overlap; the ring closes at the wall, seat, disc edge and rails, and the locks capture both rail heads; the ring stands 0.5 mm off the table; the flipped plug sits on the floor's pit and clears its socket by 0.25 mm
 
+4. `fit_coupon.py` (sketch, 2026-11-08): the flat-pour fit coupon (skin, boss, jig). Checks the skin's walls, roof and ends by probes; that one plaster half and its 180° mate close with no overlap, while a 0.3 mm shift collides (so the keys stop it); and that the jig clears the skin and bosses. It prints the key clearances, the plaster per half (0.30 L) and the spot drill's stop-collar setting (13.8 mm above the point).
+
 Gotchas hit along the way:
+
 - build123d's `Spline` needs both end tangents or neither.
 - `Plane.XZ`'s normal is -Y.
 - OCC cannot 2D-offset these B-spline or tiny-arc profiles, hence the exact stadium and sausage offsets.
@@ -213,9 +237,18 @@ Studied 2026-10-27: Old Forge Creations' "Smooth Tumbler/Mug Mould" (2 sides + b
 
 ## Next action
 
-- [ ] Print two body masters and two end caps. Check the back pins seat (0.15 mm clearance) and the pair sits flat back to back, then stand it in a test groove before building the full plywood box
+In order. Each step gates the next, so only one is active at a time.
+
+- [ ] **Print the jig** (`coupon_jig`) and look at it. Does it lie flat on the melamine and feel stiff? Are the skin cutout and the boss holes the right size?
+- [ ] **Print the test body:** two `coupon_skin` and four `coupon_boss`. Dry-fit them in the jig on a board. The skin should drop in and its rim sit flat on the melamine. The jig should lift straight off without dragging the skin. The bosses should seat in their holes.
+- [ ] **Pour the fit coupon.** Cut two melamine boards and four pinwheel cottle boards. Spot-drill the dimples, set both boards with the jig, and pour both from one mix. Close the halves and measure the seam step at both open ends with feeler gauges. Within a couple of tenths, go on. Worse: find out which tier it came from before changing anything.
+- [ ] **If that all checks out, build the generator:** a programmatic method that takes a solid body, bisects it on a parting plane, and makes the skin half, the bosses and the jig. "A general mold generator" is out of scope here, so it starts as its own project note in `40-projects/`, with `fit_coupon.py` as its first test case. The choochoo body master is then remade with it.
 
 ## Log
+
+### 2026-11-08
+
+Questioned the in-position pour. Fit comes from the print and a flat parting face, not from the box, and one plaster session only needs one mix, not one box. Planned flat pours on melamine instead: print only the skin, place it and the keys with a rigid set jig that lifts off before pouring, drill the dimples into the melamine through the jig, and wall it with reusable pinwheel boards sealed with hot glue. The back-to-back pair decision (2026-11-03) is under review until a coupon proves it. Added `fit_coupon.py` (sketch), which makes a teardrop skin, a point boss and the jig, and checks that two halves mate and that a 0.3 mm shift does not. The body and handle masters are unchanged. A laser cutter for cottles was considered and set aside: cottles are rectangles, and a laser's real draw (engraving, stencils) is its own decision. Next actions are now a gated sequence: print the jig, print and dry-fit the test body, pour and measure the coupon, then (if it all checks out) a bisect-and-jig generator as its own project. Nothing printed or cast yet.
 
 ### 2026-11-05
 
