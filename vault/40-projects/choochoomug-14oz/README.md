@@ -1,7 +1,7 @@
 ---
 title: Choochoo Mug, 14 oz (Plaster Mold Masters)
 created: 2026-10-11
-updated: 2026-11-08
+updated: 2026-11-09
 folder: 40
 type: project
 status: active
@@ -29,7 +29,7 @@ One mug cast and assembled: a body with seams only on two vertical lines plus th
 
 ## Vocabulary
 
-Follows [the skull glossary](../../90-archive/skull-mold-draft-shell/UBIQUITOUS_LANGUAGE.md).
+Follows [the making glossary](../../60-making/CONTEXT.md), which replaces the terms below where they differ (master, plug, keys, back plate and others). Older words stay in this note and the scripts until each is next edited. [The skull glossary](../../90-archive/skull-mold-draft-shell/UBIQUITOUS_LANGUAGE.md) still covers the archived draft script's operations.
 
 - **Parting plane:** Y=0. For the body it is any plane through the axis; for the handle it is the handle's mid-plane.
 - **Master:** a printed back plate with half a positive and the keys on it. The body master is printed twice and the pair is poured at once. The handle master is cast twice.
@@ -245,6 +245,10 @@ In order. Each step gates the next, so only one is active at a time.
 - [ ] **If that all checks out, build the generator:** a programmatic method that takes a solid body, bisects it on a parting plane, and makes the skin half, the bosses and the jig. "A general mold generator" is out of scope here, so it starts as its own project note in `40-projects/`, with `fit_coupon.py` as its first test case. The choochoo body master is then remade with it.
 
 ## Log
+
+### 2026-11-09
+
+Standardized the mold and printing vocabulary in [the making glossary](../../60-making/CONTEXT.md). This note now points to it. Nothing else here was rewritten: the old words (master, plug, keys, back plate) change only when a section or script is next edited.
 
 ### 2026-11-08
 

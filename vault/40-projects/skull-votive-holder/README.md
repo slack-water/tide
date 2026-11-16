@@ -1,7 +1,7 @@
 ---
 title: Skull Votive Holder (Slip-Cast, Jawless)
 created: 2026-10-15
-updated: 2026-10-15
+updated: 2026-11-09
 folder: 40
 type: project
 status: active
@@ -29,7 +29,7 @@ A fired skull, tipped back on its teeth, with a 40 mm votive dropped in through 
 
 ## Vocabulary
 
-Follows [the skull glossary](../../90-archive/skull-mold-draft-shell/UBIQUITOUS_LANGUAGE.md) (parting plane, pull axis, natch, flange, master). New here:
+Follows [the making glossary](../../60-making/CONTEXT.md), which replaces older terms where they differ (master, flange and others). Older words stay in this note and the scripts until each is next edited. [The skull glossary](../../90-archive/skull-mold-draft-shell/UBIQUITOUS_LANGUAGE.md) still covers the draft script's operations and the pull axis. New here:
 
 - **Base plane:** the flat the finished skull stands on, z = 0 in every file. It cuts the incisor and canine crowns and the underside of the occiput.
 - **Crown cut:** the flat cut across the top of the cranium. The cast closes over it with a flat lid; cut the lid out at leather hard and the opening is the rim.
@@ -111,6 +111,10 @@ Cottle walls stand on the flange edges, at least 70 mm tall (the half is 43 mm; 
 - [ ] Look at `overview.png` and say whether the pose reads as tipped back the way you wanted. If yes, print master A at 0.12 mm and check the natch holes and the flange flatness before printing B.
 
 ## Log
+
+### 2026-11-09
+
+Standardized the mold and printing vocabulary in [the making glossary](../../60-making/CONTEXT.md). This note now points to it. Nothing else here was rewritten: the old words change only when a section or script is next edited.
 
 ### 2026-10-15
 
